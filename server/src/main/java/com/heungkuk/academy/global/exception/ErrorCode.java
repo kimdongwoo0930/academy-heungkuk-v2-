@@ -1,0 +1,36 @@
+package com.heungkuk.academy.global.exception;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+
+@Getter
+@RequiredArgsConstructor
+public enum ErrorCode {
+
+    // Account
+    ACCOUNT_NOT_FOUND("존재하지 않는 계정입니다.", HttpStatus.NOT_FOUND),
+    DUPLICATE_USER_ID("이미 사용 중인 아이디입니다.", HttpStatus.CONFLICT),
+    INVALID_PASSWORD("비밀번호가 올바르지 않습니다.", HttpStatus.UNAUTHORIZED),
+    ACCOUNT_PENDING("승인 대기 중인 계정입니다.", HttpStatus.FORBIDDEN),
+    ACCOUNT_INACTIVE("비활성화된 계정입니다.", HttpStatus.FORBIDDEN),
+
+    // Reservation
+    RESERVATION_NOT_FOUND("존재하지 않는 예약입니다.", HttpStatus.NOT_FOUND),
+
+    // Room
+    ROOM_NOT_FOUND("존재하지 않는 객실입니다.", HttpStatus.NOT_FOUND),
+    ROOM_NOT_AVAILABLE("해당 날짜에 사용 불가능한 객실입니다.", HttpStatus.CONFLICT),
+    ROOM_INSUFFICIENT("요청한 객실 수가 부족합니다.", HttpStatus.CONFLICT),
+
+    // Lecture Room
+    LECTURE_ROOM_NOT_FOUND("존재하지 않는 강의실입니다.", HttpStatus.NOT_FOUND),
+    LECTURE_ROOM_NOT_AVAILABLE("해당 날짜/시간에 사용 불가능한 강의실입니다.", HttpStatus.CONFLICT),
+
+    //Token
+    INVALID_REFRESH_TOKEN("유효하지 않은 리프레시 토큰입니다.", HttpStatus.UNAUTHORIZED);
+
+
+    private final String message;
+    private final HttpStatus status;
+}
