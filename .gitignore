@@ -2,3 +2,8 @@ CLAUDE.md
 
 # Security
 server/src/main/resources/application-security.properties
+
+# Gradle
+server/.gradle/
+server/build/
+server/bin/
