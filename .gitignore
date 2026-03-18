@@ -3,6 +3,12 @@ CLAUDE.md
 # Security
 server/src/main/resources/application-security.properties
 
+# Docker env
+.env
+
+# SSL 인증서 (Cloudflare Origin Certificate)
+nginx/ssl/
+
 # Gradle
 server/.gradle/
 server/build/
