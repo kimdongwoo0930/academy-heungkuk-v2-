@@ -1,9 +1,16 @@
 package com.heungkuk.academy.domain.account.entity;
 
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
 import com.heungkuk.academy.domain.account.dto.request.SignupRequest;
 import com.heungkuk.academy.global.entity.BaseTimeEntity;
-import jakarta.persistence.*;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -60,6 +67,10 @@ public class Account extends BaseTimeEntity {
 
     public void updateRefreshToken(String token){
         this.refreshToken = token;
+    }
 
+    public void updateRole(String role){
+        this.role = role;
+        this.state = true;
     }
 }

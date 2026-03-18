@@ -1,42 +1,111 @@
 package com.heungkuk.academy.domain.reservation.entity;
 
-import com.heungkuk.academy.global.entity.BaseTimeEntity;
-import jakarta.persistence.*;
-import lombok.Getter;
+import java.time.LocalDate;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+import com.heungkuk.academy.domain.reservation.dto.request.ReservationRequest;
+import com.heungkuk.academy.global.entity.BaseTimeEntity;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Entity
 @Table(name = "reservation")
 public class Reservation extends BaseTimeEntity {
 
-    // PK: id (BIGINT, AUTO_INCREMENT)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    // reservation_code: VARCHAR(20), UNIQUE, NOT NULL — 예약 고유번호 ex) HK-20260313-001
+    @Column(name = "reservation_code", length = 20, unique = true, nullable = false)
+    private String reservationCode;
 
-    // organization: VARCHAR(100), NOT NULL — 단체명
+    @Column(length = 100, nullable = false)
+    private String organization;
 
-    // purpose: VARCHAR(255), NOT NULL — 연수 목적
+    @Column(length = 255, nullable = false)
+    private String purpose;
 
-    // people: INT, NOT NULL — 총 인원
+    @Column()
+    private Integer people;
 
-    // customer: VARCHAR(50), NOT NULL — 담당자 이름
+    @Column(length = 50, nullable = false)
+    private String customer;
 
-    // customer_phone: VARCHAR(20), NOT NULL — 담당자 연락처
+    @Column(name = "customer_phone", length = 20, nullable = false)
+    private String customerPhone;
 
-    // customer_phone2: VARCHAR(20), NULL — 담당자 연락처2
+    @Column(name = "customer_phone2", length = 20)
+    private String customerPhone2;
 
-    // customer_email: VARCHAR(100), NULL — 담당자 이메일
+    @Column(name = "customer_email", length = 100, nullable = false)
+    private String customerEmail;
 
-    // start_date: DATE, NOT NULL — 시작일 → LocalDate 사용
+    @Column(name = "start_date", nullable = false)
+    private LocalDate startDate;
 
-    // end_date: DATE, NOT NULL — 종료일 → LocalDate 사용
+    @Column(name = "end_date", nullable = false)
+    private LocalDate endDate;
 
-    // color_code: VARCHAR(10), NOT NULL — 캘린더 색상 ex) #FF5733
+    @Column(name = "color_code", length = 10, nullable = false)
+    private String colorCode;
 
-    // status: VARCHAR(20), NOT NULL — "확정" / "대기" / "취소"
+    // 확정 / 대기 / 취소
+    @Column(length = 20, nullable = false)
+    private String status;
 
-    // memo: TEXT, NULL — 특이사항
+    @Column(columnDefinition = "TEXT")
+    private String memo;
 
-    // created_at, updated_at → BaseTimeEntity 가 자동 처리
+
+    public static Reservation from(ReservationRequest request, String reservationCode) {
+        return Reservation.builder()
+                .reservationCode(reservationCode)
+                .organization(request.getOrganization())
+                .purpose(request.getPurpose())
+                .people(request.getPeople())
+                .customer(request.getCustomer())
+                .customerPhone(request.getCustomerPhone())
+                .customerPhone2(request.getCustomerPhone2())
+                .customerEmail(request.getCustomerEmail())
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .colorCode(request.getColorCode())
+                .status(request.getStatus())
+                .memo(request.getMemo())
+                .build();
+    }
+
+    // Reservation
+    public void update(ReservationRequest request){
+        this.organization = request.getOrganization();
+        this.purpose = request.getPurpose();
+        this.people = request.getPeople();
+        this.customer = request.getCustomer();
+        this.customerPhone = request.getCustomerPhone();
+        this.customerPhone2 = request.getCustomerPhone2();
+        this.customerEmail = request.getCustomerEmail();
+        this.startDate = request.getStartDate();
+        this.endDate = request.getEndDate();
+        this.colorCode = request.getColorCode();
+        this.status = request.getStatus();
+        this.memo = request.getMemo();
+    }
+
+    public void updateStatus(String status) {
+        this.status = status;
+    }
 }

@@ -1,10 +1,14 @@
 package com.heungkuk.academy.domain.account.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.heungkuk.academy.domain.account.dto.request.SignupRequest;
+import com.heungkuk.academy.domain.account.dto.response.AccountResponse;
 import com.heungkuk.academy.domain.account.dto.response.SignupResponse;
 import com.heungkuk.academy.domain.account.entity.Account;
 import com.heungkuk.academy.domain.account.repository.AccountRepository;
@@ -16,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AccountService {
 
@@ -24,6 +28,7 @@ public class AccountService {
     private final PasswordEncoder passwordEncoder;
 
     // 회원가입
+    @Transactional
     public SignupResponse signUp(SignupRequest request){
         // 1. userId 중복 확인 → 중복이면 ErrorCode.DUPLICATE_USER_ID 예외
         if(accountRepository.existsByUserId(request.getUserId())){
@@ -39,6 +44,32 @@ public class AccountService {
 
         return SignupResponse.of(account);
     }
+
+    /**
+     * 회원 정보 조회
+     * @return List<AccountResponse>
+     */
+    public List<AccountResponse> getAccounts(){
+        List<Account> accounts = accountRepository.findAll();
+        List<AccountResponse> response = new ArrayList<>();
+        for (Account a : accounts) {
+            response.add(AccountResponse.of(a));
+        }
+        return response;
+    }
+
+    public void deleteAccount(Long id){
+        Account account = accountRepository.findById(id).orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
+        accountRepository.delete(account);
+    }
+
+    @Transactional
+    public void updateRole(Long id, String role){
+        Account account = accountRepository.findById(id).orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
+        account.updateRole(role);
+    }
+
+
 
 
 }

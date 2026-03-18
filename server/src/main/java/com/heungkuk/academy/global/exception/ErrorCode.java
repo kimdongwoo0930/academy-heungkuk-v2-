@@ -13,7 +13,6 @@ public enum ErrorCode {
     DUPLICATE_USER_ID("이미 사용 중인 아이디입니다.", HttpStatus.CONFLICT),
     INVALID_PASSWORD("비밀번호가 올바르지 않습니다.", HttpStatus.UNAUTHORIZED),
     ACCOUNT_PENDING("승인 대기 중인 계정입니다.", HttpStatus.FORBIDDEN),
-    ACCOUNT_INACTIVE("비활성화된 계정입니다.", HttpStatus.FORBIDDEN),
 
     // Reservation
     RESERVATION_NOT_FOUND("존재하지 않는 예약입니다.", HttpStatus.NOT_FOUND),

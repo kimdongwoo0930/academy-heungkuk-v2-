@@ -1,26 +1,63 @@
 package com.heungkuk.academy.domain.reservation.entity;
 
-import com.heungkuk.academy.global.entity.BaseTimeEntity;
-import jakarta.persistence.*;
-import lombok.Getter;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+import com.heungkuk.academy.domain.reservation.dto.request.ClassroomRequest;
+import com.heungkuk.academy.global.entity.BaseTimeEntity;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Entity
 @Table(name = "classroom_reservation")
 public class ClassroomReservation extends BaseTimeEntity {
 
-    // PK: id (BIGINT, AUTO_INCREMENT)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    // reservation: FK → Reservation — @ManyToOne, FetchType.LAZY
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reservation_id", nullable = false)
+    private Reservation reservation;
 
-    // classroom: VARCHAR(10), NOT NULL — 강의실 호실 ex) "105", "201", "A"
+    @Column(length = 10, nullable = false)
+    private String classroom;
 
-    // reserved_date: DATE, NOT NULL — 예약 날짜 → LocalDate 사용
+    @Column(name = "reserved_date", nullable = false)
+    private LocalDate reservedDate;
 
-    // start_time: TIME, NOT NULL — 시작 시간 → LocalTime 사용
+    @Column(name = "start_time", nullable = false)
+    private LocalTime startTime;
 
-    // end_time: TIME, NOT NULL — 종료 시간 → LocalTime 사용
+    @Column(name = "end_time", nullable = false)
+    private LocalTime endTime;
 
-    // created_at, updated_at → BaseTimeEntity 가 자동 처리
+    public static ClassroomReservation of(Reservation reservation, ClassroomRequest request) {
+    return ClassroomReservation.builder()
+            .reservation(reservation)
+            .classroom(request.getClassroomName())
+            .reservedDate(request.getReservedDate())
+            .startTime(request.getStartTime())
+            .endTime(request.getEndTime())
+            .build();
+}
+
 }

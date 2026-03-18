@@ -1,26 +1,60 @@
 package com.heungkuk.academy.domain.reservation.entity;
 
-import com.heungkuk.academy.global.entity.BaseTimeEntity;
-import jakarta.persistence.*;
-import lombok.Getter;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+import com.heungkuk.academy.global.entity.BaseTimeEntity;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Entity
 @Table(name = "room_reservation")
 public class RoomReservation extends BaseTimeEntity {
 
-    // PK: id (BIGINT, AUTO_INCREMENT)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    // reservation: FK → Reservation — @ManyToOne, FetchType.LAZY
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reservation_id", nullable = false)
+    private Reservation reservation;
 
-    // room_number: VARCHAR(10), NOT NULL — 객실 호수 ex) "101", "209"
+    @Column(name = "room_number", length = 10, nullable = false)
+    private String roomNumber;
 
-    // reserved_date: DATE, NOT NULL — 숙박 날짜 → LocalDate 사용
+    @Column(name = "reserved_date", nullable = false)
+    private LocalDate reservedDate;
 
-    // check_in_time: TIME, NULL — 체크인 시간 (첫날만) → LocalTime 사용
+    @Column(name = "check_in_time")
+    private LocalTime checkInTime;
 
-    // check_out_time: TIME, NULL — 체크아웃 시간 (마지막날만) → LocalTime 사용
+    @Column(name = "check_out_time")
+    private LocalTime checkOutTime;
 
-    // created_at, updated_at → BaseTimeEntity 가 자동 처리
+    public static RoomReservation of(Reservation reservation, String roomNumber, LocalDate date) {
+    return RoomReservation.builder()
+            .reservation(reservation)
+            .roomNumber(roomNumber)
+            .reservedDate(date)
+            .build();
+}
+
 }

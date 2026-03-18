@@ -41,7 +41,7 @@ public class AuthService {
         }
         // 3. state 확인 → false면 미승인 예외
         if(!account.getState()){
-            throw new BusinessException(ErrorCode.ACCOUNT_INACTIVE);
+            throw new BusinessException(ErrorCode.ACCOUNT_PENDING);
         }
         // 4. accessToken, refreshToken 생성
         String accessToken = jwtProvider.generateAccessToken(account.getUserId(), account.getRole());
