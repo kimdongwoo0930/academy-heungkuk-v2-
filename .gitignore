@@ -1,4 +1,6 @@
 CLAUDE.md
+.claude/
+.vscode/
 
 # Security
 server/src/main/resources/application-security.properties
@@ -15,3 +17,4 @@ server/build/
 server/bin/
 
 client/
+db/
