@@ -1,9 +1,7 @@
 services:
   db:
     image: mysql:8.0
-    container_name: hka-db
-    ports:
-      - "3306:3306"
+    container_name: db
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
@@ -25,9 +23,7 @@ services:
     build:
       context: ./server
       dockerfile: Dockerfile
-    container_name: hka-backend
-    ports:
-      - "8888:8888"
+    container_name: spring
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${DB_NAME}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
@@ -39,6 +35,21 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - hka-network
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: hka-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - backend
     networks:
       - hka-network
     restart: unless-stopped
