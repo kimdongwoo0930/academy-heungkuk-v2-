@@ -13,3 +13,5 @@ nginx/ssl/
 server/.gradle/
 server/build/
 server/bin/
+
+client/

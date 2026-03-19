@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/tmp/gradle-8.12/bin/gradle wrapper:*)",
+      "Bash(curl -s http://localhost:8888/dashboard)",
+      "Bash(docker exec:*)",
+      "Bash(git mv:*)",
+      "Bash(\"/workspace/academy-heungkuk-v2-/server/src/main/java/com/heungkuk/academy/domain/reservation/controller/ReservationController.java\")"
+    ]
+  }
+}
