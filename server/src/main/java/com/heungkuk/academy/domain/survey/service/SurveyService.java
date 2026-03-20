@@ -81,5 +81,10 @@ public class SurveyService {
         return SurveyTokenResponse.from(surveyToken);
     }
 
+    public List<SurveyTokenResponse> getAllTokens() {
+        return surveyTokenRepository.findAll().stream()
+                .map(SurveyTokenResponse::from)
+                .toList();
+    }
 
 }

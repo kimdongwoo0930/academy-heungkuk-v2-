@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Reservation } from '@/types/reservation';
 import { SurveyResult, SurveyAnswers } from '@/types/survey';
 import { getReservations } from '@/lib/api/reservation';
-import { createSurveyToken, getSurveyToken, getSurveys } from '@/lib/api/survey';
+import { createSurveyToken, getSurveyToken, getSurveys, getAllSurveyTokens } from '@/lib/api/survey';
 import styles from './page.module.css';
 
 const LABEL_MAP: Record<keyof Omit<SurveyAnswers, 'comment'>, string> = {
@@ -94,8 +94,25 @@ export default function SurveyManagePage() {
   const [rowState, setRowState] = useState<Record<string, RowState>>({});
 
   useEffect(() => {
-    getReservations()
-      .then(setReservations)
+    Promise.all([getReservations(), getAllSurveyTokens()])
+      .then(([list, tokens]) => {
+        setReservations(list);
+        const tokenMap = new Map(tokens.map((t) => [t.reservationId, t.token]));
+        setRowState((prev) => {
+          const next = { ...prev };
+          list.forEach((r) => {
+            const token = tokenMap.get(r.reservationCode);
+            if (token) {
+              next[r.reservationCode] = {
+                ...(prev[r.reservationCode] ?? { expanded: false, results: null, loading: false, urlLoading: false, copied: false }),
+                urlCreated: true,
+                urlToken: token,
+              };
+            }
+          });
+          return next;
+        });
+      })
       .catch(() => alert('예약 목록을 불러오는데 실패했습니다.'))
       .finally(() => setLoading(false));
   }, []);

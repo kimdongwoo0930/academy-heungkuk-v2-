@@ -7,6 +7,11 @@ export async function createSurveyToken(reservationId: string): Promise<SurveyTo
   return res.data.data;
 }
 
+export async function getAllSurveyTokens(): Promise<SurveyTokenResponse[]> {
+  const res = await instance.get('/v1/admin/surveys/tokens');
+  return res.data.data;
+}
+
 export async function getSurveyToken(reservationId: string): Promise<SurveyTokenResponse | null> {
   try {
     const res = await instance.get(`/v1/admin/surveys/token/${reservationId}`);

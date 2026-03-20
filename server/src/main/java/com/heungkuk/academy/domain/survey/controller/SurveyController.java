@@ -56,4 +56,10 @@ public class SurveyController {
             @PathVariable String reservationId) {
         return ResponseEntity.ok(CommonResponse.success(surveyService.getToken(reservationId)));
     }
+
+    @Operation(summary = "전체 설문 토큰 목록 조회")
+    @GetMapping("/v1/admin/surveys/tokens")
+    public ResponseEntity<CommonResponse<List<SurveyTokenResponse>>> getAllTokens() {
+        return ResponseEntity.ok(CommonResponse.success(surveyService.getAllTokens()));
+    }
 }
