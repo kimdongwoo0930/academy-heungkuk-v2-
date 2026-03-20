@@ -21,6 +21,6 @@ jobs:
             cd ~/academy-heungkuk-v2-
             git fetch origin main
             git reset --hard origin/main
-            docker compose up --build -d backend
+            docker compose up --build -d backend client
             docker image prune -f
 
