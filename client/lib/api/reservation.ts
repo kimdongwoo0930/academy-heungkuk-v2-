@@ -14,7 +14,7 @@ interface ReservationRequestBody {
   colorCode: string;
   status: string;
   memo?: string;
-  classrooms: { classroomName: string; reservedDate: string; startTime?: string; endTime?: string }[];
+  classrooms: { classroomName: string; reservedDate: string }[];
   rooms: { roomNumber: string; reservedDate: string }[];
   meals: { reservedDate: string; breakfast: number; lunch: number; dinner: number }[];
 }
@@ -36,8 +36,6 @@ export function toRequestBody(data: Omit<Reservation, 'id' | 'reservationCode'>)
     classrooms: (data.classrooms ?? []).map((c) => ({
       classroomName: c.classroomName,
       reservedDate: c.reservedDate,
-      startTime: c.startTime,
-      endTime: c.endTime,
     })),
     rooms: (data.rooms ?? []).map((r) => ({
       roomNumber: r.roomNumber,
