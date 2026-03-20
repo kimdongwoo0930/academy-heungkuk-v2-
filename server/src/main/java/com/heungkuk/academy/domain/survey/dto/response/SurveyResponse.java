@@ -1,10 +1,9 @@
 package com.heungkuk.academy.domain.survey.dto.response;
 
+import java.time.LocalDateTime;
 import com.heungkuk.academy.domain.survey.entity.Survey;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -15,10 +14,7 @@ public class SurveyResponse {
     private LocalDateTime createdAt;
 
     public static SurveyResponse from(Survey survey) {
-        return SurveyResponse.builder()
-                .id(survey.getId())
-                .answer(survey.getAnswer())
-                .createdAt(survey.getCreatedAt())
-                .build();
+        return SurveyResponse.builder().id(survey.getId()).answer(survey.getAnswer())
+                .createdAt(survey.getCreatedAt()).build();
     }
 }
