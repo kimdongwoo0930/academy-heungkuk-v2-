@@ -1,0 +1,260 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navBtn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.navBtn:hover {
+  background: #f0f0f0;
+}
+
+.monthLabel {
+  font-size: 16px;
+  font-weight: 700;
+  min-width: 100px;
+  text-align: center;
+}
+
+/* ── 2주 묶음 블록 ── */
+.halfBlock {
+  margin-bottom: 24px;
+}
+
+/* ── 표 래퍼 ── */
+.tableWrap {
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.sectionTitle {
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-sub);
+  background: #f5f7fa;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── 공통 테이블 ── */
+.table {
+  border-collapse: collapse;
+  font-size: 12px;
+  white-space: nowrap;
+  table-layout: fixed;
+}
+
+/* 헤더 */
+.table th {
+  background: #dce4f0;
+  padding: 5px 2px;
+  text-align: center;
+  font-weight: 700;
+  border: 1px solid #b0bdd0;
+}
+
+.table th.todayTh {
+  background: #ffd6d6;
+  color: #c0392b;
+}
+
+.weekendTh {
+  background: #ffe8e8 !important;
+  color: #c0392b !important;
+}
+
+/* 조/중/석 서브컬럼 헤더 */
+.mealSubTh {
+  font-size: 9px !important;
+  font-weight: 600 !important;
+  padding: 3px 1px !important;
+  color: #555;
+}
+
+.dayLabel {
+  font-size: 9px;
+  font-weight: 400;
+  margin-top: 1px;
+  color: inherit;
+}
+
+.weekendCol {
+  background: #fff5f5 !important;
+}
+
+/* 구분 헤더 셀 */
+.thType {
+  min-width: 38px !important;
+}
+.thRoom {
+  min-width: 28px !important;
+}
+.thCap {
+  min-width: 20px !important;
+}
+.thOrg {
+  min-width: 80px !important;
+  text-align: left !important;
+  padding-left: 8px !important;
+}
+.thTotal {
+  min-width: 40px !important;
+  font-size: 11px !important;
+}
+
+/* 일반 셀 */
+.table td {
+  border: 1px solid #d0d0d0;
+  padding: 1px 2px;
+  height: 26px;
+  vertical-align: middle;
+  text-align: center;
+}
+
+/* 구분 셀 */
+.tdType {
+  font-weight: 700;
+  font-size: 11px;
+  text-align: center;
+}
+
+.tdRoom {
+  font-size: 11px;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+}
+
+.tdCap {
+  font-size: 10px;
+  color: var(--text-sub);
+  text-align: center;
+}
+
+/* 강의실 셀 */
+.classCell {
+  text-align: center;
+}
+
+/* 색상별 그룹 배경 */
+.bgYellow { background: #fffde6; }
+.bgGreen  { background: #e8f5e9; }
+.bgBlue   { background: #e3f0fb; }
+.bgPink   { background: #fce4ec; }
+.bgGray   { background: #eeeeee; }
+.bgOrange { background: #fff3e0; }
+.bgWhite  { background: #ffffff; }
+
+/* 예약 바 */
+.bar {
+  display: block;
+  border-radius: 3px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0 auto;
+}
+
+/* 오늘 열 */
+.todayCol {
+  background: #fff8f5 !important;
+}
+
+/* 이전달/다음달 날짜 */
+.otherMonthTh {
+  background: #f0f0f0 !important;
+  color: #bbb !important;
+}
+.otherMonthCol {
+  background: #f5f5f5 !important;
+}
+
+/* 숙박 count */
+.roomCount {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* 단체명 셀 */
+.tdOrg {
+  font-size: 11px;
+  font-weight: 700;
+  text-align: left;
+  padding-left: 6px;
+  background: #f8f9fc;
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mealCell {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.confirmed { color: #dc2626; }
+.pending   { color: #16a34a; }
+
+/* 합계 / 식수계 */
+.totalRow td {
+  background: #dce4f0;
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--text);
+  text-align: center;
+}
+
+.totalLabel {
+  text-align: center !important;
+  font-weight: 700 !important;
+}
+
+.weekTotalCell {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  text-align: center;
+  background: #f0f4ff;
+}
+
+/* 데이터 없음 */
+.emptyCell {
+  text-align: center;
+  color: var(--text-sub);
+  font-size: 13px;
+  padding: 16px !important;
+}

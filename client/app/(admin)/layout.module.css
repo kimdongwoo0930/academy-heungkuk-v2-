@@ -1,0 +1,9 @@
+.main {
+  margin-left: var(--sidebar-width);
+  padding-top: var(--header-height);
+  min-height: 100vh;
+}
+
+.content {
+  padding: 24px;
+}

@@ -16,5 +16,4 @@ server/.gradle/
 server/build/
 server/bin/
 
-client/
 db/

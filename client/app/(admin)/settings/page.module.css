@@ -1,0 +1,124 @@
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-sub);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  vertical-align: middle;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.userId {
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.date {
+  color: var(--text-sub);
+  font-size: 13px;
+}
+
+.empty {
+  text-align: center;
+  color: var(--text-sub);
+  padding: 40px !important;
+}
+
+/* 권한 버튼 */
+.roleBtn {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s;
+}
+
+.roleBtn:hover {
+  opacity: 0.8;
+}
+
+.admin {
+  background: #ebf4ff;
+  color: #2b6cb0;
+}
+
+.user {
+  background: var(--bg);
+  color: var(--text-sub);
+  border: 1px solid var(--border) !important;
+}
+
+/* 승인 버튼 */
+.stateBtn {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s;
+}
+
+.stateBtn:hover {
+  opacity: 0.8;
+}
+
+.approved {
+  background: #f0fff4;
+  color: #276749;
+}
+
+.pending {
+  background: #fffbeb;
+  color: #975a16;
+}
+
+/* 삭제 버튼 */
+.deleteBtn {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: #e53e3e;
+  border: 1px solid #fc8181;
+  transition: all 0.15s;
+}
+
+.deleteBtn:hover {
+  background: #fff5f5;
+}
