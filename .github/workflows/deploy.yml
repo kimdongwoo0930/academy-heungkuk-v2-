@@ -19,7 +19,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ~/academy-heungkuk-v2-
-            git pull origin main
+            git fetch origin main
+            git reset --hard origin/main
             docker compose up --build -d backend
             docker image prune -f
 
