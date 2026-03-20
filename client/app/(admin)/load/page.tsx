@@ -7,13 +7,17 @@ import { getReservations } from '@/lib/api/reservation';
 import { createSurveyToken, getSurveyToken, getSurveys, getAllSurveyTokens } from '@/lib/api/survey';
 import styles from './page.module.css';
 
-const LABEL_MAP: Record<keyof Omit<SurveyAnswers, 'comment'>, string> = {
-  facility: '시설',
-  meal: '식사',
-  service: '서비스',
-  classroom: '강의실',
-  overall: '전체',
-};
+const SATISFACTION_LABELS = ['', '매우 만족', '만족', '보통', '불만족', '매우 불만족'];
+
+type SatisfactionKey = 'staffService' | 'cleanliness' | 'facilities' | 'cafeteria' | 'pricing';
+
+const SATISFACTION_ITEMS: { key: SatisfactionKey; label: string }[] = [
+  { key: 'staffService', label: '직원 서비스' },
+  { key: 'cleanliness', label: '청결 상태' },
+  { key: 'facilities', label: '시설' },
+  { key: 'cafeteria', label: '식당' },
+  { key: 'pricing', label: '이용 비용' },
+];
 
 function parseAnswers(raw: string): SurveyAnswers | null {
   try {
@@ -21,17 +25,6 @@ function parseAnswers(raw: string): SurveyAnswers | null {
   } catch {
     return null;
   }
-}
-
-function Stars({ value }: { value: number }) {
-  return (
-    <span className={styles.stars}>
-      {[1, 2, 3, 4, 5].map((n) => (
-        <span key={n} className={n <= value ? styles.starOn : styles.starOff}>★</span>
-      ))}
-      <span className={styles.scoreNum}>{value}점</span>
-    </span>
-  );
 }
 
 function SurveyResultView({ results }: { results: SurveyResult[] }) {
@@ -42,7 +35,7 @@ function SurveyResultView({ results }: { results: SurveyResult[] }) {
   return (
     <div className={styles.resultList}>
       {results.map((r, idx) => {
-        const answers = parseAnswers(r.answer);
+        const a = parseAnswers(r.answer);
         return (
           <div key={r.id} className={styles.resultCard}>
             <div className={styles.resultMeta}>
@@ -51,19 +44,35 @@ function SurveyResultView({ results }: { results: SurveyResult[] }) {
                 {new Date(r.createdAt).toLocaleString('ko-KR')}
               </span>
             </div>
-            {answers ? (
+            {a ? (
               <>
-                <div className={styles.ratingGrid}>
-                  {(Object.keys(LABEL_MAP) as (keyof typeof LABEL_MAP)[]).map((key) => (
-                    <div key={key} className={styles.ratingItem}>
-                      <span className={styles.ratingLabel}>{LABEL_MAP[key]}</span>
-                      <Stars value={answers[key]} />
-                    </div>
-                  ))}
+                <div className={styles.infoGrid}>
+                  {a.location && <div className={styles.infoItem}><span className={styles.infoLabel}>위치</span>{a.location === '기타' ? a.locationEtc : a.location}</div>}
+                  {a.industry && <div className={styles.infoItem}><span className={styles.infoLabel}>업태</span>{a.industry === '기타' ? a.industryEtc : a.industry}</div>}
+                  {a.purpose && <div className={styles.infoItem}><span className={styles.infoLabel}>목적</span>{a.purpose === '기타' ? a.purposeEtc : a.purpose}</div>}
+                  {a.visitRoute && <div className={styles.infoItem}><span className={styles.infoLabel}>계기</span>{a.visitRoute === '기타' ? a.visitRouteEtc : a.visitRoute}</div>}
                 </div>
-                {answers.comment && (
+                <div className={styles.ratingGrid}>
+                  {SATISFACTION_ITEMS.map(({ key, label }) => {
+                    const score = a[key] as number;
+                    return score > 0 ? (
+                      <div key={key} className={styles.ratingItem}>
+                        <span className={styles.ratingLabel}>{label}</span>
+                        <span className={`${styles.satisfactionTag} ${score >= 4 ? styles.satisfactionTagBad : ''}`}>
+                          {SATISFACTION_LABELS[score]}
+                        </span>
+                      </div>
+                    ) : null;
+                  })}
+                </div>
+                {a.revisit && (
                   <p className={styles.comment}>
-                    <span className={styles.commentLabel}>의견</span> {answers.comment}
+                    <span className={styles.commentLabel}>재방문</span> {a.revisit}
+                  </p>
+                )}
+                {a.comment && (
+                  <p className={styles.comment}>
+                    <span className={styles.commentLabel}>의견</span> {a.comment}
                   </p>
                 )}
               </>
@@ -179,10 +188,26 @@ export default function SurveyManagePage() {
 
   const handleCopy = (code: string, token: string) => {
     const url = `${window.location.origin}/survey/${token}`;
-    navigator.clipboard.writeText(url).then(() => {
+    const markCopied = () => {
       updateRow(code, { copied: true });
       setTimeout(() => updateRow(code, { copied: false }), 2000);
-    });
+    };
+    const fallback = () => {
+      const el = document.createElement('textarea');
+      el.value = url;
+      el.style.position = 'fixed';
+      el.style.opacity = '0';
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      markCopied();
+    };
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(markCopied).catch(fallback);
+    } else {
+      fallback();
+    }
   };
 
   return (

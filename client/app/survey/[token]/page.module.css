@@ -11,14 +11,15 @@
   background: #fff;
   border-radius: 16px;
   width: 100%;
-  max-width: 480px;
+  max-width: 520px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
   overflow: hidden;
 }
 
+/* ─── 헤더 ─────────────────────────────── */
 .cardHeader {
   background: linear-gradient(135deg, #1a56db 0%, #3b82f6 100%);
-  padding: 32px 24px;
+  padding: 28px 24px;
   text-align: center;
 }
 
@@ -26,105 +27,210 @@
   font-size: 13px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   letter-spacing: 0.5px;
 }
 
 .title {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   color: #fff;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .subtitle {
-  font-size: 14px;
+  font-size: 13px;
   color: rgba(255, 255, 255, 0.85);
   line-height: 1.6;
 }
 
-.questions {
-  padding: 24px 20px;
+/* ─── 스텝 인디케이터 ────────────────────── */
+.stepIndicator {
+  padding: 20px 24px 12px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.stepTrack {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.stepItem {
+  display: flex;
+  align-items: center;
+}
+
+.stepDot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.stepDotActive {
+  background: #1a56db;
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(26, 86, 219, 0.15);
+}
+
+.stepDotDone {
+  background: #22c55e;
+  color: #fff;
+}
+
+.stepLine {
+  width: 60px;
+  height: 2px;
+  background: #e2e8f0;
+  transition: background 0.2s;
+}
+
+.stepLineDone {
+  background: #22c55e;
+}
+
+.stepLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a56db;
+}
+
+/* ─── 질문 영역 ──────────────────────────── */
+.questions {
+  padding: 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .question {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .questionLabel {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   color: #1e293b;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  line-height: 1.5;
 }
 
-.questionIcon {
-  font-size: 18px;
-}
-
-.scoreRow {
-  display: flex;
-  gap: 8px;
-}
-
-.scoreBtn {
-  flex: 1;
+/* ─── 라디오 그룹 ────────────────────────── */
+.radioGroup {
   display: flex;
   flex-direction: column;
+  gap: 6px;
+}
+
+.radioOption {
+  display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 10px 0;
+  gap: 10px;
+  padding: 10px 14px;
   background: #f8fafc;
   border: 2px solid #e2e8f0;
   border-radius: 10px;
   cursor: pointer;
+  font-size: 14px;
+  color: #475569;
   transition: all 0.15s;
 }
 
-.scoreBtn:hover {
+.radioOption input[type='radio'] {
+  accent-color: #1a56db;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.radioOption:hover {
   border-color: #93c5fd;
   background: #eff6ff;
 }
 
-.scoreBtnActive {
+.radioOptionActive {
   border-color: #1a56db;
+  background: #eff6ff;
+  color: #1a56db;
+  font-weight: 600;
+}
+
+/* ─── 기타 직접 입력 ─────────────────────── */
+.etcInput {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: #1e293b;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.etcInput:focus {
+  border-color: #1a56db;
+}
+
+.etcInput::placeholder {
+  color: #94a3b8;
+}
+
+/* ─── 만족도 버튼 행 ─────────────────────── */
+.satisfactionRow {
+  display: flex;
+  gap: 6px;
+}
+
+.satisfactionBtn {
+  flex: 1;
+  padding: 10px 4px;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+  line-height: 1.3;
+  word-break: keep-all;
+}
+
+.satisfactionBtn:hover {
+  border-color: #93c5fd;
   background: #eff6ff;
 }
 
-.scoreBtnActive .scoreStar {
-  color: #f5a623;
-}
-
-.scoreStar {
-  font-size: 20px;
-  color: #cbd5e1;
-  transition: color 0.15s;
-}
-
-.scoreNum {
-  font-size: 12px;
-  font-weight: 600;
-  color: #64748b;
-}
-
-.scoreBtnActive .scoreNum {
+.satisfactionBtnActive {
+  border-color: #1a56db;
+  background: #eff6ff;
   color: #1a56db;
+  font-weight: 700;
 }
 
-.scoreLabel {
-  font-size: 12px;
-  color: #1a56db;
-  font-weight: 500;
-  text-align: center;
+.satisfactionBtnBad {
+  border-color: #f87171 !important;
+  background: #fef2f2 !important;
+  color: #dc2626 !important;
 }
 
+/* ─── textarea ───────────────────────────── */
 .textarea {
   width: 100%;
   border: 1px solid #e2e8f0;
@@ -148,6 +254,7 @@
   color: #94a3b8;
 }
 
+/* ─── 에러 ───────────────────────────────── */
 .error {
   margin: 0 20px;
   padding: 12px 16px;
@@ -159,22 +266,62 @@
   text-align: center;
 }
 
-.submitBtn {
-  display: block;
-  width: calc(100% - 40px);
-  margin: 20px;
-  height: 52px;
+/* ─── 버튼 행 ────────────────────────────── */
+.btnRow {
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px 24px;
+}
+
+.prevBtn {
+  flex: 1;
+  height: 50px;
+  background: #f1f5f9;
+  color: #475569;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background 0.15s;
+}
+
+.prevBtn:hover {
+  background: #e2e8f0;
+}
+
+.nextBtn {
+  flex: 2;
+  height: 50px;
   background: #1a56db;
   color: #fff;
   border-radius: 12px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   cursor: pointer;
+  border: none;
+  transition: background 0.15s;
+}
+
+.nextBtn:hover {
+  background: #1648c0;
+}
+
+.submitBtn {
+  flex: 2;
+  height: 50px;
+  background: #16a34a;
+  color: #fff;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
   transition: background 0.15s;
 }
 
 .submitBtn:hover:not(:disabled) {
-  background: #1648c0;
+  background: #15803d;
 }
 
 .submitBtn:disabled {
@@ -182,12 +329,12 @@
   cursor: not-allowed;
 }
 
-/* 완료 화면 */
+/* ─── 완료 화면 ──────────────────────────── */
 .successCard {
   background: #fff;
   border-radius: 16px;
   width: 100%;
-  max-width: 480px;
+  max-width: 520px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
   padding: 60px 32px;
   text-align: center;
