@@ -9,7 +9,7 @@ const NAV_ITEMS = [
   { label: "대시보드", href: "/dashboard", icon: "📊" },
   { label: "예약 관리", href: "/reservation", icon: "📋" },
   { label: "일정 현황", href: "/scheduler", icon: "📅" },
-  { label: "부하 현황", href: "/load", icon: "📈" },
+  { label: "설문 관리", href: "/load", icon: "📝" },
   { label: "식당 관리", href: "/restaurant", icon: "🍽️" },
   { label: "문서 관리", href: "/document", icon: "📄" },
   { label: "설정", href: "/settings", icon: "⚙️" },

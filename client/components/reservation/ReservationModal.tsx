@@ -58,6 +58,8 @@ export default function ReservationModal({ reservation, allReservations, onClose
   const [bulkClassroom, setBulkClassroom] = useState('105');
   const [bulkMeal, setBulkMeal] = useState({ breakfast: 0, lunch: 0, dinner: 0 });
   const [bulkRoomPickerOpen, setBulkRoomPickerOpen] = useState(false);
+  const [showLoad, setShowLoad] = useState(false);
+  const [loadSearch, setLoadSearch] = useState('');
   const [form, setForm] = useState<Omit<Reservation, 'id' | 'reservationCode'>>(
     isEdit
       ? {
@@ -82,6 +84,35 @@ export default function ReservationModal({ reservation, allReservations, onClose
 
   const setField = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  // 불러오기: 단체명으로 필터링 후 가장 최근 예약 1건씩
+  const loadCandidates = (() => {
+    const q = loadSearch.trim();
+    const filtered = allReservations.filter((r) =>
+      r.organization.includes(q) || r.customer.includes(q)
+    );
+    // 단체명별로 가장 최근 예약만
+    const map = new Map<string, Reservation>();
+    [...filtered].sort((a, b) => String(b.startDate).localeCompare(String(a.startDate))).forEach((r) => {
+      if (!map.has(r.organization)) map.set(r.organization, r);
+    });
+    return Array.from(map.values()).slice(0, 6);
+  })();
+
+  const applyLoad = (r: Reservation) => {
+    setForm((prev) => ({
+      ...prev,
+      organization: r.organization,
+      purpose: r.purpose,
+      customer: r.customer,
+      customerPhone: r.customerPhone,
+      customerPhone2: r.customerPhone2 ?? '',
+      customerEmail: r.customerEmail ?? '',
+      colorCode: r.colorCode,
+    }));
+    setShowLoad(false);
+    setLoadSearch('');
   };
 
   // --- 날짜 범위 생성 헬퍼 ---
@@ -287,6 +318,42 @@ export default function ReservationModal({ reservation, allReservations, onClose
           {/* 기본정보 */}
           {tab === '기본정보' && (
             <div className={styles.grid}>
+              {!isEdit && (
+                <div className={`${styles.fullWidth} ${styles.loadWrap}`}>
+                  {!showLoad ? (
+                    <button className={styles.loadBtn} onClick={() => setShowLoad(true)}>
+                      이전 예약에서 불러오기
+                    </button>
+                  ) : (
+                    <div className={styles.loadPanel}>
+                      <div className={styles.loadSearchRow}>
+                        <input
+                          className={styles.loadInput}
+                          autoFocus
+                          placeholder="단체명 또는 담당자 검색"
+                          value={loadSearch}
+                          onChange={(e) => setLoadSearch(e.target.value)}
+                        />
+                        <button className={styles.loadCancelBtn} onClick={() => { setShowLoad(false); setLoadSearch(''); }}>취소</button>
+                      </div>
+                      {loadCandidates.length === 0 ? (
+                        <p className={styles.loadEmpty}>검색 결과가 없습니다.</p>
+                      ) : (
+                        <ul className={styles.loadList}>
+                          {loadCandidates.map((r) => (
+                            <li key={r.id} className={styles.loadItem} onClick={() => applyLoad(r)}>
+                              <span className={styles.loadDot} style={{ backgroundColor: r.colorCode }} />
+                              <span className={styles.loadOrg}>{r.organization}</span>
+                              <span className={styles.loadCustomer}>{r.customer} · {r.customerPhone}</span>
+                              <span className={styles.loadDate}>{String(r.startDate)}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
               <label className={styles.label}><span>단체명 <span className={styles.req}>*</span></span>
                 <input className={styles.input} value={form.organization} onChange={(e) => setField('organization', e.target.value)} placeholder="단체명" />
               </label>

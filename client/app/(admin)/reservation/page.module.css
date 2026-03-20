@@ -136,3 +136,21 @@
   background: #fde8e8;
   color: #c0392b;
 }
+
+.surveyBtn {
+  height: 28px;
+  padding: 0 12px;
+  background: #f0f4ff;
+  color: #3b6ef0;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #c5d3f7;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.surveyBtn:hover {
+  background: #dce8ff;
+}

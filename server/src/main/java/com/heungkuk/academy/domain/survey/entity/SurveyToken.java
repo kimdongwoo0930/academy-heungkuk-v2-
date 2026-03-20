@@ -1,35 +1,47 @@
 package com.heungkuk.academy.domain.survey.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import com.heungkuk.academy.global.entity.BaseTimeEntity;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
 @Table(name = "survey_token")
-@EntityListeners(AuditingEntityListener.class)
-public class SurveyToken {
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class SurveyToken extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "reservation_id", nullable = false)
+    private String reservationId;
+
     @Column(nullable = false, unique = true, length = 255)
     private String token;
-
-    @Column(nullable = false, length = 100)
-    private String organization;
 
     @Column(name = "is_used", nullable = false)
     private Boolean isUsed;
 
-    @Column(name = "expired_at", nullable = false)
-    private LocalDateTime expiredAt;
 
-    @CreatedDate
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    public void updateIsUsed() {
+        this.isUsed = true;
+    }
+
+    public static SurveyToken of(String reservationId, String token) {
+        return SurveyToken.builder().reservationId(reservationId).token(token).isUsed(false)
+                .build();
+
+    }
 }

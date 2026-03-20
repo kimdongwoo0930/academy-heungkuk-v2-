@@ -1,0 +1,257 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: var(--surface);
+  border-radius: 14px;
+  width: 520px;
+  max-width: 95vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 24px 0;
+}
+
+.modalTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.modalSub {
+  font-size: 13px;
+  color: var(--text-sub);
+  margin-top: 3px;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: var(--text-sub);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.tabs {
+  display: flex;
+  gap: 0;
+  padding: 16px 24px 0;
+  border-bottom: 1px solid var(--border);
+  margin-top: 12px;
+}
+
+.tab {
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-sub);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  margin-bottom: -1px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.tabActive {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+.body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* URL 생성 탭 */
+.urlSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.desc {
+  font-size: 14px;
+  color: var(--text-sub);
+  line-height: 1.6;
+}
+
+.createBtn {
+  height: 44px;
+  padding: 0 28px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.createBtn:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.createBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.urlBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f4f6f8;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  width: 100%;
+}
+
+.urlText {
+  font-size: 12px;
+  font-family: monospace;
+  color: var(--text);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.copyBtn {
+  height: 30px;
+  padding: 0 14px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* 결과 조회 탭 */
+.resultSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.empty {
+  text-align: center;
+  color: var(--text-sub);
+  font-size: 14px;
+  padding: 30px 0;
+}
+
+.resultCard {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.resultNum {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.resultDate {
+  font-size: 12px;
+  color: var(--text-sub);
+  margin-bottom: 14px;
+}
+
+.ratingList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.ratingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ratingLabel {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.stars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.starOn {
+  color: #f5a623;
+  font-size: 16px;
+}
+
+.starOff {
+  color: #ddd;
+  font-size: 16px;
+}
+
+.scoreText {
+  font-size: 12px;
+  color: var(--text-sub);
+  margin-left: 6px;
+}
+
+.comment {
+  border-top: 1px solid #f0f0f0;
+  padding-top: 12px;
+}
+
+.commentLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-sub);
+}
+
+.commentText {
+  font-size: 13px;
+  color: var(--text);
+  margin-top: 6px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.rawAnswer {
+  font-size: 11px;
+  color: var(--text-sub);
+  background: #f4f6f8;
+  border-radius: 6px;
+  padding: 10px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Reservation } from '@/types/reservation';
 import { getReservations, createReservation, updateReservation, toRequestBody } from '@/lib/api/reservation';
 import ReservationModal from '@/components/reservation/ReservationModal';
+import SurveyModal from '@/components/reservation/SurveyModal';
 import styles from './page.module.css';
 
 const STATUS_OPTIONS = ['전체', '확정', '대기', '완료', '취소'];
@@ -15,6 +16,7 @@ export default function ReservationPage() {
   const [status, setStatus] = useState('전체');
   const [selected, setSelected] = useState<Reservation | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [surveyTarget, setSurveyTarget] = useState<Reservation | null>(null);
 
   const fetchReservations = () =>
     getReservations()
@@ -98,18 +100,19 @@ export default function ReservationPage() {
               <th>입실일</th>
               <th>퇴실일</th>
               <th>상태</th>
+              <th>설문</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={9} style={{ textAlign: 'center', color: 'var(--text-sub)', padding: '40px' }}>
+                <td colSpan={10} style={{ textAlign: 'center', color: 'var(--text-sub)', padding: '40px' }}>
                   불러오는 중...
                 </td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={9} style={{ textAlign: 'center', color: 'var(--text-sub)', padding: '40px' }}>
+                <td colSpan={10} style={{ textAlign: 'center', color: 'var(--text-sub)', padding: '40px' }}>
                   검색 결과가 없습니다.
                 </td>
               </tr>
@@ -130,6 +133,14 @@ export default function ReservationPage() {
                   <td>
                     <span className={`${styles.badge} ${styles[r.status]}`}>{r.status}</span>
                   </td>
+                  <td onClick={(e) => e.stopPropagation()}>
+                    <button
+                      className={styles.surveyBtn}
+                      onClick={() => setSurveyTarget(r)}
+                    >
+                      설문
+                    </button>
+                  </td>
                 </tr>
               ))
             )}
@@ -143,6 +154,14 @@ export default function ReservationPage() {
           allReservations={reservations}
           onClose={() => setIsModalOpen(false)}
           onSave={handleSave}
+        />
+      )}
+
+      {surveyTarget && (
+        <SurveyModal
+          reservationCode={surveyTarget.reservationCode}
+          organization={surveyTarget.organization}
+          onClose={() => setSurveyTarget(null)}
         />
       )}
     </div>
