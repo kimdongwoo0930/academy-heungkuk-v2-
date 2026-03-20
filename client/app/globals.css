@@ -1,0 +1,43 @@
+:root {
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --border: #e0e0e0;
+  --primary: #351b6f;
+  --primary-hover: #2a155a;
+  --accent: #ec008c;
+  --accent-hover: #c4007a;
+  --text: #1a1a1a;
+  --text-sub: #6b7280;
+  --sidebar-width: 220px;
+  --header-height: 56px;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Pretendard", "Apple SD Gothic Neo", Arial, sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}

@@ -66,8 +66,6 @@
 | reservation_id | BIGINT      | ✅   | FK → reservation.id            |
 | classroom      | VARCHAR(10) | ✅   | 강의실 호실 (105, 201, A, B …) |
 | reserved_date  | DATE        | ✅   | 예약 날짜                      |
-| start_time     | TIME        | ✅   | 시작 시간                      |
-| end_time       | TIME        | ✅   | 종료 시간                      |
 | created_at     | DATETIME    | ✅   | 생성일시                       |
 | updated_at     | DATETIME    | ✅   | 수정일시                       |
 
@@ -94,16 +92,14 @@
 
 > 예약 1건에 여러 객실 / 날짜별 행 분리 저장
 
-| 컬럼명         | 타입        | 필수 | 설명                       |
-| -------------- | ----------- | ---- | -------------------------- |
-| id             | BIGINT      | ✅   | PK, AUTO_INCREMENT         |
-| reservation_id | BIGINT      | ✅   | FK → reservation.id        |
-| room_number    | VARCHAR(10) | ✅   | 객실 호수 (101 ~ 127)      |
-| reserved_date  | DATE        | ✅   | 숙박 날짜                  |
-| check_in_time  | TIME        | ❌   | 체크인 시간 (첫날만)       |
-| check_out_time | TIME        | ❌   | 체크아웃 시간 (마지막날만) |
-| created_at     | DATETIME    | ✅   | 생성일시                   |
-| updated_at     | DATETIME    | ✅   | 수정일시                   |
+| 컬럼명         | 타입        | 필수 | 설명                  |
+| -------------- | ----------- | ---- | --------------------- |
+| id             | BIGINT      | ✅   | PK, AUTO_INCREMENT    |
+| reservation_id | BIGINT      | ✅   | FK → reservation.id   |
+| room_number    | VARCHAR(10) | ✅   | 객실 호수 (101 ~ 127) |
+| reserved_date  | DATE        | ✅   | 숙박 날짜             |
+| created_at     | DATETIME    | ✅   | 생성일시              |
+| updated_at     | DATETIME    | ✅   | 수정일시              |
 
 ### 객실 목록 (현재 1층만 사용)
 

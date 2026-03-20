@@ -1,0 +1,64 @@
+.card {
+  position: fixed;
+  z-index: 9000;
+  width: 230px;
+  transition:
+    top 0.05s,
+    left 0.05s;
+  background: #1e2330;
+  color: #e8eaf0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.orgName {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin-bottom: 6px;
+}
+
+.info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #c4c8d4;
+  margin-bottom: 3px;
+}
+
+.key {
+  color: #7b82a0;
+  font-size: 10px;
+  font-weight: 600;
+  min-width: 28px;
+}
+
+.sep {
+  color: #4a5068;
+}

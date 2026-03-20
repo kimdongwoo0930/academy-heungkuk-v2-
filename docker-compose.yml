@@ -54,6 +54,22 @@ services:
       - hka-network
     restart: unless-stopped
 
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    container_name: frontend
+    environment:
+      TZ: Asia/Seoul
+    depends_on:
+      - backend
+    networks:
+      - hka-network
+    restart: unless-stopped
+
+
 networks:
   hka-network:
     driver: bridge
