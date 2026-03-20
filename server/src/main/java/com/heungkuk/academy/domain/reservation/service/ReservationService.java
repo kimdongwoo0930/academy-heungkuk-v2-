@@ -1,13 +1,10 @@
 package com.heungkuk.academy.domain.reservation.service;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.heungkuk.academy.domain.reservation.dto.request.ReservationRequest;
 import com.heungkuk.academy.domain.reservation.dto.response.ClassroomReservationResponse;
 import com.heungkuk.academy.domain.reservation.dto.response.MealReservationResponse;
@@ -23,7 +20,6 @@ import com.heungkuk.academy.domain.reservation.repository.ReservationRepository;
 import com.heungkuk.academy.domain.reservation.repository.RoomReservationRepository;
 import com.heungkuk.academy.global.exception.BusinessException;
 import com.heungkuk.academy.global.exception.ErrorCode;
-
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -37,8 +33,7 @@ public class ReservationService {
     private final RoomReservationRepository roomReservationRepository;
 
     /**
-     * 예약 등록
-     * 예약 코드 생성 → Reservation 저장 → 객실/강의실/식사 예약 순으로 처리
+     * 예약 등록 예약 코드 생성 → Reservation 저장 → 객실/강의실/식사 예약 순으로 처리
      */
     @Transactional
     public ReservationResponse createReservation(ReservationRequest request) {
@@ -47,7 +42,8 @@ public class ReservationService {
         String reservationCode = generateReservationCode(request.getStartDate());
 
         // 2. Reservation 엔티티 생성 후 저장
-        Reservation reservation = reservationRepository.save(Reservation.from(request, reservationCode));
+        Reservation reservation =
+                reservationRepository.save(Reservation.from(request, reservationCode));
 
         // 3. 객실 예약 저장
         saveRooms(reservation, request);
@@ -63,15 +59,13 @@ public class ReservationService {
 
 
     /** 강의실 중복 체크 (true = 사용 가능, false = 중복) */
-    public boolean checkClassroom(String classroom, LocalDate date, LocalTime startTime, LocalTime endTime) {
-        return !classroomReservationRepository.existsConflict(classroom, date, startTime, endTime);
+    public boolean checkClassroom(String classroom, LocalDate date) {
+        return !classroomReservationRepository.existsConflict(classroom, date);
     }
 
     /** 예약 전체 목록 조회 */
     public List<ReservationResponse> getReservations() {
-        return reservationRepository.findAll().stream()
-                .map(this::toResponse)
-                .toList();
+        return reservationRepository.findAll().stream().map(this::toResponse).toList();
     }
 
     /** 예약 단건 조회 */
@@ -82,8 +76,7 @@ public class ReservationService {
     }
 
     /**
-     * 예약 취소 (완전 삭제 X, status를 "취소"로 변경)
-     * 이력 보존을 위해 소프트 딜리트 방식 사용
+     * 예약 취소 (완전 삭제 X, status를 "취소"로 변경) 이력 보존을 위해 소프트 딜리트 방식 사용
      */
     @Transactional
     public void deleteReservation(Long id) {
@@ -93,8 +86,7 @@ public class ReservationService {
     }
 
     /**
-     * 예약 수정
-     * 기존 객실/강의실/식사 예약을 전부 삭제 후 새로 저장 (단순 재생성 방식)
+     * 예약 수정 기존 객실/강의실/식사 예약을 전부 삭제 후 새로 저장 (단순 재생성 방식)
      */
     @Transactional
     public ReservationResponse updateReservation(Long id, ReservationRequest request) {
@@ -119,9 +111,7 @@ public class ReservationService {
 
 
     /**
-     * 예약 코드 생성
-     * 형식: HK-yyyyMMdd-순번 (예: HK-20260316-001)
-     * 같은 날짜의 기존 예약 수를 조회해서 순번 결정
+     * 예약 코드 생성 형식: HK-yyyyMMdd-순번 (예: HK-20260316-001) 같은 날짜의 기존 예약 수를 조회해서 순번 결정
      */
     private String generateReservationCode(LocalDate date) {
         String dateStr = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
@@ -131,18 +121,20 @@ public class ReservationService {
     }
 
 
-    private ReservationResponse toResponse(Reservation reservation){
-                List<RoomReservationResponse> rooms = roomReservationRepository.findByReservation(reservation)
-                        .stream().map(RoomReservationResponse::of).toList();
-                List<ClassroomReservationResponse> classrooms = classroomReservationRepository.findByReservation(reservation)
-                        .stream().map(ClassroomReservationResponse::of).toList();
-                List<MealReservationResponse> meals = mealReservationRepository.findByReservation(reservation)
-                        .stream().map(MealReservationResponse::of).toList();
-                return ReservationResponse.of(reservation, rooms, classrooms, meals);
+    private ReservationResponse toResponse(Reservation reservation) {
+        List<RoomReservationResponse> rooms = roomReservationRepository
+                .findByReservation(reservation).stream().map(RoomReservationResponse::of).toList();
+        List<ClassroomReservationResponse> classrooms =
+                classroomReservationRepository.findByReservation(reservation).stream()
+                        .map(ClassroomReservationResponse::of).toList();
+        List<MealReservationResponse> meals = mealReservationRepository
+                .findByReservation(reservation).stream().map(MealReservationResponse::of).toList();
+        return ReservationResponse.of(reservation, rooms, classrooms, meals);
     }
 
     private void saveRooms(Reservation reservation, ReservationRequest request) {
-        if (request.getRooms() == null || request.getRooms().isEmpty()) return;
+        if (request.getRooms() == null || request.getRooms().isEmpty())
+            return;
 
         List<RoomReservation> roomReservations = request.getRooms().stream()
                 .map(r -> RoomReservation.of(reservation, r.getRoomNumber(), r.getReservedDate()))
@@ -152,20 +144,19 @@ public class ReservationService {
     }
 
     private void saveClassrooms(Reservation reservation, ReservationRequest request) {
-    if (request.getClassrooms() == null || request.getClassrooms().isEmpty()) return;
+        if (request.getClassrooms() == null || request.getClassrooms().isEmpty())
+            return;
 
-    List<ClassroomReservation> classroomReservations = request.getClassrooms().stream()
-            .map(cr -> ClassroomReservation.of(reservation, cr))
-            .toList();
-    classroomReservationRepository.saveAll(classroomReservations);
+        List<ClassroomReservation> classroomReservations = request.getClassrooms().stream()
+                .map(cr -> ClassroomReservation.of(reservation, cr)).toList();
+        classroomReservationRepository.saveAll(classroomReservations);
     }
 
 
-    private void saveMeals(Reservation reservation, ReservationRequest request){
-        if(request.getMeals() != null && !request.getMeals().isEmpty()){
+    private void saveMeals(Reservation reservation, ReservationRequest request) {
+        if (request.getMeals() != null && !request.getMeals().isEmpty()) {
             List<MealReservation> mealReservations = request.getMeals().stream()
-            .map(cr -> MealReservation.of(reservation, cr))
-            .toList();
+                    .map(cr -> MealReservation.of(reservation, cr)).toList();
 
             mealReservationRepository.saveAll(mealReservations);
         }
