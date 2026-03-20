@@ -130,14 +130,14 @@ export default function ReservationModal({ reservation, allReservations, onClose
     const start = key === 'startDate' ? value : form.startDate;
     const end   = key === 'endDate'   ? value : form.endDate;
 
-    if (start && end && end <= start) {
-      setDateError('퇴실일은 입실일보다 늦어야 합니다.');
+    if (start && end && end < start) {
+      setDateError('퇴실일은 입실일보다 빠를 수 없습니다.');
       setField(key, value);
       return;
     }
     setDateError('');
 
-    if (start && end && end > start) {
+    if (start && end && end >= start) {
       const dates = buildDateRange(start, end);
       const classrooms: ClassroomReservation[] = dates.map((d) => ({ classroomName: bulkClassroom, reservedDate: d }));
       const meals: MealReservation[] = dates.map((d) => ({ reservedDate: d, breakfast: 0, lunch: 0, dinner: 0 }));
