@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Reservation } from '@/types/reservation';
-import { getReservations, createReservation, updateReservation, deleteReservation, toRequestBody } from '@/lib/api/reservation';
+import { getReservations, createReservation, updateReservation, toRequestBody } from '@/lib/api/reservation';
 import ReservationModal from '@/components/reservation/ReservationModal';
 import styles from './page.module.css';
 
