@@ -27,7 +27,11 @@ public enum ErrorCode {
     LECTURE_ROOM_NOT_AVAILABLE("해당 날짜/시간에 사용 불가능한 강의실입니다.", HttpStatus.CONFLICT),
 
     //Token
-    INVALID_REFRESH_TOKEN("유효하지 않은 리프레시 토큰입니다.", HttpStatus.UNAUTHORIZED);
+    INVALID_REFRESH_TOKEN("유효하지 않은 리프레시 토큰입니다.", HttpStatus.UNAUTHORIZED),
+
+    // Survey
+    SURVEY_TOKEN_NOT_FOUND("존재하지 않는 설문 토큰입니다.", HttpStatus.NOT_FOUND),
+    SURVEY_ALREADY_SUBMITTED("이미 제출된 설문입니다.", HttpStatus.CONFLICT);
 
 
     private final String message;

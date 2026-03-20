@@ -1,0 +1,278 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.searchInput {
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  width: 260px;
+  transition: border-color 0.15s;
+}
+
+.searchInput:focus {
+  border-color: var(--accent);
+}
+
+.empty {
+  text-align: center;
+  color: var(--text-sub);
+  font-size: 14px;
+  padding: 60px 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.itemHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  gap: 12px;
+}
+
+.itemInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.colorDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.org {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.code {
+  font-size: 12px;
+  font-family: monospace;
+  color: var(--text-sub);
+  white-space: nowrap;
+}
+
+.period {
+  font-size: 12px;
+  color: var(--text-sub);
+  white-space: nowrap;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge.확정 { background: #e6f4ea; color: #1e7e34; }
+.badge.대기 { background: #fff3cd; color: #856404; }
+.badge.완료 { background: #e2e3e5; color: #495057; }
+.badge.취소 { background: #fde8e8; color: #c0392b; }
+
+.itemActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.urlBtn {
+  height: 30px;
+  padding: 0 14px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.urlBtn:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.urlBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.copyBtn {
+  height: 30px;
+  padding: 0 14px;
+  background: #e8f5e9;
+  color: #1e7e34;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #a5d6a7;
+  white-space: nowrap;
+}
+
+.resultBtn {
+  height: 30px;
+  padding: 0 14px;
+  background: #f4f6f8;
+  color: var(--text-sub);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.resultBtnActive {
+  background: #eff3ff;
+  color: var(--accent);
+  border-color: #c5d3f7;
+}
+
+/* 결과 영역 */
+.resultArea {
+  border-top: 1px solid var(--border);
+  padding: 16px 18px;
+  background: #fafbfc;
+}
+
+.noResult {
+  text-align: center;
+  color: var(--text-sub);
+  font-size: 13px;
+  padding: 16px 0;
+}
+
+.resultList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.resultCard {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.resultMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.resultIdx {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.resultDate {
+  font-size: 11px;
+  color: var(--text-sub);
+}
+
+.ratingGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-bottom: 10px;
+}
+
+.ratingItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ratingLabel {
+  font-size: 12px;
+  color: var(--text-sub);
+  width: 46px;
+}
+
+.stars {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.starOn {
+  color: #f5a623;
+  font-size: 14px;
+}
+
+.starOff {
+  color: #ddd;
+  font-size: 14px;
+}
+
+.scoreNum {
+  font-size: 11px;
+  color: var(--text-sub);
+  margin-left: 4px;
+}
+
+.comment {
+  font-size: 13px;
+  color: var(--text);
+  border-top: 1px solid #f0f0f0;
+  padding-top: 10px;
+  margin-top: 4px;
+  line-height: 1.6;
+}
+
+.commentLabel {
+  font-weight: 600;
+  color: var(--text-sub);
+  margin-right: 6px;
+}
+
+.rawAnswer {
+  font-size: 11px;
+  color: var(--text-sub);
+  background: #f4f6f8;
+  border-radius: 6px;
+  padding: 8px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
