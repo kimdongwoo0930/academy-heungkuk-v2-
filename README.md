@@ -12,7 +12,7 @@
 | 버전       | 0.0.0                            |
 | 사용 대상  | 연수원 직원                      |
 | 접속 환경  | 외부 인터넷 접속                 |
-| 서버       | Mac mini M2 24GB / Docker        |
+| 서버       | Oracle Cloud ARM (12GB RAM) / Docker        |
 
 ---
 
@@ -54,9 +54,9 @@
 
 | 항목     | 기술                    |
 | -------- | ----------------------- |
-| 서버     | Mac mini M2 24GB        |
-| 컨테이너 | Docker / docker-compose |
-| 개발환경 | Code Server             |
+| 서버     | Oracle Cloud ARM (12GB RAM) |
+| 컨테이너 | Docker / docker-compose     |
+| 개발환경 | Code Server                 |
 
 ---
 
@@ -181,4 +181,4 @@
 
 ---
 
-_최종 수정: 2026-03-12_
+_최종 수정: 2026-03-20_
