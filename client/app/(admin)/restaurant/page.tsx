@@ -136,6 +136,12 @@ export default function RestaurantPage() {
 
       {halves.map((halfDays, hi) => {
         const tableW = ORG_COL + halfDays.length * DATE_COL * 3 + TOTAL_COL;
+        const halfActiveMealRes = activeMealReservations.filter(res =>
+          halfDays.some(cal => {
+            const meal = getOrgMeal(res.id, cal.dateStr);
+            return meal && (meal.breakfast > 0 || meal.lunch > 0 || meal.dinner > 0);
+          })
+        );
 
         return (
           <div key={hi} className={styles.halfBlock}>
@@ -171,14 +177,14 @@ export default function RestaurantPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {activeMealReservations.length === 0 ? (
+                    {halfActiveMealRes.length === 0 ? (
                       <tr>
                         <td colSpan={1 + halfDays.length * 3 + 1} className={styles.emptyCell}>
                           이번 달 식수 예약이 없습니다.
                         </td>
                       </tr>
                     ) : (
-                      activeMealReservations.map(res => {
+                      halfActiveMealRes.map(res => {
                         const halfTotal = halfDays.reduce((sum, cal) => {
                           const meal = getOrgMeal(res.id, cal.dateStr);
                           return sum + (meal ? meal.breakfast + meal.lunch + meal.dinner : 0);
@@ -209,7 +215,7 @@ export default function RestaurantPage() {
                         );
                       })
                     )}
-                    {activeMealReservations.length > 0 && (() => {
+                    {halfActiveMealRes.length > 0 && (() => {
                       const grandTotal = halfDays.reduce((s, cal) =>
                         s + getDayTotal(cal.dateStr, 'breakfast') + getDayTotal(cal.dateStr, 'lunch') + getDayTotal(cal.dateStr, 'dinner'), 0);
                       return (

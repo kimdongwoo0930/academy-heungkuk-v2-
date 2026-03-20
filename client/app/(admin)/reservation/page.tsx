@@ -16,11 +16,13 @@ export default function ReservationPage() {
   const [selected, setSelected] = useState<Reservation | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
+  const fetchReservations = () =>
     getReservations()
       .then(setReservations)
-      .catch(() => alert('예약 목록을 불러오는데 실패했습니다.'))
-      .finally(() => setLoading(false));
+      .catch(() => alert('예약 목록을 불러오는데 실패했습니다.'));
+
+  useEffect(() => {
+    fetchReservations().finally(() => setLoading(false));
   }, []);
 
   const filtered = reservations.filter((r) => {
@@ -46,13 +48,12 @@ export default function ReservationPage() {
     try {
       const body = toRequestBody(data);
       if (selected !== null) {
-        const updated = await updateReservation(selected.id, body);
-        setReservations((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+        await updateReservation(selected.id, body);
       } else {
-        const created = await createReservation(body);
-        setReservations((prev) => [created, ...prev]);
+        await createReservation(body);
       }
       setIsModalOpen(false);
+      await fetchReservations();
     } catch {
       alert('저장 중 오류가 발생했습니다.');
     }
