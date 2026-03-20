@@ -13,13 +13,16 @@ interface Props {
 
 type Tab = 'url' | 'result';
 
-const LABEL_MAP: Record<keyof Omit<SurveyAnswers, 'comment'>, string> = {
-  facility: '시설 만족도',
-  meal: '식사 만족도',
-  service: '서비스 만족도',
-  classroom: '강의실 만족도',
-  overall: '전체 만족도',
-};
+const SATISFACTION_LABELS = ['', '매우 만족', '만족', '보통', '불만족', '매우 불만족'];
+
+type SatisfactionKey = 'staffService' | 'cleanliness' | 'facilities' | 'cafeteria' | 'pricing';
+const SATISFACTION_ITEMS: { key: SatisfactionKey; label: string }[] = [
+  { key: 'staffService', label: '직원 서비스' },
+  { key: 'cleanliness', label: '청결 상태' },
+  { key: 'facilities', label: '시설' },
+  { key: 'cafeteria', label: '식당' },
+  { key: 'pricing', label: '이용 비용' },
+];
 
 function parseAnswers(raw: string): SurveyAnswers | null {
   try {
@@ -27,17 +30,6 @@ function parseAnswers(raw: string): SurveyAnswers | null {
   } catch {
     return null;
   }
-}
-
-function StarDisplay({ value }: { value: number }) {
-  return (
-    <span className={styles.stars}>
-      {[1, 2, 3, 4, 5].map((n) => (
-        <span key={n} className={n <= value ? styles.starOn : styles.starOff}>★</span>
-      ))}
-      <span className={styles.scoreText}>{value}점</span>
-    </span>
-  );
 }
 
 export default function SurveyModal({ reservationCode, organization, onClose }: Props) {
@@ -65,10 +57,26 @@ export default function SurveyModal({ reservationCode, organization, onClose }: 
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(surveyUrl).then(() => {
+    const markCopied = () => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    });
+    };
+    const fallback = () => {
+      const el = document.createElement('textarea');
+      el.value = surveyUrl;
+      el.style.position = 'fixed';
+      el.style.opacity = '0';
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      markCopied();
+    };
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(surveyUrl).then(markCopied).catch(fallback);
+    } else {
+      fallback();
+    }
   };
 
   const handleTabResult = async () => {
@@ -159,14 +167,31 @@ export default function SurveyModal({ reservationCode, organization, onClose }: 
                       </div>
                       {answers ? (
                         <>
-                          <div className={styles.ratingList}>
-                            {(Object.keys(LABEL_MAP) as (keyof typeof LABEL_MAP)[]).map((key) => (
-                              <div key={key} className={styles.ratingRow}>
-                                <span className={styles.ratingLabel}>{LABEL_MAP[key]}</span>
-                                <StarDisplay value={answers[key]} />
-                              </div>
-                            ))}
+                          <div className={styles.infoGrid}>
+                            {answers.location && <span className={styles.infoTag}><b>위치</b>{answers.location === '기타' ? answers.locationEtc : answers.location}</span>}
+                            {answers.industry && <span className={styles.infoTag}><b>업태</b>{answers.industry === '기타' ? answers.industryEtc : answers.industry}</span>}
+                            {answers.purpose && <span className={styles.infoTag}><b>목적</b>{answers.purpose === '기타' ? answers.purposeEtc : answers.purpose}</span>}
+                            {answers.visitRoute && <span className={styles.infoTag}><b>계기</b>{answers.visitRoute === '기타' ? answers.visitRouteEtc : answers.visitRoute}</span>}
                           </div>
+                          <div className={styles.ratingList}>
+                            {SATISFACTION_ITEMS.map(({ key, label }) => {
+                              const score = answers[key] as number;
+                              return score > 0 ? (
+                                <div key={key} className={styles.ratingRow}>
+                                  <span className={styles.ratingLabel}>{label}</span>
+                                  <span className={`${styles.ratingScore} ${score >= 4 ? styles.ratingScoreBad : ''}`}>
+                                    {SATISFACTION_LABELS[score]}
+                                  </span>
+                                </div>
+                              ) : null;
+                            })}
+                          </div>
+                          {answers.revisit && (
+                            <div className={styles.comment}>
+                              <span className={styles.commentLabel}>재방문</span>
+                              <p className={styles.commentText}>{answers.revisit}</p>
+                            </div>
+                          )}
                           {answers.comment && (
                             <div className={styles.comment}>
                               <span className={styles.commentLabel}>자유 의견</span>
