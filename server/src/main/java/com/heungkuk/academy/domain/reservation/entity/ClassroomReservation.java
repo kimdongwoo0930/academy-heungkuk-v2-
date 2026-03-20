@@ -1,8 +1,6 @@
 package com.heungkuk.academy.domain.reservation.entity;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,10 +10,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
 import com.heungkuk.academy.domain.reservation.dto.request.ClassroomRequest;
 import com.heungkuk.academy.global.entity.BaseTimeEntity;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,20 +40,10 @@ public class ClassroomReservation extends BaseTimeEntity {
     @Column(name = "reserved_date", nullable = false)
     private LocalDate reservedDate;
 
-    @Column(name = "start_time", nullable = false)
-    private LocalTime startTime;
-
-    @Column(name = "end_time", nullable = false)
-    private LocalTime endTime;
-
     public static ClassroomReservation of(Reservation reservation, ClassroomRequest request) {
-    return ClassroomReservation.builder()
-            .reservation(reservation)
-            .classroom(request.getClassroomName())
-            .reservedDate(request.getReservedDate())
-            .startTime(request.getStartTime())
-            .endTime(request.getEndTime())
-            .build();
-}
+        return ClassroomReservation.builder().reservation(reservation)
+                .classroom(request.getClassroomName()).reservedDate(request.getReservedDate())
+                .build();
+    }
 
 }

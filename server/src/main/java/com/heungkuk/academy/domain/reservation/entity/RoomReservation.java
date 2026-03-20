@@ -1,8 +1,7 @@
 package com.heungkuk.academy.domain.reservation.entity;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-
+import com.heungkuk.academy.global.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,9 +11,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
-import com.heungkuk.academy.global.entity.BaseTimeEntity;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,18 +39,10 @@ public class RoomReservation extends BaseTimeEntity {
     @Column(name = "reserved_date", nullable = false)
     private LocalDate reservedDate;
 
-    @Column(name = "check_in_time")
-    private LocalTime checkInTime;
-
-    @Column(name = "check_out_time")
-    private LocalTime checkOutTime;
 
     public static RoomReservation of(Reservation reservation, String roomNumber, LocalDate date) {
-    return RoomReservation.builder()
-            .reservation(reservation)
-            .roomNumber(roomNumber)
-            .reservedDate(date)
-            .build();
-}
+        return RoomReservation.builder().reservation(reservation).roomNumber(roomNumber)
+                .reservedDate(date).build();
+    }
 
 }

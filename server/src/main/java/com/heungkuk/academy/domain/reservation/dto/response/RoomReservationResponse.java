@@ -1,13 +1,11 @@
 package com.heungkuk.academy.domain.reservation.dto.response;
 
+import java.time.LocalDate;
 import com.heungkuk.academy.domain.reservation.entity.RoomReservation;
 import com.heungkuk.academy.domain.reservation.enums.RoomType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Schema(description = "객실 예약 응답")
 @Getter
@@ -22,19 +20,11 @@ public class RoomReservationResponse {
     private String roomType;
     @Schema(description = "사용 날짜", example = "2026-04-01")
     private LocalDate reservedDate;
-    @Schema(description = "체크인 시간", example = "14:00")
-    private LocalTime checkInTime;
-    @Schema(description = "체크아웃 시간", example = "11:00")
-    private LocalTime checkOutTime;
 
     public static RoomReservationResponse of(RoomReservation roomReservation) {
-        return RoomReservationResponse.builder()
-                .id(roomReservation.getId())
+        return RoomReservationResponse.builder().id(roomReservation.getId())
                 .roomNumber(roomReservation.getRoomNumber())
                 .roomType(RoomType.getDisplayNameByRoomNumber(roomReservation.getRoomNumber()))
-                .reservedDate(roomReservation.getReservedDate())
-                .checkInTime(roomReservation.getCheckInTime())
-                .checkOutTime(roomReservation.getCheckOutTime())
-                .build();
+                .reservedDate(roomReservation.getReservedDate()).build();
     }
 }

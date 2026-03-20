@@ -1,10 +1,9 @@
 package com.heungkuk.academy.domain.reservation.dto.request;
 
+import java.time.LocalDate;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Schema(description = "객실 예약 요청")
 @Getter
