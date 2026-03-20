@@ -98,6 +98,12 @@ export default function ReservationModal({ reservation, allReservations, onClose
 
   const getDateRange = () => buildDateRange(form.startDate, form.endDate);
 
+  // 숙박은 퇴실일(endDate) 제외
+  const getRoomDateRange = () => {
+    const dates = buildDateRange(form.startDate, form.endDate);
+    return dates.slice(0, -1);
+  };
+
   // --- 중복 체크 ---
   // 현재 편집 중인 예약을 제외한 다른 예약들
   const otherReservations = allReservations.filter((r) => r.id !== (isEdit ? reservation.id : -1));
@@ -185,7 +191,7 @@ export default function ReservationModal({ reservation, allReservations, onClose
 
   // 전체 날짜 일괄 호실 적용
   const applyBulkRooms = (pickedRooms: string[]) => {
-    const dates = getDateRange();
+    const dates = getRoomDateRange();
     const newEntries: RoomReservation[] = dates.flatMap((date) =>
       pickedRooms.map((num) => ({
         roomNumber: num,
@@ -412,7 +418,7 @@ export default function ReservationModal({ reservation, allReservations, onClose
                       </tr>
                     </thead>
                     <tbody>
-                      {getDateRange().map((date) => {
+                      {getRoomDateRange().map((date) => {
                         const total = (form.rooms ?? []).filter((r) => r.reservedDate === date).length;
                         const roomsForDate = (form.rooms ?? []).filter((r) => r.reservedDate === date);
                         const conflictCount = roomsForDate.filter(isRoomConflict).length;
@@ -519,7 +525,7 @@ export default function ReservationModal({ reservation, allReservations, onClose
       {bulkRoomPickerOpen && (
         <RoomPickerModal
           date="전체 날짜"
-          selected={getRoomsForDate(getDateRange()[0] ?? '')}
+          selected={getRoomsForDate(getRoomDateRange()[0] ?? '')}
           occupiedRooms={[]}
           onConfirm={applyBulkRooms}
           onClose={() => setBulkRoomPickerOpen(false)}

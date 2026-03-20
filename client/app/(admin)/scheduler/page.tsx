@@ -35,7 +35,6 @@ const TYPE_W   = 38;
 const ROOM_W   = 28;
 const CAP_W    = 20;
 const DATE_COL = 36;
-const SUB_COL  = 20;
 
 function makeDateStr(date: Date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -55,10 +54,13 @@ export default function SchedulerPage() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [editTarget, setEditTarget]     = useState<Reservation | null>(null);
 
-  useEffect(() => {
+  const fetchReservations = () =>
     getReservations()
       .then(setReservations)
       .catch(() => alert('예약 데이터를 불러오는데 실패했습니다.'));
+
+  useEffect(() => {
+    fetchReservations();
   }, []);
 
   // ── 달력 그리드 생성 (일요일 시작) ──
@@ -113,10 +115,10 @@ export default function SchedulerPage() {
 
   const handleSave = async (data: Reservation) => {
     try {
-      const body    = toRequestBody(data);
-      const updated = await updateReservation(data.id, body);
-      setReservations(prev => prev.map(r => r.id === updated.id ? updated : r));
+      const body = toRequestBody(data);
+      await updateReservation(data.id, body);
       setEditTarget(null);
+      fetchReservations();
     } catch {
       alert('저장 중 오류가 발생했습니다.');
     }
@@ -136,27 +138,6 @@ export default function SchedulerPage() {
     return count;
   };
 
-  const displayedDates = new Set(calDays.map(c => c.dateStr));
-
-  const activeMealReservations = reservations.filter(r => {
-    if (r.status === '취소') return false;
-    return r.meals?.some(m => displayedDates.has(String(m.reservedDate)));
-  });
-
-  const getOrgMeal = (resId: number, dateStr: string) => {
-    const res = reservations.find(r => r.id === resId);
-    return res?.meals?.find(m => String(m.reservedDate) === dateStr) ?? null;
-  };
-
-  const getDayTotal = (dateStr: string, type: 'breakfast' | 'lunch' | 'dinner') => {
-    let total = 0;
-    activeMealReservations.forEach(r => {
-      const meal = getOrgMeal(r.id, dateStr);
-      if (meal) total += meal[type];
-    });
-    return total;
-  };
-
   return (
     <div>
       <div className={styles.header}>
@@ -170,7 +151,6 @@ export default function SchedulerPage() {
 
       {halves.map((halfDays, hi) => {
         const leftW  = TYPE_W + ROOM_W + CAP_W + halfDays.length * DATE_COL;
-        const rightW = 80 + halfDays.length * SUB_COL * 3 + 40;
 
         return (
           <div key={hi} className={styles.halfBlock}>
@@ -243,116 +223,11 @@ export default function SchedulerPage() {
                         </tr>
                       ))
                     )}
-                    <tr className={styles.totalRow}>
-                      <td colSpan={3} className={styles.totalLabel}>식수 계</td>
-                      {halfDays.map(cal => {
-                        const t = getDayTotal(cal.dateStr, 'breakfast') + getDayTotal(cal.dateStr, 'lunch') + getDayTotal(cal.dateStr, 'dinner');
-                        return <td key={cal.dateStr} className={tdCls(cal)}>{t > 0 ? t : '-'}</td>;
-                      })}
-                    </tr>
                   </tbody>
                 </table>
               </div>
             </div>
 
-            {/* ── 식수 현황 (비활성화) ── */}
-            {false && <div className={styles.tableWrap}>
-              <div className={styles.sectionTitle}>식수 현황</div>
-              <div style={{ minWidth: rightW, width: '100%' }}>
-                <table className={styles.table} style={{ minWidth: rightW, width: '100%' }}>
-                  <colgroup>
-                    <col style={{ width: '80px' }} />
-                    {halfDays.flatMap(cal => [
-                      <col key={`${cal.dateStr}b`} style={{ width: `${SUB_COL}px` }} />,
-                      <col key={`${cal.dateStr}l`} style={{ width: `${SUB_COL}px` }} />,
-                      <col key={`${cal.dateStr}d`} style={{ width: `${SUB_COL}px` }} />,
-                    ])}
-                    <col style={{ width: '40px' }} />
-                  </colgroup>
-                  <thead>
-                    <tr>
-                      <th rowSpan={2} className={styles.thOrg}>단체명</th>
-                      {halfDays.map(cal => (
-                        <th key={cal.dateStr} colSpan={3} className={thCls(cal)}>
-                          <div>{cal.date.getDate()}일</div>
-                          <div className={styles.dayLabel}>{WEEK_DAYS[cal.date.getDay()]}</div>
-                        </th>
-                      ))}
-                      <th rowSpan={2} className={styles.thTotal}>식수계</th>
-                    </tr>
-                    <tr>
-                      {halfDays.flatMap(cal => [
-                        <th key={`${cal.dateStr}b`} className={`${styles.mealSubTh} ${thCls(cal)}`}>조</th>,
-                        <th key={`${cal.dateStr}l`} className={`${styles.mealSubTh} ${thCls(cal)}`}>중</th>,
-                        <th key={`${cal.dateStr}d`} className={`${styles.mealSubTh} ${thCls(cal)}`}>석</th>,
-                      ])}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {activeMealReservations.length === 0 ? (
-                      <tr>
-                        <td colSpan={1 + halfDays.length * 3 + 1} className={styles.emptyCell}>
-                          이번 달 식수 예약이 없습니다.
-                        </td>
-                      </tr>
-                    ) : (
-                      activeMealReservations.map(res => {
-                        const halfTotal = halfDays.reduce((sum, cal) => {
-                          const meal = getOrgMeal(res.id, cal.dateStr);
-                          return sum + (meal ? meal.breakfast + meal.lunch + meal.dinner : 0);
-                        }, 0);
-                        const cls = res.status === '확정' ? styles.confirmed : styles.pending;
-                        return (
-                          <tr key={res.id}>
-                            <td
-                              className={styles.tdOrg}
-                              style={{ borderLeft: `4px solid ${res.colorCode}`, cursor: 'pointer' }}
-                              onClick={() => setEditTarget(res)}
-                            >
-                              <ReservationTooltip reservation={res}>
-                                <span>{res.organization}</span>
-                              </ReservationTooltip>
-                            </td>
-                            {halfDays.flatMap(cal => {
-                              const meal = getOrgMeal(res.id, cal.dateStr);
-                              const b  = meal?.breakfast ?? 0;
-                              const l  = meal?.lunch     ?? 0;
-                              const dn = meal?.dinner    ?? 0;
-                              return [
-                                <td key={`${cal.dateStr}b`} className={`${styles.mealCell} ${tdCls(cal)} ${b  > 0 ? cls : ''}`}>{b  > 0 ? b  : ''}</td>,
-                                <td key={`${cal.dateStr}l`} className={`${styles.mealCell} ${tdCls(cal)} ${l  > 0 ? cls : ''}`}>{l  > 0 ? l  : ''}</td>,
-                                <td key={`${cal.dateStr}d`} className={`${styles.mealCell} ${tdCls(cal)} ${dn > 0 ? cls : ''}`}>{dn > 0 ? dn : ''}</td>,
-                              ];
-                            })}
-                            <td className={styles.weekTotalCell}>{halfTotal > 0 ? halfTotal : ''}</td>
-                          </tr>
-                        );
-                      })
-                    )}
-                    {activeMealReservations.length > 0 && (() => {
-                      const grandTotal = halfDays.reduce((s, cal) =>
-                        s + getDayTotal(cal.dateStr, 'breakfast') + getDayTotal(cal.dateStr, 'lunch') + getDayTotal(cal.dateStr, 'dinner'), 0);
-                      return (
-                        <tr className={styles.totalRow}>
-                          <td className={styles.totalLabel}>합계</td>
-                          {halfDays.flatMap(cal => {
-                            const b  = getDayTotal(cal.dateStr, 'breakfast');
-                            const l  = getDayTotal(cal.dateStr, 'lunch');
-                            const dn = getDayTotal(cal.dateStr, 'dinner');
-                            return [
-                              <td key={`${cal.dateStr}b`} className={tdCls(cal)}>{b  > 0 ? b  : ''}</td>,
-                              <td key={`${cal.dateStr}l`} className={tdCls(cal)}>{l  > 0 ? l  : ''}</td>,
-                              <td key={`${cal.dateStr}d`} className={tdCls(cal)}>{dn > 0 ? dn : ''}</td>,
-                            ];
-                          })}
-                          <td className={styles.weekTotalCell}>{grandTotal > 0 ? grandTotal : ''}</td>
-                        </tr>
-                      );
-                    })()}
-                  </tbody>
-                </table>
-              </div>
-            </div>}
 
           </div>
         );
