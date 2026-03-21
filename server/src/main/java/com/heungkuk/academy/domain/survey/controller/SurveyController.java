@@ -32,6 +32,13 @@ public class SurveyController {
         return ResponseEntity.ok(CommonResponse.success(response));
     }
 
+    // 설문 토큰 사용 여부 확인 (고객, 인증 불필요)
+    @Operation(summary = "설문 토큰 사용 여부 확인")
+    @GetMapping("/v1/survey/check/{token}")
+    public ResponseEntity<CommonResponse<Boolean>> checkSurveyToken(@PathVariable String token) {
+        return ResponseEntity.ok(CommonResponse.success(surveyService.isTokenUsed(token)));
+    }
+
     // 설문 응답 제출 (고객, 인증 불필요)
     @Operation(summary = "설문 응답 제출")
     @PostMapping("/v1/survey/{token}")
