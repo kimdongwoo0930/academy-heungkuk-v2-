@@ -3,6 +3,7 @@
 import ReservationModal from "@/components/reservation/ReservationModal";
 import ReservationTooltip from "@/components/scheduler/ReservationTooltip";
 import {
+  createReservation,
   getReservations,
   toRequestBody,
   updateReservation,
@@ -95,6 +96,10 @@ export default function SchedulerPage() {
   const [month, setMonth] = useState(today.getMonth());
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [editTarget, setEditTarget] = useState<Reservation | null>(null);
+  const [createDefaults, setCreateDefaults] = useState<{
+    date: string;
+    roomId: string;
+  } | null>(null);
 
   const fetchReservations = () =>
     getReservations()
@@ -172,9 +177,35 @@ export default function SchedulerPage() {
       setEditTarget(null);
       fetchReservations();
     } catch (err: unknown) {
-      const status = (err as { response?: { status?: number } })?.response?.status;
-      alert(status === 403 ? "수정 권한이 없습니다." : "저장 중 오류가 발생했습니다.");
+      const status = (err as { response?: { status?: number } })?.response
+        ?.status;
+      alert(
+        status === 403
+          ? "수정 권한이 없습니다."
+          : "저장 중 오류가 발생했습니다.",
+      );
     }
+  };
+
+  const handleCreate = async (data: Reservation) => {
+    try {
+      const body = toRequestBody(data);
+      await createReservation(body);
+      setCreateDefaults(null);
+      fetchReservations();
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response
+        ?.status;
+      alert(
+        status === 403
+          ? "수정 권한이 없습니다."
+          : "저장 중 오류가 발생했습니다.",
+      );
+    }
+  };
+
+  const handleCellDoubleClick = (dateStr: string, roomId: string) => {
+    setCreateDefaults({ date: dateStr, roomId });
   };
 
   // ── 데이터 조회 ──
@@ -271,10 +302,10 @@ export default function SchedulerPage() {
                           <td
                             className={`${styles.tdRoom} ${styles[group.bg]}`}
                           >
-                            {room.id}
+                            {/^\d+$/.test(room.id) ? `${room.id} 호` : room.id}
                           </td>
                           <td className={`${styles.tdCap} ${styles[group.bg]}`}>
-                            {room.cap ?? ""}
+                            {room.cap != null ? `${room.cap} 인` : ""}
                           </td>
 
                           {group.type === "숙박"
@@ -309,6 +340,15 @@ export default function SchedulerPage() {
                                     <td
                                       key={cal.dateStr}
                                       className={tdCls(cal)}
+                                      onDoubleClick={() =>
+                                        handleCellDoubleClick(
+                                          cal.dateStr,
+                                          room.id,
+                                        )
+                                      }
+                                      style={{
+                                        cursor: res ? undefined : "cell",
+                                      }}
                                     >
                                       {res && (
                                         <ReservationTooltip reservation={res}>
@@ -344,6 +384,25 @@ export default function SchedulerPage() {
           allReservations={reservations}
           onClose={() => setEditTarget(null)}
           onSave={handleSave}
+        />
+      )}
+
+      {createDefaults && (
+        <ReservationModal
+          reservation={null}
+          allReservations={reservations}
+          onClose={() => setCreateDefaults(null)}
+          onSave={handleCreate}
+          defaultValues={{
+            startDate: createDefaults.date,
+            endDate: createDefaults.date,
+            classrooms: [
+              {
+                classroomName: createDefaults.roomId,
+                reservedDate: createDefaults.date,
+              },
+            ],
+          }}
         />
       )}
     </div>
