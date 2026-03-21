@@ -27,21 +27,15 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // 회원가입
+    // 관리자가 계정 생성 (state=true, 즉시 활성화)
     @Transactional
-    public SignupResponse signUp(SignupRequest request){
-        // 1. userId 중복 확인 → 중복이면 ErrorCode.DUPLICATE_USER_ID 예외
+    public SignupResponse createAccount(SignupRequest request){
         if(accountRepository.existsByUserId(request.getUserId())){
             throw new BusinessException(ErrorCode.DUPLICATE_USER_ID);
         }
-
-        // 2. 비밀번호 BCrypt 암호화 (passwordEncoder.encode)
         String encodedPassword = passwordEncoder.encode(request.getPassword());
-
-        // 3. Account 엔티티 생성 후 저장 (role: "ROLE_USER", state: false)
-        Account account = Account.from(request, encodedPassword);
+        Account account = Account.fromAdmin(request, encodedPassword);
         accountRepository.save(account);
-
         return SignupResponse.of(account);
     }
 

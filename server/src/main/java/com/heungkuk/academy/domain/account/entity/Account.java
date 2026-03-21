@@ -65,6 +65,16 @@ public class Account extends BaseTimeEntity {
             .build();
     }
 
+    public static Account fromAdmin(SignupRequest request, String encodedPassword) {
+        return Account.builder()
+            .userId(request.getUserId())
+            .username(request.getUsername())
+            .password(encodedPassword)
+            .role("ROLE_USER")
+            .state(true)
+            .build();
+    }
+
     public void updateRefreshToken(String token){
         this.refreshToken = token;
     }

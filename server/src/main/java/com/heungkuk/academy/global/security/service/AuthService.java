@@ -39,11 +39,7 @@ public class AuthService {
         if(!passwordEncoder.matches(request.getPassword(), account.getPassword())){
             throw new BusinessException(ErrorCode.INVALID_PASSWORD);
         }
-        // 3. state 확인 → false면 미승인 예외
-        if(!account.getState()){
-            throw new BusinessException(ErrorCode.ACCOUNT_PENDING);
-        }
-        // 4. accessToken, refreshToken 생성
+        // 3. accessToken, refreshToken 생성
         String accessToken = jwtProvider.generateAccessToken(account.getUserId(), account.getRole());
         String refreshToken = jwtProvider.generateRefreshToken(account.getUserId());
         // 5. refreshToken DB 저장
