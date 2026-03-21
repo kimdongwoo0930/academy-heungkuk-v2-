@@ -1,7 +1,6 @@
 package com.heungkuk.academy.domain.reservation.entity;
 
 import java.time.LocalDate;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,10 +10,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
 import com.heungkuk.academy.domain.reservation.dto.request.MealRequest;
 import com.heungkuk.academy.global.entity.BaseTimeEntity;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,14 +43,11 @@ public class MealReservation extends BaseTimeEntity {
 
     private Integer dinner;
 
+
     public static MealReservation of(Reservation reservation, MealRequest request) {
-    return MealReservation.builder()
-            .reservation(reservation)
-            .mealDate(request.getReservedDate())
-            .breakfast(request.getBreakfast())
-            .lunch(request.getLunch())
-            .dinner(request.getDinner())
-            .build();
-}
+        return MealReservation.builder().reservation(reservation)
+                .mealDate(request.getReservedDate()).breakfast(request.getBreakfast())
+                .lunch(request.getLunch()).dinner(request.getDinner()).build();
+    }
 
 }
