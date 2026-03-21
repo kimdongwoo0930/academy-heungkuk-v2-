@@ -52,6 +52,7 @@ public class AccountService {
         return response;
     }
 
+    @Transactional
     public void deleteAccount(Long id){
         Account account = accountRepository.findById(id).orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
         accountRepository.delete(account);
