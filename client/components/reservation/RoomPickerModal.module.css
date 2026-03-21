@@ -11,9 +11,8 @@
 .modal {
   background: var(--surface);
   border-radius: 14px;
-  width: 760px;
   max-width: 96vw;
-  max-height: 90vh;
+  max-height: 92vh;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.22);
   display: flex;
   flex-direction: column;
@@ -24,11 +23,18 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 20px 24px 12px;
+  padding: 16px 20px 10px;
+  flex-shrink: 0;
+  cursor: grab;
+  user-select: none;
+}
+
+.header:active {
+  cursor: grabbing;
 }
 
 .title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text);
 }
@@ -36,12 +42,12 @@
 .subtitle {
   font-size: 12px;
   color: var(--text-sub);
-  margin-top: 3px;
+  margin-top: 2px;
 }
 
 .closeBtn {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: 6px;
   font-size: 14px;
   color: var(--text-sub);
@@ -49,119 +55,124 @@
   align-items: center;
   justify-content: center;
   transition: background 0.15s;
+  flex-shrink: 0;
 }
 .closeBtn:hover {
   background: #f0f0f0;
 }
 
-/* 테이블 */
-.tableWrap {
-  padding: 0 24px 16px;
-  overflow-y: auto;
-  flex: 1;
+/* 범례 */
+.legend {
+  display: flex;
+  gap: 14px;
+  padding: 0 20px 10px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
-.roomTable {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.roomTable tr {
-  border-bottom: 1px solid var(--border);
-}
-
-.typeTd {
-  width: 110px;
-  padding: 14px 12px 14px 0;
-  vertical-align: middle;
-  white-space: nowrap;
-}
-
-.typeDot {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
-  margin-right: 6px;
-  vertical-align: middle;
-}
-
-.typeName {
-  font-weight: 700;
-  color: var(--text);
-  vertical-align: middle;
-}
-
-.typeCount {
-  display: block;
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   font-size: 11px;
   color: var(--text-sub);
-  margin-top: 3px;
 }
 
-.roomsTd {
-  padding: 10px 0;
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* 도면 */
+.floorWrap {
+  flex: 1;
+  overflow: auto;
+  padding: 8px 20px 16px;
+}
+
+.floorGrid {
+  display: grid;
+  gap: 3px;
+}
+
+/* 라벨 */
+.floorLabel {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
   align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--text-sub);
+  font-weight: 600;
+  border: 1px dashed #ddd;
+  border-radius: 4px;
+  background: #fafafa;
 }
 
 /* 호실 버튼 */
-.room {
-  width: 52px;
-  height: 52px;
-  border-radius: 8px;
-  border: 2px solid var(--room-color);
-  background: color-mix(in srgb, var(--room-color) 12%, white);
+.roomCell {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  border: 2px solid var(--c, #ccc);
+  border-radius: 4px;
+  background: var(--bg, #fff);
   cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
-  flex-shrink: 0;
+  transition: transform 0.08s, border-color 0.1s, background 0.1s;
+  gap: 1px;
+  position: relative;
 }
 
-.room:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--room-color) 25%, white);
-  transform: scale(1.06);
+.roomCell:hover:not(:disabled) {
+  border-color: var(--c, #999);
+  background: color-mix(in srgb, var(--c, #999) 22%, white);
+  transform: scale(1.1);
+  z-index: 1;
 }
 
 .roomPicked {
-  background: var(--room-color) !important;
+  background: var(--c, #999) !important;
+  border-color: var(--c, #999) !important;
 }
 
 .roomOccupied {
-  opacity: 0.35;
+  background: #f0f0f0 !important;
+  border-color: #ccc !important;
+  opacity: 0.5;
   cursor: not-allowed;
-  border-style: dashed;
 }
 
-.roomPicked .roomNum,
-.roomPicked .roomCap {
-  color: #fff !important;
-}
-
-.roomOccupied .roomCap {
-  font-size: 9px;
-  color: #e74c3c !important;
-  font-weight: 700;
-}
-
-.roomNum {
-  font-size: 12px;
+.cellNum {
+  font-size: 11px;
   font-weight: 700;
   color: var(--text);
   line-height: 1;
 }
 
-.roomCap {
-  font-size: 10px;
-  color: var(--text-sub);
+.roomPicked .cellNum {
+  color: #fff;
+}
+
+.roomOccupied .cellNum {
+  color: #aaa;
+}
+
+.cellCap {
+  font-size: 9px;
+  color: var(--c, #999);
+  font-weight: 600;
   line-height: 1;
+}
+
+.roomPicked .cellCap {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.roomOccupied .cellCap {
+  font-size: 8px;
+  color: #e74c3c !important;
 }
 
 /* 푸터 */
@@ -169,8 +180,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 24px;
+  padding: 10px 20px;
   border-top: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 .total {
@@ -181,12 +193,12 @@
 
 .footerBtns {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
 .cancelBtn {
-  height: 34px;
-  padding: 0 18px;
+  height: 32px;
+  padding: 0 16px;
   border: 1px solid var(--border);
   border-radius: 7px;
   font-size: 13px;
@@ -199,8 +211,8 @@
 }
 
 .confirmBtn {
-  height: 34px;
-  padding: 0 22px;
+  height: 32px;
+  padding: 0 20px;
   background: var(--accent);
   color: #fff;
   border-radius: 7px;

@@ -8,43 +8,19 @@ import {
   updateReservation,
 } from "@/lib/api/reservation";
 import { Reservation } from "@/types/reservation";
+import { isHoliday } from "@hyunbinseo/holidays-kr";
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 
 const WEEK_DAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
-const HOLIDAYS = new Set([
-  "2025-01-01",
-  "2025-01-28",
-  "2025-01-29",
-  "2025-01-30",
-  "2025-03-01",
-  "2025-05-05",
-  "2025-05-06",
-  "2025-06-06",
-  "2025-08-15",
-  "2025-10-03",
-  "2025-10-05",
-  "2025-10-06",
-  "2025-10-07",
-  "2025-10-09",
-  "2025-12-25",
-  "2026-01-01",
-  "2026-02-17",
-  "2026-02-18",
-  "2026-02-19",
-  "2026-03-01",
-  "2026-05-05",
-  "2026-05-24",
-  "2026-06-06",
-  "2026-08-15",
-  "2026-09-24",
-  "2026-09-25",
-  "2026-09-26",
-  "2026-10-03",
-  "2026-10-09",
-  "2026-12-25",
-]);
+function checkIsHoliday(date: Date): boolean {
+  try {
+    return isHoliday(date);
+  } catch {
+    return false;
+  }
+}
 
 const CLASSROOM_GROUPS = [
   { type: "대강의실", bg: "bgYellow", rooms: [{ id: "105", cap: 120 }] },
@@ -161,8 +137,8 @@ export default function SchedulerPage() {
   ].filter((h) => h.length > 0);
 
   // ── 스타일 헬퍼 ──
-  const isRedDay = (dateStr: string, date: Date) =>
-    date.getDay() === 0 || date.getDay() === 6 || HOLIDAYS.has(dateStr);
+  const isRedDay = (_dateStr: string, date: Date) =>
+    date.getDay() === 0 || date.getDay() === 6 || checkIsHoliday(date);
 
   const thCls = (cal: CalDay) => {
     if (!cal.isCurrent) return styles.otherMonthTh;
@@ -195,8 +171,9 @@ export default function SchedulerPage() {
       await updateReservation(data.id, body);
       setEditTarget(null);
       fetchReservations();
-    } catch {
-      alert("저장 중 오류가 발생했습니다.");
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      alert(status === 403 ? "수정 권한이 없습니다." : "저장 중 오류가 발생했습니다.");
     }
   };
 

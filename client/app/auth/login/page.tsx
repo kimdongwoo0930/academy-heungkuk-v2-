@@ -21,15 +21,9 @@ export default function LoginPage() {
     try {
       const res = await login({ userId, password });
       localStorage.setItem("accessToken", res.accessToken);
-      router.push("/dashboard");
-    } catch (err: unknown) {
-      const status = (err as { response?: { status?: number } })?.response
-        ?.status;
-      if (status === 403) {
-        setError("승인 대기 중인 계정입니다. 관리자에게 문의하세요.");
-      } else {
-        setError("아이디 또는 비밀번호가 올바르지 않습니다.");
-      }
+      router.push("/scheduler");
+    } catch {
+      setError("아이디 또는 비밀번호가 올바르지 않습니다.");
     } finally {
       setLoading(false);
     }
@@ -76,12 +70,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className={styles.signupLink}>
-          계정이 없으신가요?{" "}
-          <a href="/auth/signup" className={styles.link}>
-            계정 등록
-          </a>
-        </p>
       </div>
     </div>
   );

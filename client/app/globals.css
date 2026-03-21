@@ -9,6 +9,7 @@
   --text: #1a1a1a;
   --text-sub: #6b7280;
   --sidebar-width: 220px;
+  --sidebar-collapsed-width: 56px;
   --header-height: 56px;
 }
 
@@ -40,4 +41,26 @@ button {
   cursor: pointer;
   border: none;
   background: none;
+}
+
+/* 견적서 인쇄 */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 14mm;
+  }
+
+  body {
+    visibility: hidden;
+  }
+
+  #quotePrintArea {
+    visibility: visible;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 0;
+    background: white;
+  }
 }

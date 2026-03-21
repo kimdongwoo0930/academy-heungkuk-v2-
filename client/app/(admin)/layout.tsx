@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
@@ -12,6 +12,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -22,9 +23,9 @@ export default function AdminLayout({
 
   return (
     <>
-      <Sidebar />
-      <Header />
-      <main className={styles.main}>
+      <Sidebar collapsed={collapsed} onToggle={() => setCollapsed((v) => !v)} />
+      <Header collapsed={collapsed} />
+      <main className={`${styles.main} ${collapsed ? styles.mainCollapsed : ''}`}>
         <div className={styles.content}>{children}</div>
       </main>
     </>

@@ -43,6 +43,63 @@
   margin-bottom: 24px;
 }
 
+.monthSummary {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 14px 20px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  margin-top: 8px;
+}
+
+.monthSummaryTitle {
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.monthSummaryRange {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary, #888);
+}
+
+.monthSummaryItems {
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+  color: var(--text-secondary, #555);
+}
+
+.monthSummaryItems span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.monthSummaryItems strong {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.monthSummaryTotal {
+  padding-left: 12px;
+  border-left: 1px solid var(--border);
+}
+
+.weekLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary, #666);
+  margin-bottom: 6px;
+}
+
 .tableWrap {
   overflow-x: auto;
   background: var(--surface);
@@ -91,13 +148,13 @@
 }
 
 .thOrg {
-  min-width: 90px !important;
+  min-width: 72px !important;
   text-align: left !important;
-  padding-left: 8px !important;
+  padding-left: 6px !important;
 }
 
 .thTotal {
-  min-width: 44px !important;
+  min-width: 36px !important;
   font-size: 11px !important;
 }
 
@@ -136,8 +193,12 @@
   font-weight: 600;
 }
 
-.confirmed { color: #dc2626; }
-.pending   { color: #16a34a; }
+.confirmed {
+  color: #dc2626;
+}
+.pending {
+  color: #16a34a;
+}
 
 /* 합계 행 */
 .totalRow td {

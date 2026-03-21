@@ -8,6 +8,12 @@
   display: flex;
   flex-direction: column;
   z-index: 100;
+  transition: width 0.2s ease;
+  overflow: hidden;
+}
+
+.sidebar.collapsed {
+  width: var(--sidebar-collapsed-width);
 }
 
 .logo {
@@ -15,8 +21,28 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0 16px;
+  padding: 0 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.toggleBtn {
+  margin-left: auto;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 10px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.toggleBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
 
 .logoText {
@@ -36,14 +62,23 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 20px;
+  padding: 10px 18px;
   color: rgba(255, 255, 255, 0.65);
   font-size: 13px;
   font-weight: 500;
-  transition:
-    background 0.15s,
-    color 0.15s;
+  transition: background 0.15s, color 0.15s;
   cursor: pointer;
+  white-space: nowrap;
+}
+
+.navItemCollapsed {
+  padding: 10px 0;
+  justify-content: center;
+}
+
+.logoutBtnCollapsed {
+  padding: 10px 0;
+  justify-content: center;
 }
 
 .navItem:hover {

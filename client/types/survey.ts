@@ -7,6 +7,7 @@ export interface SurveyTokenResponse {
 export interface SurveyResult {
   id: number;
   answer: string; // JSON string
+  reservationId: string;
   createdAt: string;
 }
 
