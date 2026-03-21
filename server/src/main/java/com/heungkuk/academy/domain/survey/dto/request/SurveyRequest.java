@@ -9,3 +9,4 @@ public class SurveyRequest {
 
     private String answer;
 }
+

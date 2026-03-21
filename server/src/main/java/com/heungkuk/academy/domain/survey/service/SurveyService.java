@@ -82,9 +82,14 @@ public class SurveyService {
     }
 
     public List<SurveyTokenResponse> getAllTokens() {
-        return surveyTokenRepository.findAll().stream()
-                .map(SurveyTokenResponse::from)
-                .toList();
+        return surveyTokenRepository.findAll().stream().map(SurveyTokenResponse::from).toList();
+    }
+
+    // 설문 토큰 사용 여부 확인 (고객, 인증 불필요)
+    public boolean isTokenUsed(String token) {
+        SurveyToken surveyToken = surveyTokenRepository.findByToken(token)
+                .orElseThrow(() -> new BusinessException(ErrorCode.SURVEY_TOKEN_NOT_FOUND));
+        return surveyToken.getIsUsed();
     }
 
 }
