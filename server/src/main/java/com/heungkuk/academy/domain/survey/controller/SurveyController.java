@@ -69,4 +69,10 @@ public class SurveyController {
     public ResponseEntity<CommonResponse<List<SurveyTokenResponse>>> getAllTokens() {
         return ResponseEntity.ok(CommonResponse.success(surveyService.getAllTokens()));
     }
+
+    @Operation(summary = "전체 설문 목록 조회")
+    @GetMapping("/v1/admin/surveys")
+    public ResponseEntity<CommonResponse<List<SurveyResponse>>> getAllSurvey() {
+        return ResponseEntity.ok(CommonResponse.success(surveyService.getSurveyList()));
+    }
 }
