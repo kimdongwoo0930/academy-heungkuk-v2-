@@ -83,4 +83,8 @@ public class Account extends BaseTimeEntity {
         this.role = role;
         this.state = true;
     }
+
+    public void updatePassword(String encodedPassword){
+        this.password = encodedPassword;
+    }
 }

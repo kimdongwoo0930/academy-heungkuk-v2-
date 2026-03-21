@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { AccountInfo, getAccounts, updateAccountRole, deleteAccount, createAccount } from '@/lib/api/account';
+import { AccountInfo, getAccounts, updateAccountRole, deleteAccount, createAccount, updateAccountPassword } from '@/lib/api/account';
 import { getSettings, saveSettings } from '@/lib/api/settings';
-import { isAdmin } from '@/lib/utils/auth';
+import { isAdmin, parseJwtPayload } from '@/lib/utils/auth';
 import { CLASSROOM_CATEGORIES } from '@/lib/constants/classrooms';
 import {
   AppSettings,
@@ -20,8 +20,8 @@ function getCurrentUserId(): string | null {
   const token = localStorage.getItem('accessToken');
   if (!token) return null;
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.sub ?? null;
+    const payload = parseJwtPayload(token);
+    return (payload.sub as string) ?? null;
   } catch {
     return null;
   }
@@ -90,6 +90,25 @@ export default function SettingsPage() {
   };
 
   // ── 계정 관리 ──
+  const [pwTarget, setPwTarget] = useState<AccountInfo | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [pwChanging, setPwChanging] = useState(false);
+
+  const handlePasswordChange = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!pwTarget) return;
+    setPwChanging(true);
+    try {
+      await updateAccountPassword(pwTarget.id, newPassword);
+      setPwTarget(null);
+      setNewPassword('');
+    } catch {
+      alert('비밀번호 변경에 실패했습니다.');
+    } finally {
+      setPwChanging(false);
+    }
+  };
+
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState<CreateForm>({ userId: '', username: '', password: '' });
   const [creating, setCreating] = useState(false);
@@ -124,7 +143,7 @@ export default function SettingsPage() {
     }
   };
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormError('');
     setCreating(true);
@@ -186,7 +205,13 @@ export default function SettingsPage() {
                       </td>
                       <td className={styles.date}>{acc.createdAt?.slice(0, 10)}</td>
                       {admin && (
-                        <td>
+                        <td className={styles.actionCell}>
+                          <button
+                            className={styles.pwBtn}
+                            onClick={() => { setPwTarget(acc); setNewPassword(''); }}
+                          >
+                            비밀번호
+                          </button>
                           <button
                             className={styles.deleteBtn}
                             onClick={() => handleDelete(acc.id, acc.userId)}
@@ -289,6 +314,40 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
+
+      {pwTarget && (
+        <div className={styles.overlay} onClick={() => setPwTarget(null)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <span className={styles.modalTitle}>{pwTarget.username} 비밀번호 변경</span>
+              <button className={styles.closeBtn} onClick={() => setPwTarget(null)}>✕</button>
+            </div>
+            <form className={styles.modalBody} onSubmit={handlePasswordChange}>
+              <label className={styles.fieldLabel}>
+                새 비밀번호
+                <input
+                  className={styles.fieldInput}
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="새 비밀번호 입력"
+                  required
+                  minLength={4}
+                  autoFocus
+                />
+              </label>
+              <div className={styles.modalFooter}>
+                <button type="button" className={styles.cancelBtn} onClick={() => setPwTarget(null)}>
+                  취소
+                </button>
+                <button type="submit" className={styles.saveBtn} disabled={pwChanging}>
+                  {pwChanging ? '변경 중...' : '변경'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {showModal && (
         <div className={styles.overlay} onClick={() => setShowModal(false)}>
