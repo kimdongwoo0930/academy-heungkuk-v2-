@@ -38,6 +38,8 @@ public class SecurityConfig {
                                 "/webjars/**").permitAll()
                         // 조회(GET)는 인증된 사용자라면 누구나 가능
                         .requestMatchers(HttpMethod.GET, "/v1/admin/**").authenticated()
+                        // 본인 비밀번호 변경은 누구나 가능
+                        .requestMatchers(HttpMethod.PATCH, "/v1/admin/accounts/me/password").authenticated()
                         // 생성/수정/삭제는 ROLE_ADMIN만 가능
                         .requestMatchers(HttpMethod.POST, "/v1/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/v1/admin/**").hasAuthority("ROLE_ADMIN")

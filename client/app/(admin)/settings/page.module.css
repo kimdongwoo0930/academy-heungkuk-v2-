@@ -319,6 +319,29 @@
   border-color: var(--accent);
 }
 
+/* 액션 셀 */
+.actionCell {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* 비밀번호 변경 버튼 */
+.pwBtn {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-sub);
+  border: 1px solid var(--border);
+  transition: all 0.15s;
+}
+.pwBtn:hover {
+  background: #f5f5f5;
+}
+
 /* 삭제 버튼 */
 .deleteBtn {
   padding: 4px 12px;
