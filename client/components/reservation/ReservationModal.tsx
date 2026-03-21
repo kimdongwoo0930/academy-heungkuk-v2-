@@ -30,10 +30,11 @@ const CLASSROOM_OPTIONS = [
 ];
 
 function classroomLabel(id: string) {
+  const displayId = /^\d+$/.test(id) ? `${id}호` : id;
   const cat = CLASSROOM_ROOM_TO_CATEGORY[id];
-  if (!cat) return id;
+  if (!cat) return displayId;
   const capacity = cat.match(/\d+인/)?.[0] ?? cat;
-  return `${id} (${capacity})`;
+  return `${displayId} (${capacity})`;
 }
 
 interface Props {
@@ -41,6 +42,7 @@ interface Props {
   allReservations: Reservation[];
   onClose: () => void;
   onSave: (data: Reservation) => void | Promise<void>;
+  defaultValues?: Partial<Omit<Reservation, 'id' | 'reservationCode'>>;
 }
 
 function emptyForm(): Omit<Reservation, 'id' | 'reservationCode'> {
@@ -63,7 +65,7 @@ function emptyForm(): Omit<Reservation, 'id' | 'reservationCode'> {
   };
 }
 
-export default function ReservationModal({ reservation, allReservations, onClose, onSave }: Props) {
+export default function ReservationModal({ reservation, allReservations, onClose, onSave, defaultValues }: Props) {
   const isEdit = reservation !== null;
 
   // 드래그
@@ -148,7 +150,7 @@ export default function ReservationModal({ reservation, allReservations, onClose
           rooms: reservation.rooms ? [...reservation.rooms] : [],
           meals: reservation.meals ? [...reservation.meals] : [],
         }
-      : emptyForm()
+      : { ...emptyForm(), ...defaultValues }
   );
 
   const setField = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
