@@ -36,12 +36,16 @@ export default function Sidebar({ collapsed, onToggle }: Props) {
         <HeungkukLogo size={32} />
         {!collapsed && (
           <span className={styles.logoText}>
-            흥국생명
+            흥국생명연수원
             <br />
-            연수원 관리
+            대관 관리
           </span>
         )}
-        <button className={styles.toggleBtn} onClick={onToggle} title={collapsed ? "메뉴 펼치기" : "메뉴 접기"}>
+        <button
+          className={styles.toggleBtn}
+          onClick={onToggle}
+          title={collapsed ? "메뉴 펼치기" : "메뉴 접기"}
+        >
           {collapsed ? "▶" : "◀"}
         </button>
       </div>
