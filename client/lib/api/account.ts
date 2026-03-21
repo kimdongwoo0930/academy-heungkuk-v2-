@@ -10,6 +10,17 @@ export interface AccountInfo {
   createdAt: string;
 }
 
+export interface CreateAccountRequest {
+  userId: string;
+  password: string;
+  username: string;
+}
+
+export async function createAccount(data: CreateAccountRequest): Promise<AccountInfo> {
+  const res = await instance.post<ApiResponse<AccountInfo>>('/v1/admin/accounts', data);
+  return res.data.data;
+}
+
 export async function getAccounts(): Promise<AccountInfo[]> {
   const res = await instance.get<ApiResponse<AccountInfo[]>>('/v1/admin/accounts');
   return res.data.data;

@@ -250,6 +250,19 @@
   color: #dc2626;
 }
 
+.ratingComment {
+  font-size: 11px;
+  color: var(--text-sub);
+  margin-left: 8px;
+  padding: 2px 6px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .comment {
   border-top: 1px solid #f0f0f0;
   padding-top: 12px;

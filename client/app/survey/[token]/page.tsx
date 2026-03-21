@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, use } from 'react';
-import { submitSurvey } from '@/lib/api/survey';
+import { useState, use, useEffect } from 'react';
+import { submitSurvey, checkSurveyToken } from '@/lib/api/survey';
 import { SurveyAnswers } from '@/types/survey';
 import styles from './page.module.css';
 
@@ -62,6 +62,13 @@ export default function SurveyPage({ params }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [tokenStatus, setTokenStatus] = useState<'checking' | 'valid' | 'used' | 'invalid'>('checking');
+
+  useEffect(() => {
+    checkSurveyToken(token)
+      .then((isUsed) => setTokenStatus(isUsed ? 'used' : 'valid'))
+      .catch(() => setTokenStatus('invalid'));
+  }, [token]);
 
   const set = <K extends keyof SurveyAnswers>(key: K, value: SurveyAnswers[K]) => {
     setAnswers((prev) => ({ ...prev, [key]: value }));
@@ -117,6 +124,38 @@ export default function SurveyPage({ params }: Props) {
       setLoading(false);
     }
   };
+
+  if (tokenStatus === 'checking') {
+    return <div className={styles.container}><p style={{ textAlign: 'center', marginTop: '80px', color: '#888' }}>확인 중...</p></div>;
+  }
+
+  if (tokenStatus === 'used') {
+    return (
+      <div className={styles.container}>
+        <div className={styles.successCard}>
+          <div className={styles.successIcon}>📋</div>
+          <h2 className={styles.successTitle}>이미 제출된 설문입니다</h2>
+          <p className={styles.successDesc}>
+            이 링크는 이미 사용되었습니다.<br />설문은 1회만 제출할 수 있습니다.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (tokenStatus === 'invalid') {
+    return (
+      <div className={styles.container}>
+        <div className={styles.successCard}>
+          <div className={styles.successIcon}>❌</div>
+          <h2 className={styles.successTitle}>유효하지 않은 링크입니다</h2>
+          <p className={styles.successDesc}>
+            설문 링크가 올바르지 않습니다.<br />담당자에게 문의해주세요.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (submitted) {
     return (

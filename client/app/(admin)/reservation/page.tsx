@@ -56,8 +56,9 @@ export default function ReservationPage() {
       }
       setIsModalOpen(false);
       await fetchReservations();
-    } catch {
-      alert('저장 중 오류가 발생했습니다.');
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      alert(status === 403 ? '수정 권한이 없습니다.' : '저장 중 오류가 발생했습니다.');
     }
   };
 

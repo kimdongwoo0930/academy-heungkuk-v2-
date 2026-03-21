@@ -55,6 +55,11 @@ export async function getReservations(): Promise<Reservation[]> {
   return res.data.data;
 }
 
+export async function getReservationById(id: number): Promise<Reservation> {
+  const res = await instance.get(`/v1/admin/reservations/${id}`);
+  return res.data.data;
+}
+
 export async function createReservation(body: ReservationRequestBody): Promise<Reservation> {
   const res = await instance.post('/v1/admin/reservations', body);
   return res.data.data;

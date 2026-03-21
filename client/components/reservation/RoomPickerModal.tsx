@@ -1,7 +1,7 @@
 "use client";
 
 import { ROOM_INFO, RoomType } from "@/lib/constants/rooms";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import styles from "./RoomPickerModal.module.css";
 
 interface Props {
@@ -18,14 +18,82 @@ const TYPE_COLOR: Record<RoomType, string> = {
   "4인실": "#F5A623",
 };
 
-const ROOM_GROUPS: { type: RoomType; rooms: string[] }[] = (
-  ["1인실", "2인실", "4인실"] as RoomType[]
-).map((type) => ({
-  type,
-  rooms: Object.keys(ROOM_INFO)
-    .filter((k) => ROOM_INFO[k].type === type)
-    .sort((a, b) => Number(a) - Number(b)),
-}));
+const TYPE_PASTEL: Record<RoomType, string> = {
+  "1인실": "#fce4f3",
+  "2인실": "#daeeff",
+  "4인실": "#fef3dc",
+};
+
+// 각 방/라벨의 명시적 그리드 위치
+// row: 1-indexed half-row 시작 (각 방은 span 2)
+// 한 칸씩 반행(half-row) 내려가면 → 옆 방 높이의 중간쯤에 위치
+interface CellDef {
+  id: string;
+  isLabel?: boolean;
+  row: number;
+  col: number;
+  colSpan?: number;
+}
+
+//  구조 개요 (col 1~17, half-row 1~11):
+//   col: 1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17
+//  row1:               109  110  111  [화]  127  126
+//  row2:          108                            125
+//  row3:     107                                      124
+//  row4:106  101  [현관][현관][현관]  112  123
+//  row5:102                            113       122
+//  row6:     103                            114       121
+//  row7:104                                 115       120
+//  row8:                                         116       119
+//  row9:                                              117
+// row10:                                                   118
+
+const LAYOUT: CellDef[] = [
+  // ── 상단 복도 ──
+  { id: "109", row: 1, col: 5 },
+  { id: "110", row: 1, col: 6 },
+  { id: "111", row: 1, col: 7 },
+  { id: "화장실", isLabel: true, row: 1, col: 8 },
+  { id: "127", row: 1, col: 9 },
+  { id: "126", row: 1, col: 10 },
+
+  // ── 좌측 상단 대각선 (↙) ──
+  { id: "108", row: 2, col: 4 },
+  { id: "107", row: 3, col: 3 },
+  { id: "106", row: 4, col: 2 },
+  { id: "105", row: 5, col: 1 },
+
+  // ── 우측 상단 대각선 (↘) ──
+  { id: "125", row: 2, col: 11 },
+  { id: "124", row: 3, col: 12 },
+  { id: "123", row: 4, col: 13 },
+  { id: "122", row: 5, col: 14 },
+  { id: "121", row: 6, col: 15 },
+  { id: "120", row: 7, col: 16 },
+  { id: "119", row: 8, col: 17 },
+
+  // ── 현관 라벨 ──
+  { id: "현관", isLabel: true, row: 6, col: 7, colSpan: 2 },
+
+  // ── 좌측 하단 대각선 (↙) — 106 기준 2칸 간격 ──
+  { id: "101", row: 6, col: 5 },
+  { id: "102", row: 7, col: 4 },
+  { id: "103", row: 8, col: 3 },
+  { id: "104", row: 9, col: 2 },
+
+  // ── 우측 하단 대각선 (↘) — 125 기준 2칸 간격 ──
+  { id: "112", row: 6, col: 10 },
+  { id: "113", row: 7, col: 11 },
+  { id: "114", row: 8, col: 12 },
+  { id: "115", row: 9, col: 13 },
+  { id: "116", row: 10, col: 14 },
+  { id: "117", row: 11, col: 15 },
+  { id: "118", row: 12, col: 16 },
+];
+
+// 그리드 크기 (CSS 변수로 전달)
+const GRID_COLS = 17;
+const GRID_ROWS = 13; // half-rows
 
 export default function RoomPickerModal({
   date,
@@ -35,6 +103,63 @@ export default function RoomPickerModal({
   onClose,
 }: Props) {
   const [picked, setPicked] = useState<Set<string>>(new Set(selected));
+  const [pos, setPos] = useState({ dx: 0, dy: 0 });
+  const dragRef = useRef<{
+    startX: number;
+    startY: number;
+    dx: number;
+    dy: number;
+  } | null>(null);
+
+  const handleDragStart = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest("button")) return;
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      dx: pos.dx,
+      dy: pos.dy,
+    };
+    const onMove = (ev: MouseEvent) => {
+      if (!dragRef.current) return;
+      setPos({
+        dx: dragRef.current.dx + ev.clientX - dragRef.current.startX,
+        dy: dragRef.current.dy + ev.clientY - dragRef.current.startY,
+      });
+    };
+    const onUp = () => {
+      dragRef.current = null;
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+    };
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if ((e.target as HTMLElement).closest("button")) return;
+    const t = e.touches[0];
+    dragRef.current = {
+      startX: t.clientX,
+      startY: t.clientY,
+      dx: pos.dx,
+      dy: pos.dy,
+    };
+    const onMove = (ev: TouchEvent) => {
+      if (!dragRef.current) return;
+      const touch = ev.touches[0];
+      setPos({
+        dx: dragRef.current.dx + touch.clientX - dragRef.current.startX,
+        dy: dragRef.current.dy + touch.clientY - dragRef.current.startY,
+      });
+    };
+    const onUp = () => {
+      dragRef.current = null;
+      document.removeEventListener("touchmove", onMove);
+      document.removeEventListener("touchend", onUp);
+    };
+    document.addEventListener("touchmove", onMove, { passive: true });
+    document.addEventListener("touchend", onUp);
+  };
 
   const toggle = (num: string) => {
     setPicked((prev) => {
@@ -55,66 +180,108 @@ export default function RoomPickerModal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className={styles.modal}>
-        <div className={styles.header}>
+      <div className={styles.modal} style={{ transform: `translate(${pos.dx}px, ${pos.dy}px)` }}>
+        <div className={styles.header} onMouseDown={handleDragStart} onTouchStart={handleTouchStart}>
           <div>
             <h3 className={styles.title}>호실 선택</h3>
             <p className={styles.subtitle}>{date}</p>
           </div>
-          <button className={styles.closeBtn} onClick={onClose}>✕</button>
+          <button className={styles.closeBtn} onClick={onClose}>
+            ✕
+          </button>
         </div>
 
-        <div className={styles.tableWrap}>
-          <table className={styles.roomTable}>
-            <tbody>
-              {ROOM_GROUPS.map(({ type, rooms }) => (
-                <tr key={type}>
-                  <td className={styles.typeTd}>
-                    <span
-                      className={styles.typeDot}
-                      style={{ backgroundColor: TYPE_COLOR[type] }}
-                    />
-                    <span className={styles.typeName}>{type}</span>
-                    <span className={styles.typeCount}>
-                      {countByType(type)}개 선택
-                    </span>
-                  </td>
-                  <td className={styles.roomsTd}>
-                    {rooms.map((num) => {
-                      const info = ROOM_INFO[num];
-                      const isPicked = picked.has(num);
-                      const isOccupied = occupiedRooms.includes(num);
-                      return (
-                        <button
-                          key={num}
-                          className={`${styles.room} ${isPicked ? styles.roomPicked : ""} ${isOccupied ? styles.roomOccupied : ""}`}
-                          style={{ "--room-color": TYPE_COLOR[type] } as React.CSSProperties}
-                          onClick={() => !isOccupied && toggle(num)}
-                          disabled={isOccupied}
-                          title={
-                            isOccupied
-                              ? `${num}호 — 다른 예약에서 사용 중`
-                              : `${num}호 (${info.type}, ${info.cap}인)`
-                          }
-                        >
-                          <span className={styles.roomNum}>{num}</span>
-                          <span className={styles.roomCap}>
-                            {isOccupied ? "사용중" : `${info.cap}인`}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {/* 범례 */}
+        <div className={styles.legend}>
+          {(Object.entries(TYPE_COLOR) as [RoomType, string][]).map(
+            ([type, color]) => (
+              <div key={type} className={styles.legendItem}>
+                <span
+                  className={styles.legendDot}
+                  style={{ background: color }}
+                />
+                <span>
+                  {type}
+                  {countByType(type) > 0 ? ` (${countByType(type)}개)` : ""}
+                </span>
+              </div>
+            ),
+          )}
+          <div className={styles.legendItem}>
+            <span className={styles.legendDot} style={{ background: "#ccc" }} />
+            <span>사용중</span>
+          </div>
+        </div>
+
+        {/* 도면 */}
+        <div className={styles.floorWrap}>
+          <div
+            className={styles.floorGrid}
+            style={{
+              gridTemplateColumns: `repeat(${GRID_COLS}, 36px)`,
+              gridTemplateRows: `repeat(${GRID_ROWS}, 18px)`,
+            }}
+          >
+            {LAYOUT.map((cell) => {
+              const gridRow = `${cell.row} / span 2`;
+              const gridColumn = cell.colSpan
+                ? `${cell.col} / span ${cell.colSpan}`
+                : `${cell.col}`;
+
+              if (cell.isLabel) {
+                return (
+                  <div
+                    key={cell.id}
+                    className={styles.floorLabel}
+                    style={{ gridRow, gridColumn }}
+                  >
+                    {cell.id}
+                  </div>
+                );
+              }
+
+              const info = ROOM_INFO[cell.id];
+              const isPicked = picked.has(cell.id);
+              const isOccupied = occupiedRooms.includes(cell.id);
+              const color = TYPE_COLOR[info.type];
+              const pastel = TYPE_PASTEL[info.type];
+
+              return (
+                <button
+                  key={cell.id}
+                  className={`${styles.roomCell} ${isPicked ? styles.roomPicked : ""} ${isOccupied ? styles.roomOccupied : ""}`}
+                  style={
+                    {
+                      gridRow,
+                      gridColumn,
+                      "--c": color,
+                      "--bg": pastel,
+                    } as React.CSSProperties
+                  }
+                  onClick={() => !isOccupied && toggle(cell.id)}
+                  disabled={isOccupied}
+                  title={
+                    isOccupied
+                      ? `${cell.id}호 — 사용중`
+                      : `${cell.id}호 (${info.type})`
+                  }
+                >
+                  <span className={styles.cellNum}>{cell.id}</span>
+                  <span className={styles.cellCap}>
+                    {isOccupied ? "사용중" : `${info.cap}인`}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div className={styles.footer}>
           <span className={styles.total}>총 {picked.size}개 선택</span>
           <div className={styles.footerBtns}>
-            <button className={styles.cancelBtn} onClick={onClose}>취소</button>
+            <button className={styles.cancelBtn} onClick={onClose}>
+              취소
+            </button>
             <button
               className={styles.confirmBtn}
               onClick={() => onConfirm([...picked])}

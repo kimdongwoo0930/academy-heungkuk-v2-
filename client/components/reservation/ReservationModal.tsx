@@ -1,9 +1,10 @@
 'use client';
 
 import { ClassroomReservation, MealReservation, Reservation, RoomReservation } from '@/types/reservation';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 // RoomReservation used in handleRoomConfirm type annotation
 import { ROOM_INFO, RoomType } from '@/lib/constants/rooms';
+import { CLASSROOM_ROOM_TO_CATEGORY } from '@/lib/constants/classrooms';
 import styles from './ReservationModal.module.css';
 import RoomPickerModal from './RoomPickerModal';
 
@@ -13,15 +14,27 @@ type Tab = typeof TABS[number];
 const STATUS_OPTIONS = ['확정', '대기', '완료', '취소'];
 const ROOM_TYPES: RoomType[] = ['1인실', '2인실', '4인실'];
 const COLOR_PRESETS = [
-  '#4A90E2', '#7ED321', '#F5A623', '#9B59B6',
-  '#E74C3C', '#1ABC9C', '#E67E22', '#EC008C',
-  '#2C3E50', '#27AE60', '#2980B9', '#8E44AD',
+  '#4A90E2', '#2980B9', '#1565C0', '#0097A7',
+  '#7ED321', '#27AE60', '#2E7D32', '#558B2F',
+  '#F5A623', '#E67E22', '#E53935', '#E74C3C',
+  '#9B59B6', '#8E44AD', '#6A1B9A', '#EC008C',
+  '#1ABC9C', '#00897B', '#F06292', '#FF7043',
+  '#F9C800', '#F4D03F', '#D4AC0D', '#B7950B',
+  '#795548', '#546E7A', '#37474F', '#2C3E50',
 ];
 
 const CLASSROOM_OPTIONS = [
-  '105', '201', '203', '204', '202', '103', '102',
-  '106', '205', '206', 'A', 'B', '101', '107',
+  '101', '102', '103', '105', '106', '107',
+  '201', '202', '203', '204', '205', '206',
+  'A', 'B',
 ];
+
+function classroomLabel(id: string) {
+  const cat = CLASSROOM_ROOM_TO_CATEGORY[id];
+  if (!cat) return id;
+  const capacity = cat.match(/\d+인/)?.[0] ?? cat;
+  return `${id} (${capacity})`;
+}
 
 interface Props {
   reservation: Reservation | null;
@@ -52,12 +65,68 @@ function emptyForm(): Omit<Reservation, 'id' | 'reservationCode'> {
 
 export default function ReservationModal({ reservation, allReservations, onClose, onSave }: Props) {
   const isEdit = reservation !== null;
+
+  // 드래그
+  const [pos, setPos] = useState({ dx: 0, dy: 0 });
+  const dragRef = useRef<{ startX: number; startY: number; dx: number; dy: number } | null>(null);
+  const handleDragStart = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('button')) return; // 닫기 버튼 클릭 무시
+    dragRef.current = { startX: e.clientX, startY: e.clientY, dx: pos.dx, dy: pos.dy };
+    const onMove = (ev: MouseEvent) => {
+      if (!dragRef.current) return;
+      setPos({ dx: dragRef.current.dx + ev.clientX - dragRef.current.startX, dy: dragRef.current.dy + ev.clientY - dragRef.current.startY });
+    };
+    const onUp = () => {
+      dragRef.current = null;
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  };
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if ((e.target as HTMLElement).closest('button')) return;
+    const t = e.touches[0];
+    dragRef.current = { startX: t.clientX, startY: t.clientY, dx: pos.dx, dy: pos.dy };
+    const onMove = (ev: TouchEvent) => {
+      if (!dragRef.current) return;
+      const touch = ev.touches[0];
+      setPos({ dx: dragRef.current.dx + touch.clientX - dragRef.current.startX, dy: dragRef.current.dy + touch.clientY - dragRef.current.startY });
+    };
+    const onUp = () => {
+      dragRef.current = null;
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('touchend', onUp);
+    };
+    document.addEventListener('touchmove', onMove, { passive: true });
+    document.addEventListener('touchend', onUp);
+  };
   const [tab, setTab] = useState<Tab>('기본정보');
   const [pickerDate, setPickerDate] = useState<string | null>(null);
   const [dateError, setDateError] = useState('');
+  const [skipWeekends, setSkipWeekends] = useState(false);
   const [bulkClassroom, setBulkClassroom] = useState('105');
   const [bulkMeal, setBulkMeal] = useState({ breakfast: 0, lunch: 0, dinner: 0 });
   const [bulkRoomPickerOpen, setBulkRoomPickerOpen] = useState(false);
+  const [roomDates, setRoomDates] = useState<string[]>(() => {
+    if (isEdit) {
+      const rooms = reservation.rooms ?? [];
+      if (rooms.length > 0) {
+        return [...new Set(rooms.map((r) => r.reservedDate))].sort();
+      }
+      if (reservation.startDate && reservation.endDate) {
+        const dates: string[] = [];
+        const cur = new Date(reservation.startDate);
+        const endD = new Date(reservation.endDate);
+        while (cur < endD) {
+          dates.push(cur.toISOString().slice(0, 10));
+          cur.setDate(cur.getDate() + 1);
+        }
+        return dates;
+      }
+    }
+    return [];
+  });
   const [showLoad, setShowLoad] = useState(false);
   const [loadSearch, setLoadSearch] = useState('');
   const [form, setForm] = useState<Omit<Reservation, 'id' | 'reservationCode'>>(
@@ -175,13 +244,30 @@ export default function ReservationModal({ reservation, allReservations, onClose
     setDateError('');
 
     if (start && end && end >= start) {
-      const dates = buildDateRange(start, end);
+      const isWeekday = (d: string) => { const day = new Date(d).getDay(); return day !== 0 && day !== 6; };
+      const allDates = buildDateRange(start, end);
+      const dates = skipWeekends ? allDates.filter(isWeekday) : allDates;
       const classrooms: ClassroomReservation[] = dates.map((d) => ({ classroomName: bulkClassroom, reservedDate: d }));
       const meals: MealReservation[] = dates.map((d) => ({ reservedDate: d, breakfast: 0, lunch: 0, dinner: 0 }));
+      const roomRange = skipWeekends ? allDates.slice(0, -1).filter(isWeekday) : allDates.slice(0, -1);
+      setRoomDates(roomRange);
       setForm((prev) => ({ ...prev, [key]: value, classrooms, meals, rooms: [] }));
     } else {
       setField(key, value);
     }
+  };
+
+  const handleSkipWeekendsChange = (checked: boolean) => {
+    setSkipWeekends(checked);
+    if (!form.startDate || !form.endDate) return;
+    const isWeekday = (d: string) => { const day = new Date(d).getDay(); return day !== 0 && day !== 6; };
+    const allDates = buildDateRange(form.startDate, form.endDate);
+    const dates = checked ? allDates.filter(isWeekday) : allDates;
+    const classrooms: ClassroomReservation[] = dates.map((d) => ({ classroomName: bulkClassroom, reservedDate: d }));
+    const meals: MealReservation[] = dates.map((d) => ({ reservedDate: d, breakfast: 0, lunch: 0, dinner: 0 }));
+    const roomRange = checked ? allDates.slice(0, -1).filter(isWeekday) : allDates.slice(0, -1);
+    setRoomDates(roomRange);
+    setForm((prev) => ({ ...prev, classrooms, meals, rooms: [] }));
   };
 
   // --- 강의실 ---
@@ -199,6 +285,15 @@ export default function ReservationModal({ reservation, allReservations, onClose
   };
 
   // --- 숙박 ---
+  const addRoomDate = () => setRoomDates((prev) => [...prev, '']);
+  const removeRoomDate = (date: string, idx: number) => {
+    setRoomDates((prev) => prev.filter((_, i) => i !== idx));
+    setField('rooms', (form.rooms ?? []).filter((r) => r.reservedDate !== date));
+  };
+  const updateRoomDate = (oldDate: string, idx: number, newDate: string) => {
+    setRoomDates((prev) => prev.map((d, i) => (i === idx ? newDate : d)));
+    setField('rooms', (form.rooms ?? []).map((r) => r.reservedDate === oldDate ? { ...r, reservedDate: newDate } : r));
+  };
 
   // 특정 날짜에 선택된 호실 목록
   const getRoomsForDate = (date: string) =>
@@ -292,8 +387,8 @@ export default function ReservationModal({ reservation, allReservations, onClose
 
   return (
     <div className={styles.overlay}>
-      <div className={styles.modal}>
-        <div className={styles.modalHeader}>
+      <div className={styles.modal} style={{ transform: `translate(${pos.dx}px, ${pos.dy}px)` }}>
+        <div className={styles.modalHeader} onMouseDown={handleDragStart} onTouchStart={handleTouchStart}>
           <div>
             <h3 className={styles.modalTitle}>{isEdit ? '예약 상세 / 수정' : '예약 등록'}</h3>
             <p className={styles.reqNote}><span className={styles.req}>*</span> 필수 입력 항목</p>
@@ -357,8 +452,8 @@ export default function ReservationModal({ reservation, allReservations, onClose
               <label className={styles.label}><span>단체명 <span className={styles.req}>*</span></span>
                 <input className={styles.input} value={form.organization} onChange={(e) => setField('organization', e.target.value)} placeholder="단체명" />
               </label>
-              <label className={styles.label}>교육 목적
-                <input className={styles.input} value={form.purpose} onChange={(e) => setField('purpose', e.target.value)} placeholder="교육 목적" />
+              <label className={styles.label}>교육명
+                <input className={styles.input} value={form.purpose} onChange={(e) => setField('purpose', e.target.value)} placeholder="교육명" />
               </label>
               <label className={styles.label}><span>인원 <span className={styles.req}>*</span></span>
                 <input className={styles.input} type="number" value={form.people || ''} onChange={(e) => setField('people', Number(e.target.value))} placeholder="0" />
@@ -387,6 +482,17 @@ export default function ReservationModal({ reservation, allReservations, onClose
                 <input className={`${styles.input} ${dateError ? styles.inputError : ''}`} type="date" value={form.endDate} onChange={(e) => handleDateChange('endDate', e.target.value)} />
               </label>
               {dateError && <p className={`${styles.dateError} ${styles.fullWidth}`}>{dateError}</p>}
+              <label className={`${styles.label} ${styles.fullWidth}`}>
+                <span />
+                <label className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    checked={skipWeekends}
+                    onChange={(e) => handleSkipWeekendsChange(e.target.checked)}
+                  />
+                  주말 제외
+                </label>
+              </label>
               <label className={`${styles.label} ${styles.fullWidth}`}>색상
                 <div className={styles.colorRow}>
                   {COLOR_PRESETS.map((c) => (
@@ -412,7 +518,7 @@ export default function ReservationModal({ reservation, allReservations, onClose
               <div className={styles.bulkRow}>
                 <span className={styles.bulkLabel}>전체 날짜 일괄 적용</span>
                 <select className={styles.cellSelect} value={bulkClassroom} onChange={(e) => setBulkClassroom(e.target.value)}>
-                  {CLASSROOM_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+                  {CLASSROOM_OPTIONS.map((o) => <option key={o} value={o}>{classroomLabel(o)}</option>)}
                 </select>
                 <button className={styles.applyBtn} onClick={applyBulkClassroom}>전체 적용</button>
               </div>
@@ -438,7 +544,7 @@ export default function ReservationModal({ reservation, allReservations, onClose
                           <tr key={i} className={hasConflict ? styles.conflictRow : ''}>
                             <td>
                               <select className={styles.cellSelect} value={c.classroomName} onChange={(e) => updateClassroom(i, { classroomName: e.target.value })}>
-                                {CLASSROOM_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+                                {CLASSROOM_OPTIONS.map((o) => <option key={o} value={o}>{classroomLabel(o)}</option>)}
                               </select>
                             </td>
                             <td>
@@ -473,6 +579,10 @@ export default function ReservationModal({ reservation, allReservations, onClose
                     <span className={styles.bulkLabel}>전체 날짜 일괄 적용</span>
                     <button className={styles.applyBtn} onClick={() => setBulkRoomPickerOpen(true)}>호실 일괄 지정</button>
                   </div>
+                  <div className={styles.listHeader}>
+                    <span className={styles.listCount}>총 {roomDates.length}일</span>
+                    <button className={styles.addRowBtn} onClick={addRoomDate}>+ 추가</button>
+                  </div>
                   <table className={styles.listTable}>
                     <thead>
                       <tr>
@@ -482,16 +592,24 @@ export default function ReservationModal({ reservation, allReservations, onClose
                         <th>4인실</th>
                         <th>합계</th>
                         <th>호실 지정</th>
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody>
-                      {getRoomDateRange().map((date) => {
+                      {roomDates.map((date, idx) => {
                         const total = (form.rooms ?? []).filter((r) => r.reservedDate === date).length;
                         const roomsForDate = (form.rooms ?? []).filter((r) => r.reservedDate === date);
                         const conflictCount = roomsForDate.filter(isRoomConflict).length;
                         return (
-                          <tr key={date} className={conflictCount > 0 ? styles.conflictRow : ''}>
-                            <td style={{ fontWeight: 600 }}>{date}</td>
+                          <tr key={idx} className={conflictCount > 0 ? styles.conflictRow : ''}>
+                            <td>
+                              <input
+                                className={styles.cellInput}
+                                type="date"
+                                value={date}
+                                onChange={(e) => updateRoomDate(date, idx, e.target.value)}
+                              />
+                            </td>
                             {ROOM_TYPES.map((type) => (
                               <td key={type} className={styles.countCell}>
                                 {countRoomsForDate(date, type) > 0
@@ -504,9 +622,12 @@ export default function ReservationModal({ reservation, allReservations, onClose
                               {conflictCount > 0 && <span className={styles.conflictBadge} title="중복 호실 있음"> ⚠ {conflictCount}개 중복</span>}
                             </td>
                             <td>
-                              <button className={styles.pickBtn} onClick={() => setPickerDate(date)}>
+                              <button className={styles.pickBtn} onClick={() => setPickerDate(date)} disabled={!date}>
                                 호실 지정
                               </button>
+                            </td>
+                            <td>
+                              <button className={styles.removeBtn} onClick={() => removeRoomDate(date, idx)}>✕</button>
                             </td>
                           </tr>
                         );
@@ -581,7 +702,7 @@ export default function ReservationModal({ reservation, allReservations, onClose
       {pickerDate && (
         <RoomPickerModal
           date={pickerDate}
-          selected={getRoomsForDate(pickerDate)}
+          selected={getRoomsForDate(pickerDate).filter(r => !getOccupiedRoomsForDate(pickerDate).includes(r))}
           occupiedRooms={getOccupiedRoomsForDate(pickerDate)}
           onConfirm={(rooms) => handleRoomConfirm(pickerDate, rooms)}
           onClose={() => setPickerDate(null)}

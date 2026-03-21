@@ -11,9 +11,9 @@
 .modal {
   background: var(--surface);
   border-radius: 12px;
-  width: 680px;
+  width: 580px;
   max-width: 95vw;
-  max-height: 90vh;
+  max-height: 82vh;
   display: flex;
   flex-direction: column;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
@@ -23,7 +23,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 24px 0;
+  padding: 14px 20px 0;
+  cursor: grab;
+  user-select: none;
+}
+
+.modalHeader:active {
+  cursor: grabbing;
 }
 
 .modalTitle {
@@ -57,12 +63,12 @@
 .tabs {
   display: flex;
   gap: 0;
-  padding: 12px 24px 0;
+  padding: 8px 20px 0;
   border-bottom: 1px solid var(--border);
 }
 
 .tab {
-  padding: 8px 18px;
+  padding: 6px 14px;
   font-size: 13px;
   font-weight: 500;
   color: var(--text-sub);
@@ -87,14 +93,14 @@
 .body {
   flex: 1;
   overflow-y: auto;
-  padding: 20px 24px;
+  padding: 14px 20px;
 }
 
 /* 기본정보 그리드 */
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px 20px;
+  gap: 10px 16px;
 }
 
 .fullWidth {
@@ -104,14 +110,22 @@
 .label {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  font-size: 12px;
+  gap: 4px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--text-sub);
 }
 
 .req {
   color: var(--accent);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  cursor: pointer;
 }
 
 .dateError {
@@ -187,11 +201,11 @@
 .input,
 .select,
 .textarea {
-  height: 36px;
-  padding: 0 10px;
+  height: 30px;
+  padding: 0 8px;
   border: 1px solid var(--border);
-  border-radius: 7px;
-  font-size: 13px;
+  border-radius: 6px;
+  font-size: 12px;
   color: var(--text);
   background: var(--surface);
   outline: none;
@@ -267,7 +281,7 @@
   text-align: center;
   color: var(--text-sub);
   font-size: 13px;
-  padding: 40px 0;
+  padding: 24px 0;
 }
 
 .listTable {
@@ -525,8 +539,8 @@
 .footer {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  padding: 14px 24px;
+  gap: 8px;
+  padding: 10px 20px;
   border-top: 1px solid var(--border);
 }
 

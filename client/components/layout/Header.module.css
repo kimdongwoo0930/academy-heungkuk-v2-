@@ -4,6 +4,7 @@
   left: var(--sidebar-width);
   right: 0;
   height: var(--header-height);
+  transition: left 0.2s ease;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   display: flex;
@@ -25,6 +26,10 @@
   gap: 8px;
   font-size: 13px;
   color: var(--text-sub);
+}
+
+.headerCollapsed {
+  left: var(--sidebar-collapsed-width);
 }
 
 .avatar {
