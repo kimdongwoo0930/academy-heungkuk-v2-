@@ -12,6 +12,9 @@ export interface Reservation {
   endDate: string;
   colorCode: string;
   status: string;
+  companyAddress?: string;
+  siteManager?: string;
+  siteManagerPhone?: string;
   memo?: string;
   rooms?: RoomReservation[];
   classrooms?: ClassroomReservation[];
@@ -34,4 +37,7 @@ export interface MealReservation {
   breakfast: number;
   lunch: number;
   dinner: number;
+  specialBreakfast?: boolean;
+  specialLunch?: boolean;
+  specialDinner?: boolean;
 }

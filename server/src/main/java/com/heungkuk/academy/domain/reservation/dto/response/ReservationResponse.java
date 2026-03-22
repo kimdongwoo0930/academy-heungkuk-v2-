@@ -42,6 +42,12 @@ public class ReservationResponse {
     private String colorCode;
     @Schema(description = "예약 상태", example = "확정")
     private String status;
+    @Schema(description = "업체 주소")
+    private String companyAddress;
+    @Schema(description = "현장 담당자")
+    private String siteManager;
+    @Schema(description = "현장 담당자 연락처")
+    private String siteManagerPhone;
     @Schema(description = "특이사항", example = "채식 메뉴 요청")
     private String memo;
 
@@ -70,6 +76,9 @@ public class ReservationResponse {
                 .endDate(reservation.getEndDate())
                 .colorCode(reservation.getColorCode())
                 .status(reservation.getStatus())
+                .companyAddress(reservation.getCompanyAddress())
+                .siteManager(reservation.getSiteManager())
+                .siteManagerPhone(reservation.getSiteManagerPhone())
                 .memo(reservation.getMemo())
                 .rooms(rooms)
                 .classrooms(classrooms)

@@ -14,12 +14,10 @@ type Tab = typeof TABS[number];
 const STATUS_OPTIONS = ['확정', '대기', '완료', '취소'];
 const ROOM_TYPES: RoomType[] = ['1인실', '2인실', '4인실'];
 const COLOR_PRESETS = [
-  '#4A90E2', '#2980B9', '#1565C0', '#0097A7',
-  '#7ED321', '#27AE60', '#2E7D32', '#558B2F',
-  '#F5A623', '#E67E22', '#E53935', '#E74C3C',
-  '#9B59B6', '#8E44AD', '#6A1B9A', '#EC008C',
-  '#1ABC9C', '#00897B', '#F06292', '#FF7043',
-  '#F9C800', '#F4D03F', '#D4AC0D', '#B7950B',
+  '#4A90E2', '#1565C0', '#0097A7', '#00897B',
+  '#27AE60', '#558B2F', '#F9C800', '#F5A623',
+  '#E67E22', '#FF7043', '#E53935', '#EC008C',
+  '#9B59B6', '#6A1B9A', '#1ABC9C', '#F06292',
   '#795548', '#546E7A', '#37474F', '#2C3E50',
 ];
 
@@ -58,6 +56,9 @@ function emptyForm(): Omit<Reservation, 'id' | 'reservationCode'> {
     endDate: '',
     colorCode: '#4A90E2',
     status: '확정',
+    companyAddress: '',
+    siteManager: '',
+    siteManagerPhone: '',
     memo: '',
     classrooms: [],
     rooms: [],
@@ -145,6 +146,9 @@ export default function ReservationModal({ reservation, allReservations, onClose
           endDate: reservation.endDate,
           colorCode: reservation.colorCode,
           status: reservation.status,
+          companyAddress: reservation.companyAddress ?? '',
+          siteManager: reservation.siteManager ?? '',
+          siteManagerPhone: reservation.siteManagerPhone ?? '',
           memo: reservation.memo ?? '',
           classrooms: reservation.classrooms ? [...reservation.classrooms] : [],
           rooms: reservation.rooms ? [...reservation.rooms] : [],
@@ -250,7 +254,7 @@ export default function ReservationModal({ reservation, allReservations, onClose
       const allDates = buildDateRange(start, end);
       const dates = skipWeekends ? allDates.filter(isWeekday) : allDates;
       const classrooms: ClassroomReservation[] = dates.map((d) => ({ classroomName: bulkClassroom, reservedDate: d }));
-      const meals: MealReservation[] = dates.map((d) => ({ reservedDate: d, breakfast: 0, lunch: 0, dinner: 0 }));
+      const meals: MealReservation[] = dates.map((d) => ({ reservedDate: d, breakfast: 0, lunch: 0, dinner: 0, specialBreakfast: false, specialLunch: false, specialDinner: false }));
       const roomRange = skipWeekends ? allDates.slice(0, -1).filter(isWeekday) : allDates.slice(0, -1);
       setRoomDates(roomRange);
       setForm((prev) => ({ ...prev, [key]: value, classrooms, meals, rooms: [] }));
@@ -333,7 +337,7 @@ export default function ReservationModal({ reservation, allReservations, onClose
 
   // --- 식수 ---
   const addMeal = () =>
-    setField('meals', [...(form.meals ?? []), { reservedDate: form.startDate || '', breakfast: 0, lunch: 0, dinner: 0 }]);
+    setField('meals', [...(form.meals ?? []), { reservedDate: form.startDate || '', breakfast: 0, lunch: 0, dinner: 0, specialBreakfast: false, specialLunch: false, specialDinner: false }]);
   const removeMeal = (i: number) =>
     setField('meals', (form.meals ?? []).filter((_, idx) => idx !== i));
   const updateMeal = (i: number, patch: Partial<MealReservation>) =>
@@ -494,6 +498,15 @@ export default function ReservationModal({ reservation, allReservations, onClose
                   />
                   주말 제외
                 </label>
+              </label>
+              <label className={`${styles.label} ${styles.fullWidth}`}>업체 주소
+                <input className={styles.input} value={form.companyAddress ?? ''} onChange={(e) => setField('companyAddress', e.target.value)} placeholder="(선택)" />
+              </label>
+              <label className={styles.label}>현장 담당자
+                <input className={styles.input} value={form.siteManager ?? ''} onChange={(e) => setField('siteManager', e.target.value)} placeholder="(선택)" />
+              </label>
+              <label className={styles.label}>현장 담당자 연락처
+                <input className={styles.input} value={form.siteManagerPhone ?? ''} onChange={(e) => setField('siteManagerPhone', e.target.value)} placeholder="(선택)" />
               </label>
               <label className={`${styles.label} ${styles.fullWidth}`}>색상
                 <div className={styles.colorRow}>
@@ -676,13 +689,22 @@ export default function ReservationModal({ reservation, allReservations, onClose
                           <input className={styles.cellInput} type="date" value={m.reservedDate} onChange={(e) => updateMeal(i, { reservedDate: e.target.value })} />
                         </td>
                         <td>
-                          <input className={styles.cellInputSm} type="number" value={m.breakfast || ''} onChange={(e) => updateMeal(i, { breakfast: Number(e.target.value) })} placeholder="0" />
+                          <div className={styles.mealCellWrap}>
+                            <input className={styles.cellInputSm} type="number" value={m.breakfast || ''} onChange={(e) => updateMeal(i, { breakfast: Number(e.target.value) })} placeholder="0" />
+                            <button type="button" className={`${styles.specialToggle} ${m.specialBreakfast ? styles.specialToggleOn : ''}`} onClick={() => updateMeal(i, { specialBreakfast: !m.specialBreakfast })}>특식</button>
+                          </div>
                         </td>
                         <td>
-                          <input className={styles.cellInputSm} type="number" value={m.lunch || ''} onChange={(e) => updateMeal(i, { lunch: Number(e.target.value) })} placeholder="0" />
+                          <div className={styles.mealCellWrap}>
+                            <input className={styles.cellInputSm} type="number" value={m.lunch || ''} onChange={(e) => updateMeal(i, { lunch: Number(e.target.value) })} placeholder="0" />
+                            <button type="button" className={`${styles.specialToggle} ${m.specialLunch ? styles.specialToggleOn : ''}`} onClick={() => updateMeal(i, { specialLunch: !m.specialLunch })}>특식</button>
+                          </div>
                         </td>
                         <td>
-                          <input className={styles.cellInputSm} type="number" value={m.dinner || ''} onChange={(e) => updateMeal(i, { dinner: Number(e.target.value) })} placeholder="0" />
+                          <div className={styles.mealCellWrap}>
+                            <input className={styles.cellInputSm} type="number" value={m.dinner || ''} onChange={(e) => updateMeal(i, { dinner: Number(e.target.value) })} placeholder="0" />
+                            <button type="button" className={`${styles.specialToggle} ${m.specialDinner ? styles.specialToggleOn : ''}`} onClick={() => updateMeal(i, { specialDinner: !m.specialDinner })}>특식</button>
+                          </div>
                         </td>
                         <td><button className={styles.removeBtn} onClick={() => removeMeal(i)}>✕</button></td>
                       </tr>

@@ -1,11 +1,10 @@
 package com.heungkuk.academy.domain.reservation.dto.response;
 
+import java.time.LocalDate;
 import com.heungkuk.academy.domain.reservation.entity.MealReservation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.time.LocalDate;
 
 @Schema(description = "식사 예약 응답")
 @Getter
@@ -22,14 +21,20 @@ public class MealReservationResponse {
     private Integer lunch;
     @Schema(description = "석식 인원", example = "25")
     private Integer dinner;
+    @Schema(description = "특식) 조식 여부")
+    private boolean specialBreakfast;
+    @Schema(description = "특식) 중식 여부")
+    private boolean specialLunch;
+    @Schema(description = "특식) 석식 여부")
+    private boolean specialDinner;
 
     public static MealReservationResponse of(MealReservation mealReservation) {
-        return MealReservationResponse.builder()
-                .id(mealReservation.getId())
+        return MealReservationResponse.builder().id(mealReservation.getId())
                 .reservedDate(mealReservation.getMealDate())
-                .breakfast(mealReservation.getBreakfast())
-                .lunch(mealReservation.getLunch())
+                .breakfast(mealReservation.getBreakfast()).lunch(mealReservation.getLunch())
                 .dinner(mealReservation.getDinner())
-                .build();
+                .specialBreakfast(mealReservation.isSpecialBreakfast())
+                .specialLunch(mealReservation.isSpecialLunch())
+                .specialDinner(mealReservation.isSpecialDinner()).build();
     }
 }
