@@ -37,6 +37,12 @@ public class ReservationRequest {
     private String colorCode;
     @Schema(description = "예약 상태", example = "확정", allowableValues = {"확정", "대기", "취소"})
     private String status;
+    @Schema(description = "업체 주소 (선택)", example = "서울시 강남구 테헤란로 123")
+    private String companyAddress;
+    @Schema(description = "현장 담당자 (선택)", example = "김현장")
+    private String siteManager;
+    @Schema(description = "현장 담당자 연락처 (선택)", example = "010-9999-8888")
+    private String siteManagerPhone;
     @Schema(description = "특이사항 (선택)", example = "채식 메뉴 요청")
     private String memo;
 

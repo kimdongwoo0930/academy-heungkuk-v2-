@@ -13,10 +13,13 @@ interface ReservationRequestBody {
   endDate: string;
   colorCode: string;
   status: string;
+  companyAddress?: string;
+  siteManager?: string;
+  siteManagerPhone?: string;
   memo?: string;
   classrooms: { classroomName: string; reservedDate: string }[];
   rooms: { roomNumber: string; reservedDate: string }[];
-  meals: { reservedDate: string; breakfast: number; lunch: number; dinner: number }[];
+  meals: { reservedDate: string; breakfast: number; lunch: number; dinner: number; specialBreakfast?: boolean; specialLunch?: boolean; specialDinner?: boolean }[];
 }
 
 export function toRequestBody(data: Omit<Reservation, 'id' | 'reservationCode'>): ReservationRequestBody {
@@ -32,6 +35,9 @@ export function toRequestBody(data: Omit<Reservation, 'id' | 'reservationCode'>)
     endDate: data.endDate,
     colorCode: data.colorCode,
     status: data.status,
+    companyAddress: data.companyAddress,
+    siteManager: data.siteManager,
+    siteManagerPhone: data.siteManagerPhone,
     memo: data.memo,
     classrooms: (data.classrooms ?? []).map((c) => ({
       classroomName: c.classroomName,
@@ -46,6 +52,9 @@ export function toRequestBody(data: Omit<Reservation, 'id' | 'reservationCode'>)
       breakfast: m.breakfast,
       lunch: m.lunch,
       dinner: m.dinner,
+      specialBreakfast: m.specialBreakfast ?? false,
+      specialLunch: m.specialLunch ?? false,
+      specialDinner: m.specialDinner ?? false,
     })),
   };
 }

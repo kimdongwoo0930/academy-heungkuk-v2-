@@ -80,11 +80,8 @@ const SOLID = { style: BorderStyle.SINGLE, size: 4, color: "000000" };
 const NONE = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
 const solidBorder = { top: SOLID, bottom: SOLID, left: SOLID, right: SOLID };
 const noBorder = { top: NONE, bottom: NONE, left: NONE, right: NONE };
-const topBorder = { top: SOLID, bottom: NONE, left: NONE, right: NONE };
-
 const GRAY_BG = { type: ShadingType.CLEAR, color: "auto", fill: "E0E0E0" };
 const YELLOW_BG = { type: ShadingType.CLEAR, color: "auto", fill: "FFF3CD" };
-const WHITE_BG = { type: ShadingType.CLEAR, color: "auto", fill: "FFFFFF" };
 
 const CELL_MARGIN = { top: 0, bottom: 0, left: 50, right: 50 };
 

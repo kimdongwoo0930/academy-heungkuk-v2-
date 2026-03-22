@@ -43,11 +43,20 @@ public class MealReservation extends BaseTimeEntity {
 
     private Integer dinner;
 
+    private boolean specialBreakfast;
+
+    private boolean specialLunch;
+
+    private boolean specialDinner;
+
 
     public static MealReservation of(Reservation reservation, MealRequest request) {
         return MealReservation.builder().reservation(reservation)
                 .mealDate(request.getReservedDate()).breakfast(request.getBreakfast())
-                .lunch(request.getLunch()).dinner(request.getDinner()).build();
+                .lunch(request.getLunch()).dinner(request.getDinner())
+                .specialBreakfast(request.isSpecialBreakfast())
+                .specialLunch(request.isSpecialLunch()).specialDinner(request.isSpecialDinner())
+                .build();
     }
 
 }

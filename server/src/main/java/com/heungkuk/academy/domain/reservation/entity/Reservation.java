@@ -1,17 +1,14 @@
 package com.heungkuk.academy.domain.reservation.entity;
 
 import java.time.LocalDate;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
 import com.heungkuk.academy.domain.reservation.dto.request.ReservationRequest;
 import com.heungkuk.academy.global.entity.BaseTimeEntity;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,7 +36,7 @@ public class Reservation extends BaseTimeEntity {
     @Column(length = 255, nullable = false)
     private String purpose;
 
-    @Column()
+    @Column(name = "인원수")
     private Integer people;
 
     @Column(length = 50, nullable = false)
@@ -67,30 +64,36 @@ public class Reservation extends BaseTimeEntity {
     @Column(length = 20, nullable = false)
     private String status;
 
+    @Column(name = "company_address", length = 255)
+    private String companyAddress;
+
+    @Column(name = "site_manager", length = 50)
+    private String siteManager;
+
+    @Column(name = "site_manager_phone", length = 20)
+    private String siteManagerPhone;
+
     @Column(columnDefinition = "TEXT")
     private String memo;
 
 
     public static Reservation from(ReservationRequest request, String reservationCode) {
-        return Reservation.builder()
-                .reservationCode(reservationCode)
-                .organization(request.getOrganization())
-                .purpose(request.getPurpose())
-                .people(request.getPeople())
-                .customer(request.getCustomer())
+        return Reservation.builder().reservationCode(reservationCode)
+                .organization(request.getOrganization()).purpose(request.getPurpose())
+                .people(request.getPeople()).customer(request.getCustomer())
                 .customerPhone(request.getCustomerPhone())
                 .customerPhone2(request.getCustomerPhone2())
-                .customerEmail(request.getCustomerEmail())
-                .startDate(request.getStartDate())
-                .endDate(request.getEndDate())
-                .colorCode(request.getColorCode())
+                .customerEmail(request.getCustomerEmail()).startDate(request.getStartDate())
+                .endDate(request.getEndDate()).colorCode(request.getColorCode())
                 .status(request.getStatus())
-                .memo(request.getMemo())
-                .build();
+                .companyAddress(request.getCompanyAddress())
+                .siteManager(request.getSiteManager())
+                .siteManagerPhone(request.getSiteManagerPhone())
+                .memo(request.getMemo()).build();
     }
 
     // Reservation
-    public void update(ReservationRequest request){
+    public void update(ReservationRequest request) {
         this.organization = request.getOrganization();
         this.purpose = request.getPurpose();
         this.people = request.getPeople();
@@ -102,6 +105,9 @@ public class Reservation extends BaseTimeEntity {
         this.endDate = request.getEndDate();
         this.colorCode = request.getColorCode();
         this.status = request.getStatus();
+        this.companyAddress = request.getCompanyAddress();
+        this.siteManager = request.getSiteManager();
+        this.siteManagerPhone = request.getSiteManagerPhone();
         this.memo = request.getMemo();
     }
 

@@ -284,24 +284,23 @@ export default function RestaurantPage() {
                               const b = meal?.breakfast ?? 0;
                               const l = meal?.lunch ?? 0;
                               const dn = meal?.dinner ?? 0;
+                              const sb = meal?.specialBreakfast ?? false;
+                              const sl = meal?.specialLunch ?? false;
+                              const sd = meal?.specialDinner ?? false;
+                              const renderMeal = (count: number, isSpecial: boolean) => {
+                                if (count === 0) return "";
+                                if (isSpecial) return <span className={styles.specialMeal}>{count}</span>;
+                                return <span className={cls}>{count}</span>;
+                              };
                               return [
-                                <td
-                                  key={`${cal.dateStr}b`}
-                                  className={`${styles.mealCell} ${tdCls(cal)} ${b > 0 ? cls : ""}`}
-                                >
-                                  {b > 0 ? b : ""}
+                                <td key={`${cal.dateStr}b`} className={`${styles.mealCell} ${tdCls(cal)}`}>
+                                  {renderMeal(b, sb)}
                                 </td>,
-                                <td
-                                  key={`${cal.dateStr}l`}
-                                  className={`${styles.mealCell} ${tdCls(cal)} ${l > 0 ? cls : ""}`}
-                                >
-                                  {l > 0 ? l : ""}
+                                <td key={`${cal.dateStr}l`} className={`${styles.mealCell} ${tdCls(cal)}`}>
+                                  {renderMeal(l, sl)}
                                 </td>,
-                                <td
-                                  key={`${cal.dateStr}d`}
-                                  className={`${styles.mealCell} ${tdCls(cal)} ${dn > 0 ? cls : ""}`}
-                                >
-                                  {dn > 0 ? dn : ""}
+                                <td key={`${cal.dateStr}d`} className={`${styles.mealCell} ${tdCls(cal)}`}>
+                                  {renderMeal(dn, sd)}
                                 </td>,
                               ];
                             })}
