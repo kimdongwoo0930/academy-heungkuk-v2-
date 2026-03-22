@@ -2,7 +2,7 @@
 
 > 모든 테이블은 `created_at`, `updated_at` 컬럼을 포함합니다 (BaseTimeEntity 상속).
 
-![ERD 다이어그램](ERD.png)
+
 
 ---
 
