@@ -85,11 +85,9 @@ public class Reservation extends BaseTimeEntity {
                 .customerPhone2(request.getCustomerPhone2())
                 .customerEmail(request.getCustomerEmail()).startDate(request.getStartDate())
                 .endDate(request.getEndDate()).colorCode(request.getColorCode())
-                .status(request.getStatus())
-                .companyAddress(request.getCompanyAddress())
+                .status(request.getStatus()).companyAddress(request.getCompanyAddress())
                 .siteManager(request.getSiteManager())
-                .siteManagerPhone(request.getSiteManagerPhone())
-                .memo(request.getMemo()).build();
+                .siteManagerPhone(request.getSiteManagerPhone()).memo(request.getMemo()).build();
     }
 
     // Reservation

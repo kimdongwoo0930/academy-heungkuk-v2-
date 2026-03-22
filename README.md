@@ -62,7 +62,6 @@
 
 ## 🌐 API 명세
 
-> 기본 URL: `https://api.hka.kr/v1`
 > 모든 응답 형식: `{ "success": true, "message": "...", "data": { ... } }`
 
 ### 인증 (공개)
