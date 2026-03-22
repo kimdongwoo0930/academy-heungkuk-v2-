@@ -289,7 +289,10 @@ export default function RestaurantPage() {
                               const sd = meal?.specialDinner ?? false;
                               const renderMeal = (count: number, isSpecial: boolean) => {
                                 if (count === 0) return "";
-                                if (isSpecial) return <span className={styles.specialMeal}>{count}</span>;
+                                if (isSpecial) {
+                                  const specialCls = res.status === "확정" ? styles.specialMealConfirmed : styles.specialMeal;
+                                  return <span className={specialCls}>{count}</span>;
+                                }
                                 return <span className={cls}>{count}</span>;
                               };
                               return [
