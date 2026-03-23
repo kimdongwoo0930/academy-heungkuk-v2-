@@ -3,6 +3,12 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
+  position: sticky;
+  top: var(--header-height);
+  z-index: 100;
+  background: var(--bg);
+  padding: 8px 0;
+  margin-top: -8px;
 }
 
 .title {
@@ -34,13 +40,13 @@
 }
 
 .excelBtn {
-  height: 38px;
-  padding: 0 16px;
+  height: 32px;
+  padding: 0 12px;
   background: #f0faf4;
   color: #1e7e34;
   border: 1px solid #b7dfbf;
-  border-radius: 8px;
-  font-size: 13px;
+  border-radius: 6px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
@@ -51,12 +57,12 @@
 }
 
 .addBtn {
-  height: 38px;
-  padding: 0 16px;
+  height: 32px;
+  padding: 0 12px;
   background: var(--accent);
   color: #fff;
-  border-radius: 8px;
-  font-size: 13px;
+  border-radius: 6px;
+  font-size: 12px;
   font-weight: 600;
   transition: background 0.15s;
 }

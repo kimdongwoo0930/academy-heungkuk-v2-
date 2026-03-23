@@ -3,6 +3,12 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
+  position: sticky;
+  top: var(--header-height);
+  z-index: 100;
+  background: var(--bg);
+  padding: 8px 0;
+  margin-top: -8px;
 }
 
 .title {
@@ -112,33 +118,20 @@
   white-space: nowrap;
 }
 
+.roomSubTh {
+  font-size: 9px !important;
+  font-weight: 600 !important;
+  padding: 3px 1px !important;
+  color: #555;
+}
+
 .roomCell {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   text-align: center;
-  padding: 3px 2px !important;
-  height: auto !important;
+  padding: 1px 2px;
+  height: 26px;
   vertical-align: middle;
-}
-
-.typeBreakdown {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-}
-
-.typeLine {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  line-height: 1.3;
-}
-
-.typeLabel {
-  font-size: 9px;
-  font-weight: 400;
-  color: var(--text-sub);
 }
 
 .confirmed {

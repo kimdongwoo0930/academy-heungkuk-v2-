@@ -81,7 +81,7 @@ export default function ReservationPage() {
         <h2 className={styles.title}>예약 관리</h2>
         <div className={styles.headerBtns}>
           {admin && <button className={styles.excelBtn} onClick={() => exportReservationsToExcel(filtered)}>엑셀 다운로드</button>}
-          <button className={styles.addBtn} onClick={openCreate}>+ 예약 등록</button>
+          {admin && <button className={styles.addBtn} onClick={openCreate}>+ 예약 등록</button>}
         </div>
       </div>
 
