@@ -175,6 +175,11 @@
   color: #e74c3c !important;
 }
 
+.roomViewOnly {
+  cursor: default !important;
+  pointer-events: none;
+}
+
 /* 푸터 */
 .footer {
   display: flex;

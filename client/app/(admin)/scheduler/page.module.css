@@ -213,6 +213,14 @@
   color: var(--primary);
 }
 
+.roomTotalCell {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--primary);
+  text-align: center;
+  white-space: nowrap;
+}
+
 /* 단체명 셀 */
 .tdOrg {
   font-size: 11px;
