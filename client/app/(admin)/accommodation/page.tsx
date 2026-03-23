@@ -2,7 +2,7 @@
 
 import ReservationModal from "@/components/reservation/ReservationModal";
 import { getReservations, toRequestBody, updateReservation } from "@/lib/api/reservation";
-import { Reservation } from "@/types/reservation";
+import { Reservation, RoomReservation } from "@/types/reservation";
 import { isHoliday } from "@hyunbinseo/holidays-kr";
 import { useEffect, useRef, useState } from "react";
 import styles from "./page.module.css";
@@ -31,14 +31,14 @@ interface CalDay {
 
 interface TooltipState {
   res: Reservation;
-  rooms: string[];
+  rooms: RoomReservation[];
   x: number;
   y: number;
 }
 
 const ORG_COL = 80;
-const DATE_COL = 40;
-const TOTAL_COL = 40;
+const DATE_COL = 56;
+const TOTAL_COL = 44;
 
 export default function AccommodationPage() {
   const today = new Date();
@@ -204,11 +204,23 @@ export default function AccommodationPage() {
                                 <td
                                   key={cal.dateStr}
                                   className={`${styles.roomCell} ${tdCls(cal)}`}
-                                  onMouseEnter={(e) => count > 0 && handleMouseMove(e, res, rooms.map((r) => r.roomNumber))}
-                                  onMouseMove={(e) => count > 0 && handleMouseMove(e, res, rooms.map((r) => r.roomNumber))}
+                                  onMouseEnter={(e) => count > 0 && handleMouseMove(e, res, rooms)}
+                                  onMouseMove={(e) => count > 0 && handleMouseMove(e, res, rooms)}
                                   onMouseLeave={() => setTooltip(null)}
                                 >
-                                  {count > 0 && <span className={cls}>{count}</span>}
+                                  {count > 0 && (
+                                    <div className={styles.typeBreakdown}>
+                                      {(['4인실', '2인실', '1인실'] as const).map((type) => {
+                                        const c = rooms.filter((r) => r.roomType === type).length;
+                                        return c > 0 ? (
+                                          <div key={type} className={styles.typeLine}>
+                                            <span className={styles.typeLabel}>{type.replace('인실', '인')}</span>
+                                            <span className={cls}>{c}</span>
+                                          </div>
+                                        ) : null;
+                                      })}
+                                    </div>
+                                  )}
                                 </td>
                               );
                             })}
@@ -298,10 +310,15 @@ export default function AccommodationPage() {
             <span className={styles.tooltipSep}>·</span>
             <span>{tooltip.res.customerPhone}</span>
           </div>
-          <div className={styles.tooltipInfo}>
-            <span className={styles.tooltipKey}>호실</span>
-            <span>{tooltip.rooms.join(", ")}</span>
-          </div>
+          {(['4인실', '2인실', '1인실'] as const).map((type) => {
+            const typeRooms = tooltip.rooms.filter((r) => r.roomType === type);
+            return typeRooms.length > 0 ? (
+              <div key={type} className={styles.tooltipInfo}>
+                <span className={styles.tooltipKey}>{type}</span>
+                <span>{typeRooms.map((r) => r.roomNumber + '호').join(', ')}</span>
+              </div>
+            ) : null;
+          })}
         </div>
       )}
 
