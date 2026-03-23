@@ -115,6 +115,18 @@ export default function AccommodationPage() {
     return colorMap;
   };
 
+  const getOrgLegendOnDate = (dateStr: string): { color: string; organization: string }[] => {
+    const seen = new Set<string>();
+    const result: { color: string; organization: string }[] = [];
+    activeRoomReservations.forEach((res) => {
+      if (getRoomsOnDate(res.id, dateStr).length > 0 && !seen.has(res.colorCode)) {
+        seen.add(res.colorCode);
+        result.push({ color: res.colorCode, organization: res.organization });
+      }
+    });
+    return result;
+  };
+
   const getDayTotal = (dateStr: string) =>
     ROOM_TYPES.reduce((s, t) => s + getDayTypeTotal(dateStr, t), 0);
 
@@ -201,7 +213,7 @@ export default function AccommodationPage() {
                           style={{ cursor: cal.isCurrent ? "pointer" : undefined }}
                           onClick={() => cal.isCurrent && setDateView(cal.dateStr)}
                         >
-                          <div>{cal.date.getDate()}일</div>
+                          <div className={styles.dateNum}>{cal.date.getDate()}일</div>
                           <div className={styles.dayLabel}>{WEEK_DAYS[cal.date.getDay()]}</div>
                         </th>
                       ))}
@@ -383,6 +395,7 @@ export default function AccommodationPage() {
           selected={[]}
           occupiedRooms={getOccupiedRoomsOnDate(dateView)}
           roomColors={getRoomColorsOnDate(dateView)}
+          orgLegend={getOrgLegendOnDate(dateView)}
           onConfirm={() => {}}
           onClose={() => setDateView(null)}
           viewOnly

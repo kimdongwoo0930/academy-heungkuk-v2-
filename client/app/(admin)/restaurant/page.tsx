@@ -209,7 +209,7 @@ export default function RestaurantPage() {
                           colSpan={3}
                           className={thCls(cal)}
                         >
-                          <div>{cal.date.getDate()}일</div>
+                          <div className={styles.dateNum}>{cal.date.getDate()}일</div>
                           <div className={styles.dayLabel}>
                             {WEEK_DAYS[cal.date.getDay()]}
                           </div>

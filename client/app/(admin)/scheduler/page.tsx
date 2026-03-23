@@ -269,7 +269,7 @@ export default function SchedulerPage() {
                       <th className={styles.thCap}>정원</th>
                       {halfDays.map((cal) => (
                         <th key={cal.dateStr} className={thCls(cal)}>
-                          <div>{cal.date.getDate()}일</div>
+                          <div className={styles.dateNum}>{cal.date.getDate()}일</div>
                           <div className={styles.dayLabel}>
                             {WEEK_DAYS[cal.date.getDay()]}
                           </div>
@@ -289,7 +289,9 @@ export default function SchedulerPage() {
                               {group.type}
                             </td>
                           )}
-                          <td className={`${styles.tdRoom} ${styles[group.bg]}`}>
+                          <td
+                            className={`${styles.tdRoom} ${styles[group.bg]}`}
+                          >
                             {/^\d+$/.test(room.id) ? `${room.id} 호` : room.id}
                           </td>
                           <td className={`${styles.tdCap} ${styles[group.bg]}`}>
@@ -301,14 +303,19 @@ export default function SchedulerPage() {
                               <td
                                 key={cal.dateStr}
                                 className={tdCls(cal)}
-                                onDoubleClick={() => handleCellDoubleClick(cal.dateStr, room.id)}
+                                onDoubleClick={() =>
+                                  handleCellDoubleClick(cal.dateStr, room.id)
+                                }
                                 style={{ cursor: res ? undefined : "cell" }}
                               >
                                 {res && (
                                   <ReservationTooltip reservation={res}>
                                     <span
                                       className={styles.bar}
-                                      style={{ backgroundColor: res.colorCode, cursor: "pointer" }}
+                                      style={{
+                                        backgroundColor: res.colorCode,
+                                        cursor: "pointer",
+                                      }}
                                       onClick={() => setEditTarget(res)}
                                     >
                                       {res.organization.slice(0, 6)}
@@ -327,20 +334,24 @@ export default function SchedulerPage() {
                         (r) =>
                           r.status !== "취소" &&
                           r.rooms?.some((rm) =>
-                            halfDays.some((d) => d.dateStr === String(rm.reservedDate))
-                          )
+                            halfDays.some(
+                              (d) => d.dateStr === String(rm.reservedDate),
+                            ),
+                          ),
                       );
 
                       // 레인 패킹: 날짜 안 겹치면 같은 행에 배치
                       const lanes: Reservation[][] = [];
                       for (const res of halfRoomRes) {
                         const resDates = new Set(
-                          res.rooms?.map((rm) => String(rm.reservedDate)) ?? []
+                          res.rooms?.map((rm) => String(rm.reservedDate)) ?? [],
                         );
                         let placed = false;
                         for (const lane of lanes) {
                           const conflict = lane.some((r) =>
-                            r.rooms?.some((rm) => resDates.has(String(rm.reservedDate)))
+                            r.rooms?.some((rm) =>
+                              resDates.has(String(rm.reservedDate)),
+                            ),
                           );
                           if (!conflict) {
                             lane.push(res);
@@ -364,11 +375,20 @@ export default function SchedulerPage() {
                                   숙박
                                 </td>
                               )}
-                              <td className={`${styles.tdRoom} ${styles.bgWhite}`}>{idx + 1}</td>
-                              <td className={`${styles.tdCap} ${styles.bgWhite}`} />
+                              <td
+                                className={`${styles.tdRoom} ${styles.bgWhite}`}
+                              >
+                                {idx + 1}
+                              </td>
+                              <td
+                                className={`${styles.tdCap} ${styles.bgWhite}`}
+                              />
                               {halfDays.map((cal) => {
                                 const res = lane.find((r) =>
-                                  r.rooms?.some((rm) => String(rm.reservedDate) === cal.dateStr)
+                                  r.rooms?.some(
+                                    (rm) =>
+                                      String(rm.reservedDate) === cal.dateStr,
+                                  ),
                                 );
                                 return (
                                   <td key={cal.dateStr} className={tdCls(cal)}>
@@ -376,7 +396,10 @@ export default function SchedulerPage() {
                                       <ReservationTooltip reservation={res}>
                                         <span
                                           className={styles.bar}
-                                          style={{ backgroundColor: res.colorCode, cursor: "pointer" }}
+                                          style={{
+                                            backgroundColor: res.colorCode,
+                                            cursor: "pointer",
+                                          }}
                                           onClick={() => setEditTarget(res)}
                                         >
                                           {res.organization.slice(0, 6)}
@@ -390,17 +413,30 @@ export default function SchedulerPage() {
                           ))}
                           <tr key="room-계">
                             {lanes.length === 0 && (
-                              <td className={`${styles.tdType} ${styles.bgWhite}`}>숙박</td>
+                              <td
+                                className={`${styles.tdType} ${styles.bgWhite}`}
+                              >
+                                숙박
+                              </td>
                             )}
-                            <td className={`${styles.tdRoom} ${styles.bgWhite}`}>계</td>
-                            <td className={`${styles.tdCap} ${styles.bgWhite}`} />
+                            <td
+                              className={`${styles.tdRoom} ${styles.bgWhite}`}
+                            >
+                              계(4/2/1인실)
+                            </td>
+                            <td
+                              className={`${styles.tdCap} ${styles.bgWhite}`}
+                            />
                             {halfDays.map((cal) => {
                               const c4 = getRoomCount(cal.dateStr, "4인실");
                               const c2 = getRoomCount(cal.dateStr, "2인실");
                               const c1 = getRoomCount(cal.dateStr, "1인실");
                               const total = c4 + c2 + c1;
                               return (
-                                <td key={cal.dateStr} className={`${tdCls(cal)} ${styles.roomTotalCell}`}>
+                                <td
+                                  key={cal.dateStr}
+                                  className={`${tdCls(cal)} ${styles.roomTotalCell}`}
+                                >
                                   {total > 0 && `${c4}/${c2}/${c1}`}
                                 </td>
                               );
