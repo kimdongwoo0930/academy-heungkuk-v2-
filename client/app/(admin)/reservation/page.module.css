@@ -124,17 +124,31 @@
   background: #e6f4ea;
   color: #1e7e34;
 }
-.badge.대기 {
+.badge.예약 {
   background: #fff3cd;
   color: #856404;
-}
-.badge.완료 {
-  background: #e2e3e5;
-  color: #495057;
 }
 .badge.취소 {
   background: #fde8e8;
   color: #c0392b;
+}
+
+.deleteBtn {
+  height: 28px;
+  padding: 0 12px;
+  background: #fff0f0;
+  color: #c0392b;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #f5c0c0;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.deleteBtn:hover {
+  background: #fde8e8;
 }
 
 .surveyBtn {

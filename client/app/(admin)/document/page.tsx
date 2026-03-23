@@ -10,8 +10,7 @@ import styles from './page.module.css';
 
 const STATUS_COLOR: Record<string, string> = {
   확정: '#27AE60',
-  대기: '#F39C12',
-  완료: '#7F8C8D',
+  예약: '#F39C12',
   취소: '#E74C3C',
 };
 

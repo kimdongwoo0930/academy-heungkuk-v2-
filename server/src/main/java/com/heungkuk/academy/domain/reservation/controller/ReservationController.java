@@ -95,6 +95,17 @@ public class ReservationController {
         return ResponseEntity.status(204).build();
     }
 
+    @Operation(summary = "예약 완전 삭제", description = "예약과 하위 데이터(강의실/객실/식사)를 DB에서 영구 삭제합니다.")
+    @ApiResponses({@ApiResponse(responseCode = "204", description = "삭제 성공"),
+            @ApiResponse(responseCode = "401", description = "인증 실패"),
+            @ApiResponse(responseCode = "404", description = "예약을 찾을 수 없음")})
+    @DeleteMapping("/{id}/hard")
+    public ResponseEntity<Void> hardDeleteReservation(
+            @Parameter(description = "예약 ID", example = "1") @PathVariable Long id) {
+        reservationService.hardDeleteReservation(id);
+        return ResponseEntity.status(204).build();
+    }
+
     @Operation(summary = "강의실 가용 여부 확인", description = "특정 날짜/시간대에 강의실이 사용 가능한지 확인합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "확인 성공 (true: 사용 가능, false: 사용 불가)"),
