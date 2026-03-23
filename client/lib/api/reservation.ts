@@ -82,3 +82,7 @@ export async function updateReservation(id: number, body: ReservationRequestBody
 export async function deleteReservation(id: number): Promise<void> {
   await instance.delete(`/v1/admin/reservations/${id}`);
 }
+
+export async function hardDeleteReservation(id: number): Promise<void> {
+  await instance.delete(`/v1/admin/reservations/${id}/hard`);
+}

@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { Reservation } from '@/types/reservation';
-import { getReservations, createReservation, updateReservation, toRequestBody } from '@/lib/api/reservation';
+import { getReservations, createReservation, updateReservation, toRequestBody, hardDeleteReservation } from '@/lib/api/reservation';
+import { isAdmin } from '@/lib/utils/auth';
 import ReservationModal from '@/components/reservation/ReservationModal';
 import SurveyModal from '@/components/reservation/SurveyModal';
 import styles from './page.module.css';
 
-const STATUS_OPTIONS = ['전체', '확정', '대기', '완료', '취소'];
+const STATUS_OPTIONS = ['전체', '확정', '예약', '취소'];
 
 export default function ReservationPage() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
@@ -17,6 +18,7 @@ export default function ReservationPage() {
   const [selected, setSelected] = useState<Reservation | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [surveyTarget, setSurveyTarget] = useState<Reservation | null>(null);
+  const admin = isAdmin();
 
   const fetchReservations = () =>
     getReservations()
@@ -44,6 +46,16 @@ export default function ReservationPage() {
   const openEdit = (r: Reservation) => {
     setSelected(r);
     setIsModalOpen(true);
+  };
+
+  const handleHardDelete = async (r: Reservation) => {
+    if (!confirm(`[${r.organization}] 예약을 완전히 삭제합니다.\n이 작업은 되돌릴 수 없습니다.`)) return;
+    try {
+      await hardDeleteReservation(r.id);
+      await fetchReservations();
+    } catch {
+      alert('삭제 중 오류가 발생했습니다.');
+    }
   };
 
   const handleSave = async (data: Reservation) => {
@@ -102,18 +114,19 @@ export default function ReservationPage() {
               <th>퇴실일</th>
               <th>상태</th>
               <th>설문</th>
+              {admin && <th>삭제</th>}
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={10} style={{ textAlign: 'center', color: 'var(--text-sub)', padding: '40px' }}>
+                <td colSpan={admin ? 11 : 10} style={{ textAlign: 'center', color: 'var(--text-sub)', padding: '40px' }}>
                   불러오는 중...
                 </td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={10} style={{ textAlign: 'center', color: 'var(--text-sub)', padding: '40px' }}>
+                <td colSpan={admin ? 11 : 10} style={{ textAlign: 'center', color: 'var(--text-sub)', padding: '40px' }}>
                   검색 결과가 없습니다.
                 </td>
               </tr>
@@ -142,6 +155,16 @@ export default function ReservationPage() {
                       설문
                     </button>
                   </td>
+                  {admin && (
+                    <td onClick={(e) => e.stopPropagation()}>
+                      <button
+                        className={styles.deleteBtn}
+                        onClick={() => handleHardDelete(r)}
+                      >
+                        삭제
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))
             )}

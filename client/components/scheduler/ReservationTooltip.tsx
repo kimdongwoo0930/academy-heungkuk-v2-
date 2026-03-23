@@ -11,8 +11,7 @@ interface Props {
 
 const STATUS_COLOR: Record<string, string> = {
   확정: "#16a34a",
-  대기: "#d97706",
-  완료: "#6b7280",
+  예약: "#d97706",
   취소: "#dc2626",
 };
 
@@ -83,6 +82,14 @@ export default function ReservationTooltip({
             <span>{res.customer}</span>
             <span className={styles.sep}>·</span>
             <span>{res.customerPhone}</span>
+          </div>
+          <div className={styles.tags}>
+            <span className={res.rooms && res.rooms.length > 0 ? styles.tagOn : styles.tagOff}>
+              숙박 {res.rooms && res.rooms.length > 0 ? "O" : "X"}
+            </span>
+            <span className={res.meals && res.meals.length > 0 ? styles.tagOn : styles.tagOff}>
+              식사 {res.meals && res.meals.length > 0 ? "O" : "X"}
+            </span>
           </div>
         </div>
       )}

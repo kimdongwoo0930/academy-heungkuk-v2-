@@ -11,7 +11,7 @@ import RoomPickerModal from './RoomPickerModal';
 const TABS = ['기본정보', '강의실', '숙박', '식수'] as const;
 type Tab = typeof TABS[number];
 
-const STATUS_OPTIONS = ['확정', '대기', '완료', '취소'];
+const STATUS_OPTIONS = ['확정', '예약', '취소'];
 const ROOM_TYPES: RoomType[] = ['1인실', '2인실', '4인실'];
 const COLOR_PRESETS = [
   '#4A90E2', '#1565C0', '#0097A7', '#00897B',

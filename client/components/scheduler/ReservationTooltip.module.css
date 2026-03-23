@@ -62,3 +62,27 @@
 .sep {
   color: #4a5068;
 }
+
+.tags {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.tagOn {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  background: rgba(99, 192, 120, 0.2);
+  color: #6fcf97;
+}
+
+.tagOff {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #555e7a;
+}

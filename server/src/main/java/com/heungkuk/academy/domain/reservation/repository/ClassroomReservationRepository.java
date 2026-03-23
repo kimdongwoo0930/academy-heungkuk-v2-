@@ -14,7 +14,9 @@ public interface ClassroomReservationRepository extends JpaRepository<ClassroomR
 
        void deleteByReservation(Reservation reservation);
 
-       @Query("SELECT COUNT(c) > 0 FROM ClassroomReservation c " + "WHERE c.classroom = :classroom "
-                     + "AND c.reservedDate = :date ")
+       @Query("SELECT COUNT(c) > 0 FROM ClassroomReservation c " +
+                     "WHERE c.classroom = :classroom " +
+                     "AND c.reservedDate = :date " +
+                     "AND c.reservation.status != '취소'")
        boolean existsConflict(@Param("classroom") String classroom, @Param("date") LocalDate date);
 }

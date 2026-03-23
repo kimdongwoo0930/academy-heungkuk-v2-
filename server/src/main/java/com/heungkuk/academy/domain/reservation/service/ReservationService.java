@@ -86,6 +86,19 @@ public class ReservationService {
     }
 
     /**
+     * 예약 완전 삭제 (하위 데이터 포함 DB에서 영구 제거)
+     */
+    @Transactional
+    public void hardDeleteReservation(Long id) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
+        roomReservationRepository.deleteByReservation(reservation);
+        classroomReservationRepository.deleteByReservation(reservation);
+        mealReservationRepository.deleteByReservation(reservation);
+        reservationRepository.delete(reservation);
+    }
+
+    /**
      * 예약 수정 기존 객실/강의실/식사 예약을 전부 삭제 후 새로 저장 (단순 재생성 방식)
      */
     @Transactional

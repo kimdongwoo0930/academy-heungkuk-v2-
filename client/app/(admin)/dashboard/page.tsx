@@ -21,7 +21,7 @@ export default function DashboardPage() {
   ).length;
 
   const confirmed = reservations.filter((r) => r.status === '확정').length;
-  const pending = reservations.filter((r) => r.status === '대기').length;
+  const pending = reservations.filter((r) => r.status === '예약').length;
 
   const todayPeople = reservations
     .filter((r) => r.status !== '취소' && r.startDate <= today && r.endDate >= today)
