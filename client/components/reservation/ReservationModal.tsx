@@ -212,7 +212,7 @@ export default function ReservationModal({ reservation, allReservations, onClose
 
   // --- 중복 체크 ---
   // 현재 편집 중인 예약을 제외한 다른 예약들
-  const otherReservations = allReservations.filter((r) => r.id !== (isEdit ? reservation.id : -1));
+  const otherReservations = allReservations.filter((r) => r.id !== (isEdit ? reservation.id : -1) && r.status !== '취소');
   const otherClassrooms = otherReservations.flatMap((r) => r.classrooms ?? []);
   const otherRooms      = otherReservations.flatMap((r) => r.rooms ?? []);
 

@@ -11,6 +11,28 @@
   color: var(--text);
 }
 
+.headerBtns {
+  display: flex;
+  gap: 8px;
+}
+
+.excelBtn {
+  height: 38px;
+  padding: 0 16px;
+  background: #f0faf4;
+  color: #1e7e34;
+  border: 1px solid #b7dfbf;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.excelBtn:hover {
+  background: #d9f0e1;
+}
+
 .addBtn {
   height: 38px;
   padding: 0 16px;

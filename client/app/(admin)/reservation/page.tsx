@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Reservation } from '@/types/reservation';
 import { getReservations, createReservation, updateReservation, toRequestBody, hardDeleteReservation } from '@/lib/api/reservation';
 import { isAdmin } from '@/lib/utils/auth';
+import { exportReservationsToExcel } from '@/lib/utils/exportReservationsToExcel';
 import ReservationModal from '@/components/reservation/ReservationModal';
 import SurveyModal from '@/components/reservation/SurveyModal';
 import styles from './page.module.css';
@@ -78,7 +79,10 @@ export default function ReservationPage() {
     <div>
       <div className={styles.header}>
         <h2 className={styles.title}>예약 관리</h2>
-        <button className={styles.addBtn} onClick={openCreate}>+ 예약 등록</button>
+        <div className={styles.headerBtns}>
+          <button className={styles.excelBtn} onClick={() => exportReservationsToExcel(filtered)}>엑셀 다운로드</button>
+          <button className={styles.addBtn} onClick={openCreate}>+ 예약 등록</button>
+        </div>
       </div>
 
       <div className={styles.filters}>
