@@ -12,6 +12,7 @@ interface Props {
   onClose: () => void;
   viewOnly?: boolean;
   roomColors?: Record<string, string>;
+  orgLegend?: { color: string; organization: string }[];
 }
 
 const TYPE_COLOR: Record<RoomType, string> = {
@@ -105,6 +106,7 @@ export default function RoomPickerModal({
   onClose,
   viewOnly = false,
   roomColors = {},
+  orgLegend = [],
 }: Props) {
   const [picked, setPicked] = useState<Set<string>>(new Set(selected));
   const [pos, setPos] = useState({ dx: 0, dy: 0 });
@@ -197,24 +199,35 @@ export default function RoomPickerModal({
 
         {/* 범례 */}
         <div className={styles.legend}>
-          {(Object.entries(TYPE_COLOR) as [RoomType, string][]).map(
-            ([type, color]) => (
-              <div key={type} className={styles.legendItem}>
-                <span
-                  className={styles.legendDot}
-                  style={{ background: color }}
-                />
-                <span>
-                  {type}
-                  {countByType(type) > 0 ? ` (${countByType(type)}개)` : ""}
-                </span>
+          {viewOnly ? (
+            orgLegend.length > 0 ? orgLegend.map(({ color, organization }) => (
+              <div key={color} className={styles.legendItem}>
+                <span className={styles.legendDot} style={{ background: color }} />
+                <span>{organization}</span>
               </div>
-            ),
+            )) : (
+              <div className={styles.legendItem}>
+                <span className={styles.legendDot} style={{ background: "#ccc" }} />
+                <span>예약 없음</span>
+              </div>
+            )
+          ) : (
+            <>
+              {(Object.entries(TYPE_COLOR) as [RoomType, string][]).map(([type, color]) => (
+                <div key={type} className={styles.legendItem}>
+                  <span className={styles.legendDot} style={{ background: color }} />
+                  <span>
+                    {type}
+                    {countByType(type) > 0 ? ` (${countByType(type)}개)` : ""}
+                  </span>
+                </div>
+              ))}
+              <div className={styles.legendItem}>
+                <span className={styles.legendDot} style={{ background: "#ccc" }} />
+                <span>사용중</span>
+              </div>
+            </>
           )}
-          <div className={styles.legendItem}>
-            <span className={styles.legendDot} style={{ background: "#ccc" }} />
-            <span>사용중</span>
-          </div>
         </div>
 
         {/* 도면 */}
