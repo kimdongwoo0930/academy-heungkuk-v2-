@@ -8,6 +8,8 @@ import { useEffect, useRef, useState } from "react";
 import styles from "./page.module.css";
 
 const WEEK_DAYS = ["일", "월", "화", "수", "목", "금", "토"];
+const ROOM_TYPES = ["4인실", "2인실", "1인실"] as const;
+type RoomType = typeof ROOM_TYPES[number];
 
 const STATUS_COLOR: Record<string, string> = {
   확정: "#16a34a",
@@ -37,7 +39,7 @@ interface TooltipState {
 }
 
 const ORG_COL = 80;
-const DATE_COL = 56;
+const DATE_COL = 18; // 타입별 서브컬럼 하나당 너비
 const TOTAL_COL = 44;
 
 export default function AccommodationPage() {
@@ -80,18 +82,21 @@ export default function AccommodationPage() {
     return r.rooms?.some((rm) => displayedDates.has(String(rm.reservedDate)));
   });
 
-  const getRoomsOnDate = (resId: number, dateStr: string) => {
+  const getRoomsOnDate = (resId: number, dateStr: string): RoomReservation[] => {
     const res = reservations.find((r) => r.id === resId);
     return res?.rooms?.filter((rm) => String(rm.reservedDate) === dateStr) ?? [];
   };
 
-  const getDayTotal = (dateStr: string) => {
+  const getDayTypeTotal = (dateStr: string, type: RoomType) => {
     let total = 0;
     activeRoomReservations.forEach((r) => {
-      total += getRoomsOnDate(r.id, dateStr).length;
+      total += getRoomsOnDate(r.id, dateStr).filter((rm) => rm.roomType === type).length;
     });
     return total;
   };
+
+  const getDayTotal = (dateStr: string) =>
+    ROOM_TYPES.reduce((s, t) => s + getDayTypeTotal(dateStr, t), 0);
 
   const isRedDay = (_dateStr: string, date: Date) =>
     date.getDay() === 0 || date.getDay() === 6 || checkIsHoliday(date);
@@ -126,9 +131,9 @@ export default function AccommodationPage() {
     }
   };
 
-  const handleMouseMove = (e: React.MouseEvent, res: Reservation, rooms: string[]) => {
+  const handleMouseMove = (e: React.MouseEvent, res: Reservation, rooms: RoomReservation[]) => {
     const tooltipW = 220;
-    const tooltipH = 140;
+    const tooltipH = 160;
     const x = e.clientX + 14 + tooltipW > window.innerWidth ? e.clientX - tooltipW - 8 : e.clientX + 14;
     const y = e.clientY + 14 + tooltipH > window.innerHeight ? e.clientY - tooltipH - 8 : e.clientY + 14;
     setTooltip({ res, rooms, x, y });
@@ -146,7 +151,7 @@ export default function AccommodationPage() {
       </div>
 
       {halves.map((halfDays, hi) => {
-        const tableW = ORG_COL + halfDays.length * DATE_COL + TOTAL_COL;
+        const tableW = ORG_COL + halfDays.length * DATE_COL * 3 + TOTAL_COL;
         const halfActiveRes = activeRoomReservations.filter((res) =>
           halfDays.some((cal) => getRoomsOnDate(res.id, cal.dateStr).length > 0)
         );
@@ -158,27 +163,36 @@ export default function AccommodationPage() {
                 <table className={styles.table} style={{ minWidth: tableW, width: "100%" }}>
                   <colgroup>
                     <col style={{ width: `${ORG_COL}px` }} />
-                    {halfDays.map((cal) => (
-                      <col key={cal.dateStr} style={{ width: `${DATE_COL}px` }} />
-                    ))}
+                    {halfDays.flatMap((cal) => [
+                      <col key={`${cal.dateStr}4`} style={{ width: `${DATE_COL}px` }} />,
+                      <col key={`${cal.dateStr}2`} style={{ width: `${DATE_COL}px` }} />,
+                      <col key={`${cal.dateStr}1`} style={{ width: `${DATE_COL}px` }} />,
+                    ])}
                     <col style={{ width: `${TOTAL_COL}px` }} />
                   </colgroup>
                   <thead>
                     <tr>
-                      <th className={styles.thOrg}>단체명</th>
+                      <th rowSpan={2} className={styles.thOrg}>단체명</th>
                       {halfDays.map((cal) => (
-                        <th key={cal.dateStr} className={thCls(cal)}>
+                        <th key={cal.dateStr} colSpan={3} className={thCls(cal)}>
                           <div>{cal.date.getDate()}일</div>
                           <div className={styles.dayLabel}>{WEEK_DAYS[cal.date.getDay()]}</div>
                         </th>
                       ))}
-                      <th className={styles.thTotal}>합계</th>
+                      <th rowSpan={2} className={styles.thTotal}>합계</th>
+                    </tr>
+                    <tr>
+                      {halfDays.flatMap((cal) => [
+                        <th key={`${cal.dateStr}4`} className={`${styles.roomSubTh} ${thCls(cal)}`}>4인</th>,
+                        <th key={`${cal.dateStr}2`} className={`${styles.roomSubTh} ${thCls(cal)}`}>2인</th>,
+                        <th key={`${cal.dateStr}1`} className={`${styles.roomSubTh} ${thCls(cal)}`}>1인</th>,
+                      ])}
                     </tr>
                   </thead>
                   <tbody>
                     {halfActiveRes.length === 0 ? (
                       <tr>
-                        <td colSpan={1 + halfDays.length + 1} className={styles.emptyCell}>
+                        <td colSpan={1 + halfDays.length * 3 + 1} className={styles.emptyCell}>
                           이번 달 숙박 예약이 없습니다.
                         </td>
                       </tr>
@@ -197,32 +211,41 @@ export default function AccommodationPage() {
                             >
                               {res.organization}
                             </td>
-                            {halfDays.map((cal) => {
+                            {halfDays.flatMap((cal) => {
                               const rooms = getRoomsOnDate(res.id, cal.dateStr);
-                              const count = rooms.length;
-                              return (
+                              const c4 = rooms.filter((r) => r.roomType === "4인실").length;
+                              const c2 = rooms.filter((r) => r.roomType === "2인실").length;
+                              const c1 = rooms.filter((r) => r.roomType === "1인실").length;
+                              const hasAny = rooms.length > 0;
+                              return [
                                 <td
-                                  key={cal.dateStr}
+                                  key={`${cal.dateStr}4`}
                                   className={`${styles.roomCell} ${tdCls(cal)}`}
-                                  onMouseEnter={(e) => count > 0 && handleMouseMove(e, res, rooms)}
-                                  onMouseMove={(e) => count > 0 && handleMouseMove(e, res, rooms)}
+                                  onMouseEnter={(e) => hasAny && handleMouseMove(e, res, rooms)}
+                                  onMouseMove={(e) => hasAny && handleMouseMove(e, res, rooms)}
                                   onMouseLeave={() => setTooltip(null)}
                                 >
-                                  {count > 0 && (
-                                    <div className={styles.typeBreakdown}>
-                                      {(['4인실', '2인실', '1인실'] as const).map((type) => {
-                                        const c = rooms.filter((r) => r.roomType === type).length;
-                                        return c > 0 ? (
-                                          <div key={type} className={styles.typeLine}>
-                                            <span className={styles.typeLabel}>{type.replace('인실', '인')}</span>
-                                            <span className={cls}>{c}</span>
-                                          </div>
-                                        ) : null;
-                                      })}
-                                    </div>
-                                  )}
-                                </td>
-                              );
+                                  {c4 > 0 ? <span className={cls}>{c4}</span> : ""}
+                                </td>,
+                                <td
+                                  key={`${cal.dateStr}2`}
+                                  className={`${styles.roomCell} ${tdCls(cal)}`}
+                                  onMouseEnter={(e) => hasAny && handleMouseMove(e, res, rooms)}
+                                  onMouseMove={(e) => hasAny && handleMouseMove(e, res, rooms)}
+                                  onMouseLeave={() => setTooltip(null)}
+                                >
+                                  {c2 > 0 ? <span className={cls}>{c2}</span> : ""}
+                                </td>,
+                                <td
+                                  key={`${cal.dateStr}1`}
+                                  className={`${styles.roomCell} ${tdCls(cal)}`}
+                                  onMouseEnter={(e) => hasAny && handleMouseMove(e, res, rooms)}
+                                  onMouseMove={(e) => hasAny && handleMouseMove(e, res, rooms)}
+                                  onMouseLeave={() => setTooltip(null)}
+                                >
+                                  {c1 > 0 ? <span className={cls}>{c1}</span> : ""}
+                                </td>,
+                              ];
                             })}
                             <td className={styles.weekTotalCell}>
                               {halfTotal > 0 ? halfTotal : ""}
@@ -236,13 +259,15 @@ export default function AccommodationPage() {
                       return (
                         <tr key="total" className={styles.totalRow}>
                           <td className={styles.totalLabel}>합계</td>
-                          {halfDays.map((cal) => {
-                            const cnt = getDayTotal(cal.dateStr);
-                            return (
-                              <td key={cal.dateStr} className={tdCls(cal)}>
-                                {cnt > 0 ? cnt : ""}
-                              </td>
-                            );
+                          {halfDays.flatMap((cal) => {
+                            const t4 = getDayTypeTotal(cal.dateStr, "4인실");
+                            const t2 = getDayTypeTotal(cal.dateStr, "2인실");
+                            const t1 = getDayTypeTotal(cal.dateStr, "1인실");
+                            return [
+                              <td key={`${cal.dateStr}4`} className={tdCls(cal)}>{t4 > 0 ? t4 : ""}</td>,
+                              <td key={`${cal.dateStr}2`} className={tdCls(cal)}>{t2 > 0 ? t2 : ""}</td>,
+                              <td key={`${cal.dateStr}1`} className={tdCls(cal)}>{t1 > 0 ? t1 : ""}</td>,
+                            ];
                           })}
                           <td className={styles.weekTotalCell}>
                             {grandTotal > 0 ? grandTotal : ""}
@@ -261,7 +286,10 @@ export default function AccommodationPage() {
       {/* 월 총합 */}
       {(() => {
         const monthDates = calDays.filter((c) => c.isCurrent);
-        const monthTotal = monthDates.reduce((s, c) => s + getDayTotal(c.dateStr), 0);
+        const month4 = monthDates.reduce((s, c) => s + getDayTypeTotal(c.dateStr, "4인실"), 0);
+        const month2 = monthDates.reduce((s, c) => s + getDayTypeTotal(c.dateStr, "2인실"), 0);
+        const month1 = monthDates.reduce((s, c) => s + getDayTypeTotal(c.dateStr, "1인실"), 0);
+        const monthTotal = month4 + month2 + month1;
         const firstDate = monthDates[0]?.dateStr ?? "";
         const lastDate = monthDates[monthDates.length - 1]?.dateStr ?? "";
         return (
@@ -271,9 +299,10 @@ export default function AccommodationPage() {
               <span className={styles.monthSummaryRange}>( {firstDate} ~ {lastDate} )</span>
             </span>
             <div className={styles.monthSummaryItems}>
-              <span className={styles.monthSummaryTotal}>
-                총 숙박 객실 수 <strong>{monthTotal}</strong>
-              </span>
+              <span>4인실 <strong>{month4}</strong></span>
+              <span>2인실 <strong>{month2}</strong></span>
+              <span>1인실 <strong>{month1}</strong></span>
+              <span className={styles.monthSummaryTotal}>합계 <strong>{monthTotal}</strong></span>
             </div>
           </div>
         );
@@ -310,12 +339,12 @@ export default function AccommodationPage() {
             <span className={styles.tooltipSep}>·</span>
             <span>{tooltip.res.customerPhone}</span>
           </div>
-          {(['4인실', '2인실', '1인실'] as const).map((type) => {
+          {ROOM_TYPES.map((type) => {
             const typeRooms = tooltip.rooms.filter((r) => r.roomType === type);
             return typeRooms.length > 0 ? (
               <div key={type} className={styles.tooltipInfo}>
                 <span className={styles.tooltipKey}>{type}</span>
-                <span>{typeRooms.map((r) => r.roomNumber + '호').join(', ')}</span>
+                <span>{typeRooms.map((r) => r.roomNumber + "호").join(", ")}</span>
               </div>
             ) : null;
           })}
