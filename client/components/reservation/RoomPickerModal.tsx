@@ -10,6 +10,8 @@ interface Props {
   occupiedRooms: string[];
   onConfirm: (rooms: string[]) => void;
   onClose: () => void;
+  viewOnly?: boolean;
+  roomColors?: Record<string, string>;
 }
 
 const TYPE_COLOR: Record<RoomType, string> = {
@@ -101,6 +103,8 @@ export default function RoomPickerModal({
   occupiedRooms,
   onConfirm,
   onClose,
+  viewOnly = false,
+  roomColors = {},
 }: Props) {
   const [picked, setPicked] = useState<Set<string>>(new Set(selected));
   const [pos, setPos] = useState({ dx: 0, dy: 0 });
@@ -183,7 +187,7 @@ export default function RoomPickerModal({
       <div className={styles.modal} style={{ transform: `translate(${pos.dx}px, ${pos.dy}px)` }}>
         <div className={styles.header} onMouseDown={handleDragStart} onTouchStart={handleTouchStart}>
           <div>
-            <h3 className={styles.title}>호실 선택</h3>
+            <h3 className={styles.title}>{viewOnly ? "호실 현황" : "호실 선택"}</h3>
             <p className={styles.subtitle}>{date}</p>
           </div>
           <button className={styles.closeBtn} onClick={onClose}>
@@ -243,32 +247,34 @@ export default function RoomPickerModal({
               const info = ROOM_INFO[cell.id];
               const isPicked = picked.has(cell.id);
               const isOccupied = occupiedRooms.includes(cell.id);
-              const color = TYPE_COLOR[info.type];
+              const viewColor = viewOnly ? roomColors[cell.id] : undefined;
+              const color = viewColor ?? TYPE_COLOR[info.type];
               const pastel = TYPE_PASTEL[info.type];
+
+              const cellClass = [
+                styles.roomCell,
+                viewOnly ? styles.roomViewOnly : "",
+                viewOnly && viewColor ? styles.roomPicked : "",
+                !viewOnly && isPicked ? styles.roomPicked : "",
+                !viewOnly && isOccupied ? styles.roomOccupied : "",
+              ].filter(Boolean).join(" ");
 
               return (
                 <button
                   key={cell.id}
-                  className={`${styles.roomCell} ${isPicked ? styles.roomPicked : ""} ${isOccupied ? styles.roomOccupied : ""}`}
-                  style={
-                    {
-                      gridRow,
-                      gridColumn,
-                      "--c": color,
-                      "--bg": pastel,
-                    } as React.CSSProperties
-                  }
-                  onClick={() => !isOccupied && toggle(cell.id)}
-                  disabled={isOccupied}
+                  className={cellClass}
+                  style={{ gridRow, gridColumn, "--c": color, "--bg": pastel } as React.CSSProperties}
+                  onClick={viewOnly ? undefined : () => !isOccupied && toggle(cell.id)}
+                  disabled={!viewOnly && isOccupied}
                   title={
-                    isOccupied
-                      ? `${cell.id}호 — 사용중`
-                      : `${cell.id}호 (${info.type})`
+                    viewOnly
+                      ? viewColor ? `${cell.id}호 — 예약됨` : `${cell.id}호 (${info.type})`
+                      : isOccupied ? `${cell.id}호 — 사용중` : `${cell.id}호 (${info.type})`
                   }
                 >
                   <span className={styles.cellNum}>{cell.id}</span>
                   <span className={styles.cellCap}>
-                    {isOccupied ? "사용중" : `${info.cap}인`}
+                    {!viewOnly && isOccupied ? "사용중" : `${info.cap}인`}
                   </span>
                 </button>
               );
@@ -276,20 +282,29 @@ export default function RoomPickerModal({
           </div>
         </div>
 
-        <div className={styles.footer}>
-          <span className={styles.total}>총 {picked.size}개 선택</span>
-          <div className={styles.footerBtns}>
-            <button className={styles.cancelBtn} onClick={onClose}>
-              취소
-            </button>
-            <button
-              className={styles.confirmBtn}
-              onClick={() => onConfirm([...picked])}
-            >
-              확인
-            </button>
+        {viewOnly ? (
+          <div className={styles.footer}>
+            <span className={styles.total}>사용중 {occupiedRooms.length}개</span>
+            <div className={styles.footerBtns}>
+              <button className={styles.cancelBtn} onClick={onClose}>닫기</button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className={styles.footer}>
+            <span className={styles.total}>총 {picked.size}개 선택</span>
+            <div className={styles.footerBtns}>
+              <button className={styles.cancelBtn} onClick={onClose}>
+                취소
+              </button>
+              <button
+                className={styles.confirmBtn}
+                onClick={() => onConfirm([...picked])}
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

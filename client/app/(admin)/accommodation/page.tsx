@@ -1,6 +1,7 @@
 "use client";
 
 import ReservationModal from "@/components/reservation/ReservationModal";
+import RoomPickerModal from "@/components/reservation/RoomPickerModal";
 import { getReservations, toRequestBody, updateReservation } from "@/lib/api/reservation";
 import { Reservation, RoomReservation } from "@/types/reservation";
 import { isHoliday } from "@hyunbinseo/holidays-kr";
@@ -48,6 +49,7 @@ export default function AccommodationPage() {
   const [month, setMonth] = useState(today.getMonth());
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [editTarget, setEditTarget] = useState<Reservation | null>(null);
+  const [dateView, setDateView] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
 
@@ -93,6 +95,24 @@ export default function AccommodationPage() {
       total += getRoomsOnDate(r.id, dateStr).filter((rm) => rm.roomType === type).length;
     });
     return total;
+  };
+
+  const getOccupiedRoomsOnDate = (dateStr: string): string[] => {
+    const rooms: string[] = [];
+    activeRoomReservations.forEach((res) => {
+      getRoomsOnDate(res.id, dateStr).forEach((rm) => rooms.push(rm.roomNumber));
+    });
+    return rooms;
+  };
+
+  const getRoomColorsOnDate = (dateStr: string): Record<string, string> => {
+    const colorMap: Record<string, string> = {};
+    activeRoomReservations.forEach((res) => {
+      getRoomsOnDate(res.id, dateStr).forEach((rm) => {
+        colorMap[rm.roomNumber] = res.colorCode;
+      });
+    });
+    return colorMap;
   };
 
   const getDayTotal = (dateStr: string) =>
@@ -174,7 +194,13 @@ export default function AccommodationPage() {
                     <tr>
                       <th rowSpan={2} className={styles.thOrg}>단체명</th>
                       {halfDays.map((cal) => (
-                        <th key={cal.dateStr} colSpan={3} className={thCls(cal)}>
+                        <th
+                          key={cal.dateStr}
+                          colSpan={3}
+                          className={thCls(cal)}
+                          style={{ cursor: cal.isCurrent ? "pointer" : undefined }}
+                          onClick={() => cal.isCurrent && setDateView(cal.dateStr)}
+                        >
                           <div>{cal.date.getDate()}일</div>
                           <div className={styles.dayLabel}>{WEEK_DAYS[cal.date.getDay()]}</div>
                         </th>
@@ -349,6 +375,18 @@ export default function AccommodationPage() {
             ) : null;
           })}
         </div>
+      )}
+
+      {dateView && (
+        <RoomPickerModal
+          date={dateView}
+          selected={[]}
+          occupiedRooms={getOccupiedRoomsOnDate(dateView)}
+          roomColors={getRoomColorsOnDate(dateView)}
+          onConfirm={() => {}}
+          onClose={() => setDateView(null)}
+          viewOnly
+        />
       )}
 
       {editTarget && (

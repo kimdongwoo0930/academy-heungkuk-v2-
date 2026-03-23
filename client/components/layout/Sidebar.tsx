@@ -9,10 +9,10 @@ import styles from "./Sidebar.module.css";
 const NAV_ITEMS = [
   { label: "일정 현황", href: "/scheduler", icon: "📅", adminOnly: false },
   { label: "예약 관리", href: "/reservation", icon: "📋", adminOnly: false },
-  { label: "설문 관리", href: "/load", icon: "📝", adminOnly: false },
   { label: "식수 관리", href: "/restaurant", icon: "🍽️", adminOnly: false },
   { label: "숙박 현황", href: "/accommodation", icon: "🛏️", adminOnly: false },
   { label: "문서 관리", href: "/document", icon: "📄", adminOnly: true },
+  { label: "설문 관리", href: "/load", icon: "📝", adminOnly: false },
   { label: "설정", href: "/settings", icon: "⚙️", adminOnly: true },
 ];
 
