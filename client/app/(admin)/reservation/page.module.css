@@ -16,6 +16,23 @@
   gap: 8px;
 }
 
+.templateBtn {
+  height: 38px;
+  padding: 0 16px;
+  background: var(--surface);
+  color: var(--text-sub);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.templateBtn:hover {
+  background: #f0f0f0;
+}
+
 .excelBtn {
   height: 38px;
   padding: 0 16px;
