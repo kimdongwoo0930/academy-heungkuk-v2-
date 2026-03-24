@@ -1,9 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Reservation } from '@/types/reservation';
 import { SurveyResult, SurveyAnswers } from '@/types/survey';
-import { getReservations } from '@/lib/api/reservation';
 import { getAllSurveys } from '@/lib/api/survey';
 import styles from './page.module.css';
 
@@ -35,7 +33,12 @@ function parseAnswers(raw: string): SurveyAnswers | null {
 }
 
 interface SurveyGroup {
-  reservation: Reservation;
+  reservationId: string;
+  organization: string | null;
+  customer: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  colorCode: string | null;
   results: SurveyResult[];
 }
 
@@ -52,7 +55,6 @@ function ResultCard({ result }: { result: SurveyResult }) {
 
       {open && a ? (
         <div className={styles.resultBody}>
-          {/* 기본 정보 */}
           <div className={styles.infoGrid}>
             {a.location && (
               <div className={styles.infoItem}>
@@ -80,7 +82,6 @@ function ResultCard({ result }: { result: SurveyResult }) {
             )}
           </div>
 
-          {/* 만족도 */}
           <div className={styles.satisfactionGrid}>
             {SATISFACTION_ITEMS.map(({ key, label, commentKey }) => {
               const score = a[key] as number;
@@ -101,7 +102,6 @@ function ResultCard({ result }: { result: SurveyResult }) {
             })}
           </div>
 
-          {/* 재방문 + 의견 */}
           <div className={styles.bottomSection}>
             {a.revisit && (
               <div className={styles.bottomItem}>
@@ -133,30 +133,33 @@ export default function SurveyResultPage() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    Promise.all([getReservations(), getAllSurveys()])
-      .then(([reservations, surveys]) => {
-        // reservationId 기준으로 설문 그룹핑
-        const surveyMap = new Map<string, SurveyResult[]>();
+    getAllSurveys()
+      .then((surveys) => {
+        const map = new Map<string, SurveyGroup>();
         surveys.forEach((s) => {
-          const list = surveyMap.get(s.reservationId) ?? [];
-          list.push(s);
-          surveyMap.set(s.reservationId, list);
+          if (!map.has(s.reservationId)) {
+            map.set(s.reservationId, {
+              reservationId: s.reservationId,
+              organization: s.organization,
+              customer: s.customer,
+              startDate: s.startDate,
+              endDate: s.endDate,
+              colorCode: s.colorCode,
+              results: [],
+            });
+          }
+          map.get(s.reservationId)!.results.push(s);
         });
-
-        const grouped: SurveyGroup[] = reservations
-          .filter((r) => surveyMap.has(r.reservationCode))
-          .map((r) => ({ reservation: r, results: surveyMap.get(r.reservationCode)! }));
-
-        setGroups(grouped);
+        setGroups(Array.from(map.values()));
       })
       .catch(() => alert('데이터를 불러오는 데 실패했습니다.'))
       .finally(() => setLoading(false));
   }, []);
 
   const filtered = groups.filter((g) =>
-    g.reservation.organization.includes(search) ||
-    g.reservation.reservationCode.includes(search) ||
-    g.reservation.customer.includes(search)
+    (g.organization ?? '').includes(search) ||
+    g.reservationId.includes(search) ||
+    (g.customer ?? '').includes(search)
   );
 
   return (
@@ -181,12 +184,17 @@ export default function SurveyResultPage() {
       ) : (
         <div className={styles.groupList}>
           {filtered.map((g) => (
-            <div key={g.reservation.id} className={styles.groupCard}>
+            <div key={g.reservationId} className={styles.groupCard}>
               <div className={styles.groupHeader}>
-                <span className={styles.colorDot} style={{ backgroundColor: g.reservation.colorCode }} />
-                <span className={styles.org}>{g.reservation.organization}</span>
-                <span className={styles.code}>{g.reservation.reservationCode}</span>
-                <span className={styles.period}>{String(g.reservation.startDate)} ~ {String(g.reservation.endDate)}</span>
+                {g.colorCode && (
+                  <span className={styles.colorDot} style={{ backgroundColor: g.colorCode }} />
+                )}
+                <span className={styles.org}>{g.organization ?? '-'}</span>
+                <span className={styles.code}>{g.reservationId}</span>
+                {g.customer && <span className={styles.customer}>{g.customer}</span>}
+                {g.startDate && g.endDate && (
+                  <span className={styles.period}>{g.startDate} ~ {g.endDate}</span>
+                )}
                 <span className={styles.responseCount}>응답 {g.results.length}건</span>
               </div>
 

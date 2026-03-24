@@ -2,58 +2,98 @@
 
 import { useState, useEffect } from 'react';
 import { Reservation } from '@/types/reservation';
-import { getReservations, createReservation, updateReservation, toRequestBody, hardDeleteReservation } from '@/lib/api/reservation';
+import {
+  searchReservations, createReservation, updateReservation,
+  toRequestBody, hardDeleteReservation, getReservationsByYear,
+} from '@/lib/api/reservation';
 import { isAdmin } from '@/lib/utils/auth';
 import { exportReservationsToExcel } from '@/lib/utils/exportReservationsToExcel';
 import ReservationModal from '@/components/reservation/ReservationModal';
 import SurveyModal from '@/components/reservation/SurveyModal';
 import styles from './page.module.css';
 
-const STATUS_OPTIONS = ['전체', '확정', '예약', '취소'];
+const STATUS_OPTIONS = ['전체', '확정', '예약', '문의', '취소'];
+const PAGE_SIZE = 20;
+type SortBy = 'createdAt' | 'startDate';
 
 export default function ReservationPage() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [totalElements, setTotalElements] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [status, setStatus] = useState('전체');
+  const [sortBy, setSortBy] = useState<SortBy>('createdAt');
+  const [page, setPage] = useState(0);
+  const [fetchTick, setFetchTick] = useState(0);
   const [selected, setSelected] = useState<Reservation | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalReservations, setModalReservations] = useState<Reservation[]>([]);
   const [surveyTarget, setSurveyTarget] = useState<Reservation | null>(null);
   const admin = isAdmin();
 
-  const fetchReservations = () =>
-    getReservations()
-      .then(setReservations)
-      .catch(() => alert('예약 목록을 불러오는데 실패했습니다.'));
-
+  // 검색어 디바운스 + 페이지 리셋
   useEffect(() => {
-    fetchReservations().finally(() => setLoading(false));
-  }, []);
+    const t = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(0);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [search]);
 
-  const filtered = reservations.filter((r) => {
-    const matchSearch =
-      r.organization.includes(search) ||
-      r.customer.includes(search) ||
-      r.reservationCode.includes(search);
-    const matchStatus = status === '전체' || r.status === status;
-    return matchSearch && matchStatus;
-  });
+  // 데이터 조회
+  useEffect(() => {
+    setLoading(true);
+    searchReservations({
+      keyword: debouncedSearch || undefined,
+      status: status === '전체' ? undefined : status,
+      page,
+      size: PAGE_SIZE,
+      sort: `${sortBy},desc`,
+    })
+      .then((result) => {
+        setReservations(result.content);
+        setTotalElements(result.totalElements);
+        setTotalPages(result.totalPages);
+      })
+      .catch(() => alert('예약 목록을 불러오는데 실패했습니다.'))
+      .finally(() => setLoading(false));
+  }, [debouncedSearch, status, sortBy, page, fetchTick]);
+
+  const handleStatusChange = (v: string) => { setStatus(v); setPage(0); };
+  const handleSortChange = (v: SortBy) => { setSortBy(v); setPage(0); };
+  const refetch = () => setFetchTick((t) => t + 1);
+
+  const fetchModalReservations = (years: number[]) => {
+    Promise.all(years.map(getReservationsByYear))
+      .then((results) => {
+        const merged = [...new Map(results.flat().map((r) => [r.id, r])).values()];
+        setModalReservations(merged);
+      })
+      .catch(() => {});
+  };
 
   const openCreate = () => {
     setSelected(null);
     setIsModalOpen(true);
+    const y = new Date().getFullYear();
+    fetchModalReservations([y, y + 1]);
   };
 
   const openEdit = (r: Reservation) => {
     setSelected(r);
     setIsModalOpen(true);
+    const startYear = new Date(r.startDate).getFullYear();
+    const endYear = new Date(r.endDate).getFullYear();
+    fetchModalReservations([...new Set([startYear, endYear])]);
   };
 
   const handleHardDelete = async (r: Reservation) => {
     if (!confirm(`[${r.organization}] 예약을 완전히 삭제합니다.\n이 작업은 되돌릴 수 없습니다.`)) return;
     try {
       await hardDeleteReservation(r.id);
-      await fetchReservations();
+      refetch();
     } catch {
       alert('삭제 중 오류가 발생했습니다.');
     }
@@ -68,10 +108,10 @@ export default function ReservationPage() {
         await createReservation(body);
       }
       setIsModalOpen(false);
-      await fetchReservations();
+      refetch();
     } catch (err: unknown) {
-      const status = (err as { response?: { status?: number } })?.response?.status;
-      alert(status === 403 ? '수정 권한이 없습니다.' : '저장 중 오류가 발생했습니다.');
+      const errStatus = (err as { response?: { status?: number } })?.response?.status;
+      alert(errStatus === 403 ? '수정 권한이 없습니다.' : '저장 중 오류가 발생했습니다.');
     }
   };
 
@@ -80,12 +120,26 @@ export default function ReservationPage() {
       <div className={styles.header}>
         <h2 className={styles.title}>예약 관리</h2>
         <div className={styles.headerBtns}>
-          {admin && <button className={styles.excelBtn} onClick={() => exportReservationsToExcel(filtered)}>엑셀 다운로드</button>}
+          {admin && <button className={styles.excelBtn} onClick={() => exportReservationsToExcel(reservations)}>엑셀 다운로드</button>}
           {admin && <button className={styles.addBtn} onClick={openCreate}>+ 예약 등록</button>}
         </div>
       </div>
 
       <div className={styles.filters}>
+        <div className={styles.sortBtns}>
+          <button
+            className={`${styles.sortBtn} ${sortBy === 'createdAt' ? styles.sortBtnActive : ''}`}
+            onClick={() => handleSortChange('createdAt')}
+          >
+            등록일순
+          </button>
+          <button
+            className={`${styles.sortBtn} ${sortBy === 'startDate' ? styles.sortBtnActive : ''}`}
+            onClick={() => handleSortChange('startDate')}
+          >
+            입실일순
+          </button>
+        </div>
         <input
           className={styles.searchInput}
           placeholder="단체명 / 담당자 / 예약코드 검색"
@@ -95,13 +149,13 @@ export default function ReservationPage() {
         <select
           className={styles.statusSelect}
           value={status}
-          onChange={(e) => setStatus(e.target.value)}
+          onChange={(e) => handleStatusChange(e.target.value)}
         >
           {STATUS_OPTIONS.map((s) => (
             <option key={s} value={s}>{s}</option>
           ))}
         </select>
-        <span className={styles.countLabel}>총 {filtered.length}건</span>
+        <span className={styles.countLabel}>총 {totalElements}건</span>
       </div>
 
       <div className={styles.tableWrap}>
@@ -128,14 +182,14 @@ export default function ReservationPage() {
                   불러오는 중...
                 </td>
               </tr>
-            ) : filtered.length === 0 ? (
+            ) : reservations.length === 0 ? (
               <tr>
                 <td colSpan={admin ? 11 : 10} style={{ textAlign: 'center', color: 'var(--text-sub)', padding: '40px' }}>
                   검색 결과가 없습니다.
                 </td>
               </tr>
             ) : (
-              filtered.map((r) => (
+              reservations.map((r) => (
                 <tr key={r.id} onClick={() => openEdit(r)}>
                   <td style={{ fontFamily: 'monospace', fontSize: 12 }}>{r.reservationCode}</td>
                   <td>
@@ -176,10 +230,20 @@ export default function ReservationPage() {
         </table>
       </div>
 
+      {totalPages > 1 && (
+        <div className={styles.pagination}>
+          <button disabled={page === 0} onClick={() => setPage(0)}>{'«'}</button>
+          <button disabled={page === 0} onClick={() => setPage((p) => p - 1)}>{'‹'}</button>
+          <span>{page + 1} / {totalPages}</span>
+          <button disabled={page >= totalPages - 1} onClick={() => setPage((p) => p + 1)}>{'›'}</button>
+          <button disabled={page >= totalPages - 1} onClick={() => setPage(totalPages - 1)}>{'»'}</button>
+        </div>
+      )}
+
       {isModalOpen && (
         <ReservationModal
           reservation={selected}
-          allReservations={reservations}
+          allReservations={modalReservations}
           onClose={() => setIsModalOpen(false)}
           onSave={handleSave}
         />

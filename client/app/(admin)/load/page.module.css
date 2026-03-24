@@ -89,6 +89,11 @@
   color: var(--text-sub);
 }
 
+.customer {
+  font-size: 12px;
+  color: var(--text-sub);
+}
+
 .period {
   font-size: 12px;
   color: var(--text-sub);

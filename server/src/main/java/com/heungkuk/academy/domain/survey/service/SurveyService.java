@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.heungkuk.academy.domain.reservation.entity.Reservation;
+import com.heungkuk.academy.domain.reservation.repository.ReservationRepository;
 import com.heungkuk.academy.domain.survey.dto.request.SurveyRequest;
 import com.heungkuk.academy.domain.survey.dto.response.SurveyResponse;
 import com.heungkuk.academy.domain.survey.dto.response.SurveyTokenResponse;
@@ -24,6 +26,7 @@ public class SurveyService {
 
     private final SurveyRepository surveyRepository;
     private final SurveyTokenRepository surveyTokenRepository;
+    private final ReservationRepository reservationRepository;
 
 
     // 설문 URL 생성 (관리자)
@@ -82,7 +85,11 @@ public class SurveyService {
     }
 
     public List<SurveyResponse> getSurveyList() {
-        return surveyRepository.findAll().stream().map(SurveyResponse::from).toList();
+        return surveyRepository.findAllByOrderByCreatedAtDesc().stream().map(survey -> {
+            String code = survey.getSurveyToken().getReservationId();
+            Reservation res = reservationRepository.findByReservationCode(code).orElse(null);
+            return SurveyResponse.from(survey, res);
+        }).toList();
     }
 
     public List<SurveyTokenResponse> getAllTokens() {

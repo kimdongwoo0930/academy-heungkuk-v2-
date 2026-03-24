@@ -86,6 +86,21 @@
   color: #ffffff;
 }
 
+.navItemDisabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.soonBadge {
+  margin-left: auto;
+  font-size: 10px;
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.7);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
 .navItem.active {
   background: rgba(236, 0, 140, 0.25);
   color: #ffffff;

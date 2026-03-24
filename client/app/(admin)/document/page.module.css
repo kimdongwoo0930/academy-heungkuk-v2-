@@ -3,6 +3,30 @@
   max-width: 1000px;
 }
 
+.comingSoon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  gap: 12px;
+  color: var(--text-sub);
+}
+
+.comingSoonIcon {
+  font-size: 48px;
+}
+
+.comingSoonTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.comingSoonDesc {
+  font-size: 14px;
+}
+
 .header {
   display: flex;
   align-items: flex-start;

@@ -3,6 +3,8 @@ package com.heungkuk.academy.domain.reservation.service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.heungkuk.academy.domain.reservation.dto.request.ReservationRequest;
@@ -63,9 +65,22 @@ public class ReservationService {
         return !classroomReservationRepository.existsConflict(classroom, date);
     }
 
-    /** 예약 전체 목록 조회 */
-    public List<ReservationResponse> getReservations() {
-        return reservationRepository.findAll().stream().map(this::toResponse).toList();
+    /** 연도별 전체 조회 — 일정/숙박 현황표용 */
+    public List<ReservationResponse> getReservationsByYear(int year) {
+        List<ReservationResponse> responses = reservationRepository
+                .findByYear(LocalDate.of(year, 1, 1), LocalDate.of(year, 12, 31)).stream()
+                .map(this::toResponse).toList();
+
+        return responses;
+
+    }
+
+    /** 검색 + 필터 + 페이징 — 예약 관리 리스트용 */
+    public Page<ReservationResponse> searchReservations(String keyword, String status,
+            LocalDate startDate, LocalDate endDate, Pageable pageable) {
+
+        return reservationRepository.search(keyword, status, startDate, endDate, pageable)
+                .map(this::toResponse); // Page<Reservation> → Page<ReservationResponse>
     }
 
     /** 예약 단건 조회 */
