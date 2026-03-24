@@ -64,6 +64,32 @@ export async function getReservations(): Promise<Reservation[]> {
   return res.data.data;
 }
 
+export async function getReservationsByYear(year: number): Promise<Reservation[]> {
+  const res = await instance.get('/v1/admin/reservations', { params: { year } });
+  return res.data.data;
+}
+
+export interface PageResult<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+}
+
+export async function searchReservations(params: {
+  keyword?: string;
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  size?: number;
+  sort?: string;
+}): Promise<PageResult<Reservation>> {
+  const res = await instance.get('/v1/admin/reservations/search', { params });
+  return res.data.data;
+}
+
 export async function getReservationById(id: number): Promise<Reservation> {
   const res = await instance.get(`/v1/admin/reservations/${id}`);
   return res.data.data;

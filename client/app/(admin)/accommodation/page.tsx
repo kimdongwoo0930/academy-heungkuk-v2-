@@ -2,7 +2,7 @@
 
 import ReservationModal from "@/components/reservation/ReservationModal";
 import RoomPickerModal from "@/components/reservation/RoomPickerModal";
-import { createReservation, getReservations, toRequestBody, updateReservation } from "@/lib/api/reservation";
+import { createReservation, getReservationsByYear, toRequestBody, updateReservation } from "@/lib/api/reservation";
 import { Reservation, RoomReservation } from "@/types/reservation";
 import { isHoliday } from "@hyunbinseo/holidays-kr";
 import { useEffect, useRef, useState } from "react";
@@ -55,10 +55,16 @@ export default function AccommodationPage() {
   const tooltipRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    getReservations()
-      .then(setReservations)
+    const years = [year];
+    if (month === 0) years.push(year - 1);
+    if (month === 11) years.push(year + 1);
+    Promise.all(years.map(getReservationsByYear))
+      .then((results) => {
+        const merged = [...new Map(results.flat().map((r) => [r.id, r])).values()];
+        setReservations(merged);
+      })
       .catch(() => alert("예약 데이터를 불러오는데 실패했습니다."));
-  }, []);
+  }, [year, month]);
 
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);

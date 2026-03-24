@@ -7,13 +7,13 @@ import { usePathname, useRouter } from "next/navigation";
 import styles from "./Sidebar.module.css";
 
 const NAV_ITEMS = [
-  { label: "일정 현황", href: "/scheduler", icon: "📅", adminOnly: false },
-  { label: "예약 관리", href: "/reservation", icon: "📋", adminOnly: false },
-  { label: "식수 관리", href: "/restaurant", icon: "🍽️", adminOnly: false },
-  { label: "숙박 현황", href: "/accommodation", icon: "🛏️", adminOnly: false },
-  { label: "문서 관리", href: "/document", icon: "📄", adminOnly: true },
-  { label: "설문 관리", href: "/load", icon: "📝", adminOnly: false },
-  { label: "설정", href: "/settings", icon: "⚙️", adminOnly: true },
+  { label: "일정 현황", href: "/scheduler", icon: "📅", adminOnly: false, disabled: false },
+  { label: "예약 관리", href: "/reservation", icon: "📋", adminOnly: false, disabled: false },
+  { label: "식수 관리", href: "/restaurant", icon: "🍽️", adminOnly: false, disabled: false },
+  { label: "숙박 현황", href: "/accommodation", icon: "🛏️", adminOnly: false, disabled: false },
+  { label: "문서 관리", href: "/document", icon: "📄", adminOnly: true, disabled: true },
+  { label: "설문 관리", href: "/load", icon: "📝", adminOnly: false, disabled: false },
+  { label: "설정", href: "/settings", icon: "⚙️", adminOnly: true, disabled: false },
 ];
 
 interface Props {
@@ -52,17 +52,33 @@ export default function Sidebar({ collapsed, onToggle }: Props) {
       </div>
 
       <nav className={styles.nav}>
-        {NAV_ITEMS.filter((item) => !item.adminOnly || admin).map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`${styles.navItem} ${pathname.startsWith(item.href) ? styles.active : ""} ${collapsed ? styles.navItemCollapsed : ""}`}
-            title={collapsed ? item.label : undefined}
-          >
-            <span className={styles.navIcon}>{item.icon}</span>
-            {!collapsed && item.label}
-          </Link>
-        ))}
+        {NAV_ITEMS.filter((item) => !item.adminOnly || admin).map((item) =>
+          item.disabled ? (
+            <span
+              key={item.href}
+              className={`${styles.navItem} ${styles.navItemDisabled} ${collapsed ? styles.navItemCollapsed : ""}`}
+              title={collapsed ? `${item.label} (준비중)` : undefined}
+            >
+              <span className={styles.navIcon}>{item.icon}</span>
+              {!collapsed && (
+                <>
+                  {item.label}
+                  <span className={styles.soonBadge}>준비중</span>
+                </>
+              )}
+            </span>
+          ) : (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`${styles.navItem} ${pathname.startsWith(item.href) ? styles.active : ""} ${collapsed ? styles.navItemCollapsed : ""}`}
+              title={collapsed ? item.label : undefined}
+            >
+              <span className={styles.navIcon}>{item.icon}</span>
+              {!collapsed && item.label}
+            </Link>
+          )
+        )}
       </nav>
 
       <div className={styles.bottom}>

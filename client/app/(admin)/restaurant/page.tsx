@@ -2,7 +2,7 @@
 
 import ReservationModal from "@/components/reservation/ReservationModal";
 import {
-  getReservations,
+  getReservationsByYear,
   toRequestBody,
   updateReservation,
 } from "@/lib/api/reservation";
@@ -44,10 +44,16 @@ export default function RestaurantPage() {
   const [editTarget, setEditTarget] = useState<Reservation | null>(null);
 
   useEffect(() => {
-    getReservations()
-      .then(setReservations)
+    const years = [year];
+    if (month === 0) years.push(year - 1);
+    if (month === 11) years.push(year + 1);
+    Promise.all(years.map(getReservationsByYear))
+      .then((results) => {
+        const merged = [...new Map(results.flat().map((r) => [r.id, r])).values()];
+        setReservations(merged);
+      })
       .catch(() => alert("예약 데이터를 불러오는데 실패했습니다."));
-  }, []);
+  }, [year, month]);
 
   // ── 주 단위 그리드 생성 (월요일 시작, 7일씩) ──
   const firstDay = new Date(year, month, 1);

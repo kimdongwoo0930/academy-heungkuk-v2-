@@ -4,7 +4,7 @@ import ReservationModal from "@/components/reservation/ReservationModal";
 import ReservationTooltip from "@/components/scheduler/ReservationTooltip";
 import {
   createReservation,
-  getReservations,
+  getReservationsByYear,
   toRequestBody,
   updateReservation,
 } from "@/lib/api/reservation";
@@ -92,14 +92,21 @@ export default function SchedulerPage() {
     roomId?: string;
   } | null>(null);
 
-  const fetchReservations = () =>
-    getReservations()
-      .then(setReservations)
+  const fetchReservations = (y: number, m: number) => {
+    const years = [y];
+    if (m === 0) years.push(y - 1);   // 1월: 전년도 12월 trailing 포함
+    if (m === 11) years.push(y + 1);  // 12월: 다음 연도 1월 trailing 포함
+    Promise.all(years.map(getReservationsByYear))
+      .then((results) => {
+        const merged = [...new Map(results.flat().map((r) => [r.id, r])).values()];
+        setReservations(merged);
+      })
       .catch(() => alert("예약 데이터를 불러오는데 실패했습니다."));
+  };
 
   useEffect(() => {
-    fetchReservations();
-  }, []);
+    fetchReservations(year, month);
+  }, [year, month]);
 
   // ── 달력 그리드 생성 (일요일 시작) ──
   const firstDayOfWeek = new Date(year, month, 1).getDay(); // 0=일
@@ -166,7 +173,7 @@ export default function SchedulerPage() {
       const body = toRequestBody(data);
       await updateReservation(data.id, body);
       setEditTarget(null);
-      fetchReservations();
+      fetchReservations(year, month);
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response
         ?.status;
@@ -183,7 +190,7 @@ export default function SchedulerPage() {
       const body = toRequestBody(data);
       await createReservation(body);
       setCreateDefaults(null);
-      fetchReservations();
+      fetchReservations(year, month);
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response
         ?.status;
@@ -366,23 +373,25 @@ export default function SchedulerPage() {
                       const totalSpan = lanes.length + 1;
                       return (
                         <>
-                          {lanes.map((lane, idx) => (
+                          {lanes.map((lane, idx) => {
+                            const isFirst = idx === 0;
+                            return (
                             <tr key={`lane-${idx}`}>
-                              {idx === 0 && (
+                              {isFirst && (
                                 <td
-                                  className={`${styles.tdType} ${styles.bgWhite}`}
+                                  className={`${styles.tdType} ${styles.bgAccom} ${styles.roomTopBorder} ${styles.roomBottomBorder}`}
                                   rowSpan={totalSpan}
                                 >
                                   숙박
                                 </td>
                               )}
                               <td
-                                className={`${styles.tdRoom} ${styles.bgWhite}`}
+                                className={`${styles.tdRoom} ${styles.bgAccom} ${isFirst ? styles.roomTopBorder : ""}`}
                               >
                                 {idx + 1}
                               </td>
                               <td
-                                className={`${styles.tdCap} ${styles.bgWhite}`}
+                                className={`${styles.tdCap} ${styles.bgAccom} ${isFirst ? styles.roomTopBorder : ""}`}
                               />
                               {halfDays.map((cal) => {
                                 const res = lane.find((r) =>
@@ -397,7 +406,7 @@ export default function SchedulerPage() {
                                 return (
                                   <td
                                     key={cal.dateStr}
-                                    className={tdCls(cal)}
+                                    className={`${tdCls(cal)} ${isFirst ? styles.roomTopBorder : ""}`}
                                     onDoubleClick={() =>
                                       !res &&
                                       setCreateDefaults({
@@ -424,22 +433,23 @@ export default function SchedulerPage() {
                                 );
                               })}
                             </tr>
-                          ))}
+                            );
+                          })}
                           <tr key="room-계">
                             {lanes.length === 0 && (
                               <td
-                                className={`${styles.tdType} ${styles.bgWhite}`}
+                                className={`${styles.tdType} ${styles.bgAccom} ${styles.roomTopBorder} ${styles.roomBottomBorder}`}
                               >
                                 숙박
                               </td>
                             )}
                             <td
-                              className={`${styles.tdRoom} ${styles.bgWhite}`}
+                              className={`${styles.tdRoom} ${styles.bgAccom} ${lanes.length === 0 ? styles.roomTopBorder : ""} ${styles.roomBottomBorder}`}
                             >
                               계(4/2/1인실)
                             </td>
                             <td
-                              className={`${styles.tdCap} ${styles.bgWhite}`}
+                              className={`${styles.tdCap} ${styles.bgAccom} ${lanes.length === 0 ? styles.roomTopBorder : ""} ${styles.roomBottomBorder}`}
                             />
                             {halfDays.map((cal) => {
                               const c4 = getRoomCount(cal.dateStr, "4인실");
@@ -452,7 +462,7 @@ export default function SchedulerPage() {
                               return (
                                 <td
                                   key={cal.dateStr}
-                                  className={`${tdCls(cal)} ${styles.roomTotalCell}`}
+                                  className={`${tdCls(cal)} ${styles.roomTotalCell} ${lanes.length === 0 ? styles.roomTopBorder : ""} ${styles.roomBottomBorder}`}
                                   onDoubleClick={() =>
                                     setCreateDefaults({
                                       date: cal.dateStr,

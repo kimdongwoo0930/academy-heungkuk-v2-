@@ -75,6 +75,7 @@
   font-size: 12px;
   white-space: nowrap;
   table-layout: fixed;
+  cursor: default !important;
 }
 
 /* 헤더 */
@@ -84,6 +85,7 @@
   text-align: center;
   font-weight: 700;
   border: 1px solid #b0bdd0;
+  cursor: default !important;
 }
 
 .table th.todayTh {
@@ -148,6 +150,7 @@
   height: 26px;
   vertical-align: middle;
   text-align: center;
+  cursor: default !important;
 }
 
 /* 구분 셀 */
@@ -210,6 +213,17 @@
 }
 .otherMonthCol {
   background: #f5f5f5 !important;
+}
+
+/* 숙박 섹션 강조 */
+.bgAccom {
+  background: #fff0f3 !important;
+}
+.roomTopBorder {
+  border-top: 2px solid #f87171 !important;
+}
+.roomBottomBorder {
+  border-bottom: 2px solid #f87171 !important;
 }
 
 /* 숙박 count */

@@ -9,4 +9,7 @@ import com.heungkuk.academy.domain.survey.entity.SurveyToken;
 public interface SurveyRepository extends JpaRepository<Survey, Long> {
     List<Survey> findBySurveyToken(SurveyToken surveyToken);
 
+    List<Survey> findAllByOrderByCreatedAtDesc();
+
+
 }

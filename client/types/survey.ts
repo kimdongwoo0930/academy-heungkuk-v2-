@@ -8,6 +8,11 @@ export interface SurveyResult {
   id: number;
   answer: string; // JSON string
   reservationId: string;
+  organization: string | null;
+  customer: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  colorCode: string | null;
   createdAt: string;
 }
 
