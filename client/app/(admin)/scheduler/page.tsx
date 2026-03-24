@@ -88,7 +88,8 @@ export default function SchedulerPage() {
   const [editTarget, setEditTarget] = useState<Reservation | null>(null);
   const [createDefaults, setCreateDefaults] = useState<{
     date: string;
-    roomId: string;
+    endDate?: string;
+    roomId?: string;
   } | null>(null);
 
   const fetchReservations = () =>
@@ -390,8 +391,21 @@ export default function SchedulerPage() {
                                       String(rm.reservedDate) === cal.dateStr,
                                   ),
                                 );
+                                const endDate = new Date(cal.date);
+                                endDate.setDate(endDate.getDate() + 1);
+                                const endDateStr = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, "0")}-${String(endDate.getDate()).padStart(2, "0")}`;
                                 return (
-                                  <td key={cal.dateStr} className={tdCls(cal)}>
+                                  <td
+                                    key={cal.dateStr}
+                                    className={tdCls(cal)}
+                                    onDoubleClick={() =>
+                                      !res &&
+                                      setCreateDefaults({
+                                        date: cal.dateStr,
+                                        endDate: endDateStr,
+                                      })
+                                    }
+                                  >
                                     {res && (
                                       <ReservationTooltip reservation={res}>
                                         <span
@@ -432,10 +446,19 @@ export default function SchedulerPage() {
                               const c2 = getRoomCount(cal.dateStr, "2인실");
                               const c1 = getRoomCount(cal.dateStr, "1인실");
                               const total = c4 + c2 + c1;
+                              const endDate = new Date(cal.date);
+                              endDate.setDate(endDate.getDate() + 1);
+                              const endDateStr = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, "0")}-${String(endDate.getDate()).padStart(2, "0")}`;
                               return (
                                 <td
                                   key={cal.dateStr}
                                   className={`${tdCls(cal)} ${styles.roomTotalCell}`}
+                                  onDoubleClick={() =>
+                                    setCreateDefaults({
+                                      date: cal.dateStr,
+                                      endDate: endDateStr,
+                                    })
+                                  }
                                 >
                                   {total > 0 && `${c4}/${c2}/${c1}`}
                                 </td>
@@ -468,16 +491,23 @@ export default function SchedulerPage() {
           allReservations={reservations}
           onClose={() => setCreateDefaults(null)}
           onSave={handleCreate}
-          defaultValues={{
-            startDate: createDefaults.date,
-            endDate: createDefaults.date,
-            classrooms: [
-              {
-                classroomName: createDefaults.roomId,
-                reservedDate: createDefaults.date,
-              },
-            ],
-          }}
+          defaultValues={
+            createDefaults.roomId
+              ? {
+                  startDate: createDefaults.date,
+                  endDate: createDefaults.date,
+                  classrooms: [
+                    {
+                      classroomName: createDefaults.roomId,
+                      reservedDate: createDefaults.date,
+                    },
+                  ],
+                }
+              : {
+                  startDate: createDefaults.date,
+                  endDate: createDefaults.endDate ?? createDefaults.date,
+                }
+          }
         />
       )}
     </div>

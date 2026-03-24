@@ -8,6 +8,11 @@ server/src/main/resources/application-security.properties
 # Docker env
 .env
 
+# Next.js 환경변수
+client/.env.local
+client/.env.development.local
+client/.env.production.local
+
 # SSL 인증서 (Cloudflare Origin Certificate)
 nginx/ssl/
 
@@ -17,3 +22,4 @@ server/build/
 server/bin/
 
 db/
+docker-compose.dev.yml

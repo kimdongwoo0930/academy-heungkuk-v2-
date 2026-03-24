@@ -166,7 +166,7 @@ export default function ReservationModal({
   const [pickerDate, setPickerDate] = useState<string | null>(null);
   const [dateError, setDateError] = useState("");
   const [skipWeekends, setSkipWeekends] = useState(false);
-  const [bulkClassroom, setBulkClassroom] = useState("");
+  const [bulkClassrooms, setBulkClassrooms] = useState<string[]>([""]);
   const [bulkMeal, setBulkMeal] = useState({
     breakfast: 0,
     lunch: 0,
@@ -174,21 +174,26 @@ export default function ReservationModal({
   });
   const [bulkRoomPickerOpen, setBulkRoomPickerOpen] = useState(false);
   const [roomDates, setRoomDates] = useState<string[]>(() => {
+    const buildRange = (start: string, end: string) => {
+      const dates: string[] = [];
+      const cur = new Date(start);
+      const endD = new Date(end);
+      while (cur < endD) {
+        dates.push(cur.toISOString().slice(0, 10));
+        cur.setDate(cur.getDate() + 1);
+      }
+      return dates;
+    };
     if (isEdit) {
       const rooms = reservation.rooms ?? [];
       if (rooms.length > 0) {
         return [...new Set(rooms.map((r) => r.reservedDate))].sort();
       }
       if (reservation.startDate && reservation.endDate) {
-        const dates: string[] = [];
-        const cur = new Date(reservation.startDate);
-        const endD = new Date(reservation.endDate);
-        while (cur < endD) {
-          dates.push(cur.toISOString().slice(0, 10));
-          cur.setDate(cur.getDate() + 1);
-        }
-        return dates;
+        return buildRange(String(reservation.startDate), String(reservation.endDate));
       }
+    } else if (defaultValues?.startDate && defaultValues?.endDate) {
+      return buildRange(defaultValues.startDate, defaultValues.endDate);
     }
     return [];
   });
@@ -332,10 +337,12 @@ export default function ReservationModal({
       };
       const allDates = buildDateRange(start, end);
       const dates = skipWeekends ? allDates.filter(isWeekday) : allDates;
-      const classrooms: ClassroomReservation[] = dates.map((d) => ({
-        classroomName: bulkClassroom,
-        reservedDate: d,
-      }));
+      const filled = bulkClassrooms.filter((c) => c !== "");
+      const classrooms: ClassroomReservation[] = dates.flatMap((d) =>
+        filled.length > 0
+          ? filled.map((c) => ({ classroomName: c, reservedDate: d }))
+          : [{ classroomName: "", reservedDate: d }],
+      );
       const meals: MealReservation[] = dates.map((d) => ({
         reservedDate: d,
         breakfast: 0,
@@ -370,10 +377,12 @@ export default function ReservationModal({
     };
     const allDates = buildDateRange(form.startDate, form.endDate);
     const dates = checked ? allDates.filter(isWeekday) : allDates;
-    const classrooms: ClassroomReservation[] = dates.map((d) => ({
-      classroomName: bulkClassroom,
-      reservedDate: d,
-    }));
+    const filledSkip = bulkClassrooms.filter((c) => c !== "");
+    const classrooms: ClassroomReservation[] = dates.flatMap((d) =>
+      filledSkip.length > 0
+        ? filledSkip.map((c) => ({ classroomName: c, reservedDate: d }))
+        : [{ classroomName: "", reservedDate: d }],
+    );
     const meals: MealReservation[] = dates.map((d) => ({
       reservedDate: d,
       breakfast: 0,
@@ -408,9 +417,14 @@ export default function ReservationModal({
 
   const applyBulkClassroom = () => {
     const dates = getDateRange();
+    const filled = bulkClassrooms.filter((c) => c !== "");
     setField(
       "classrooms",
-      dates.map((d) => ({ classroomName: bulkClassroom, reservedDate: d })),
+      dates.flatMap((d) =>
+        filled.length > 0
+          ? filled.map((c) => ({ classroomName: c, reservedDate: d }))
+          : [{ classroomName: "", reservedDate: d }],
+      ),
     );
   };
 
@@ -606,6 +620,11 @@ export default function ReservationModal({
             </h3>
             <p className={styles.reqNote}>
               <span className={styles.req}>*</span> 필수 입력 항목
+              {isEdit && reservation.createdAt && (
+                <span className={styles.createdAt}>
+                  등록일 {reservation.createdAt.slice(0, 10)}
+                </span>
+              )}
             </p>
           </div>
           <button className={styles.closeBtn} onClick={onClose}>
@@ -876,35 +895,67 @@ export default function ReservationModal({
           {/* 강의실 */}
           {tab === "강의실" && (
             <div>
-              {/* 전체 설정 */}
-              <div className={styles.bulkRow}>
-                <span className={styles.bulkLabel}>전체 날짜 일괄 적용</span>
-                <select
-                  className={styles.cellSelect}
-                  value={bulkClassroom}
-                  onChange={(e) => setBulkClassroom(e.target.value)}
-                >
-                  <option value="">강의실 선택</option>
-                  {CLASSROOM_OPTIONS.map((o) => (
-                    <option key={o} value={o}>
-                      {classroomLabel(o)}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  className={styles.applyBtn}
-                  onClick={applyBulkClassroom}
-                >
-                  전체 적용
-                </button>
-              </div>
-              <div className={styles.listHeader}>
-                <span className={styles.listCount}>
-                  총 {(form.classrooms ?? []).length}건
-                </span>
-                <button className={styles.addRowBtn} onClick={addClassroom}>
-                  + 추가
-                </button>
+              <div className={styles.classroomStickyTop}>
+                {/* 전체 설정 */}
+                <div className={styles.bulkRow}>
+                  <span className={styles.bulkLabel}>전체 날짜 일괄 적용</span>
+                  <div className={styles.bulkClassroomList}>
+                    {bulkClassrooms.map((bc, bi) => (
+                      <div key={bi} className={styles.bulkClassroomItem}>
+                        <select
+                          className={styles.cellSelect}
+                          value={bc}
+                          onChange={(e) =>
+                            setBulkClassrooms((prev) =>
+                              prev.map((v, idx) =>
+                                idx === bi ? e.target.value : v,
+                              ),
+                            )
+                          }
+                        >
+                          <option value="">강의실 선택</option>
+                          {CLASSROOM_OPTIONS.map((o) => (
+                            <option key={o} value={o}>
+                              {classroomLabel(o)}
+                            </option>
+                          ))}
+                        </select>
+                        {bulkClassrooms.length > 1 && (
+                          <button
+                            className={styles.removeBulkBtn}
+                            onClick={() =>
+                              setBulkClassrooms((prev) =>
+                                prev.filter((_, idx) => idx !== bi),
+                              )
+                            }
+                          >
+                            ×
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    className={styles.addBulkBtn}
+                    onClick={() => setBulkClassrooms((prev) => [...prev, ""])}
+                  >
+                    + 강의실
+                  </button>
+                  <button
+                    className={styles.applyBtn}
+                    onClick={applyBulkClassroom}
+                  >
+                    전체 적용
+                  </button>
+                </div>
+                <div className={styles.listHeader}>
+                  <span className={styles.listCount}>
+                    총 {(form.classrooms ?? []).length}건
+                  </span>
+                  <button className={styles.addRowBtn} onClick={addClassroom}>
+                    + 추가
+                  </button>
+                </div>
               </div>
               {(form.classrooms ?? []).length === 0 ? (
                 <p className={styles.empty}>강의실 배정 내역이 없습니다.</p>
@@ -1001,24 +1052,26 @@ export default function ReservationModal({
                 </p>
               ) : (
                 <>
-                  <div className={styles.bulkRow}>
-                    <span className={styles.bulkLabel}>
-                      전체 날짜 일괄 적용
-                    </span>
-                    <button
-                      className={styles.applyBtn}
-                      onClick={() => setBulkRoomPickerOpen(true)}
-                    >
-                      호실 일괄 지정
-                    </button>
-                  </div>
-                  <div className={styles.listHeader}>
-                    <span className={styles.listCount}>
-                      총 {roomDates.length}일
-                    </span>
-                    <button className={styles.addRowBtn} onClick={addRoomDate}>
-                      + 추가
-                    </button>
+                  <div className={styles.classroomStickyTop}>
+                    <div className={styles.bulkRow}>
+                      <span className={styles.bulkLabel}>
+                        전체 날짜 일괄 적용
+                      </span>
+                      <button
+                        className={styles.applyBtn}
+                        onClick={() => setBulkRoomPickerOpen(true)}
+                      >
+                        호실 일괄 지정
+                      </button>
+                    </div>
+                    <div className={styles.listHeader}>
+                      <span className={styles.listCount}>
+                        총 {roomDates.length}일
+                      </span>
+                      <button className={styles.addRowBtn} onClick={addRoomDate}>
+                        + 추가
+                      </button>
+                    </div>
                   </div>
                   <table className={styles.listTable}>
                     <thead>
@@ -1112,68 +1165,70 @@ export default function ReservationModal({
           {/* 식수 */}
           {tab === "식수" && (
             <div>
-              {/* 전체 설정 */}
-              <div className={styles.bulkRow}>
-                <span className={styles.bulkLabel}>전체 날짜 일괄 적용</span>
-                <label className={styles.bulkMealLabel}>
-                  조식
-                  <input
-                    className={styles.bulkInputSm}
-                    type="number"
-                    min={0}
-                    value={bulkMeal.breakfast || ""}
-                    onChange={(e) =>
-                      setBulkMeal((p) => ({
-                        ...p,
-                        breakfast: Number(e.target.value),
-                      }))
-                    }
-                    placeholder="0"
-                  />
-                </label>
-                <label className={styles.bulkMealLabel}>
-                  중식
-                  <input
-                    className={styles.bulkInputSm}
-                    type="number"
-                    min={0}
-                    value={bulkMeal.lunch || ""}
-                    onChange={(e) =>
-                      setBulkMeal((p) => ({
-                        ...p,
-                        lunch: Number(e.target.value),
-                      }))
-                    }
-                    placeholder="0"
-                  />
-                </label>
-                <label className={styles.bulkMealLabel}>
-                  석식
-                  <input
-                    className={styles.bulkInputSm}
-                    type="number"
-                    min={0}
-                    value={bulkMeal.dinner || ""}
-                    onChange={(e) =>
-                      setBulkMeal((p) => ({
-                        ...p,
-                        dinner: Number(e.target.value),
-                      }))
-                    }
-                    placeholder="0"
-                  />
-                </label>
-                <button className={styles.applyBtn} onClick={applyBulkMeal}>
-                  전체 적용
-                </button>
-              </div>
-              <div className={styles.listHeader}>
-                <span className={styles.listCount}>
-                  총 {(form.meals ?? []).length}건
-                </span>
-                <button className={styles.addRowBtn} onClick={addMeal}>
-                  + 추가
-                </button>
+              <div className={styles.classroomStickyTop}>
+                {/* 전체 설정 */}
+                <div className={styles.bulkRow}>
+                  <span className={styles.bulkLabel}>전체 날짜 일괄 적용</span>
+                  <label className={styles.bulkMealLabel}>
+                    조식
+                    <input
+                      className={styles.bulkInputSm}
+                      type="number"
+                      min={0}
+                      value={bulkMeal.breakfast || ""}
+                      onChange={(e) =>
+                        setBulkMeal((p) => ({
+                          ...p,
+                          breakfast: Number(e.target.value),
+                        }))
+                      }
+                      placeholder="0"
+                    />
+                  </label>
+                  <label className={styles.bulkMealLabel}>
+                    중식
+                    <input
+                      className={styles.bulkInputSm}
+                      type="number"
+                      min={0}
+                      value={bulkMeal.lunch || ""}
+                      onChange={(e) =>
+                        setBulkMeal((p) => ({
+                          ...p,
+                          lunch: Number(e.target.value),
+                        }))
+                      }
+                      placeholder="0"
+                    />
+                  </label>
+                  <label className={styles.bulkMealLabel}>
+                    석식
+                    <input
+                      className={styles.bulkInputSm}
+                      type="number"
+                      min={0}
+                      value={bulkMeal.dinner || ""}
+                      onChange={(e) =>
+                        setBulkMeal((p) => ({
+                          ...p,
+                          dinner: Number(e.target.value),
+                        }))
+                      }
+                      placeholder="0"
+                    />
+                  </label>
+                  <button className={styles.applyBtn} onClick={applyBulkMeal}>
+                    전체 적용
+                  </button>
+                </div>
+                <div className={styles.listHeader}>
+                  <span className={styles.listCount}>
+                    총 {(form.meals ?? []).length}건
+                  </span>
+                  <button className={styles.addRowBtn} onClick={addMeal}>
+                    + 추가
+                  </button>
+                </div>
               </div>
               {(form.meals ?? []).length === 0 ? (
                 <p className={styles.empty}>식수 내역이 없습니다.</p>
@@ -1294,7 +1349,7 @@ export default function ReservationModal({
 
         <div className={styles.footer}>
           <button className={styles.cancelBtn} onClick={onClose}>
-            취소
+            닫기
           </button>
           <button className={styles.saveBtn} onClick={handleSave}>
             저장

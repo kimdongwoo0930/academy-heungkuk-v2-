@@ -42,6 +42,15 @@
   font-size: 11px;
   color: var(--text-sub);
   margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.createdAt {
+  font-size: 11px;
+  color: var(--text-sub);
+  opacity: 0.7;
 }
 
 .closeBtn {
@@ -138,6 +147,15 @@
   border-color: #e74c3c !important;
 }
 
+/* 강의실 탭 상단 고정 영역 */
+.classroomStickyTop {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--surface);
+  padding-bottom: 2px;
+}
+
 /* 일괄 적용 행 */
 .bulkRow {
   display: flex;
@@ -157,6 +175,56 @@
   color: var(--text-sub);
   white-space: nowrap;
   margin-right: 4px;
+}
+
+.bulkClassroomList {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.bulkClassroomItem {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.removeBulkBtn {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--text-sub);
+  background: #fff;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.removeBulkBtn:hover {
+  background: #fee2e2;
+  border-color: #f87171;
+  color: #dc2626;
+}
+
+.addBulkBtn {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-sub);
+  background: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+  align-self: flex-end;
+}
+.addBulkBtn:hover {
+  background: #f0f7ff;
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 .bulkMealLabel {
