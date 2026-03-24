@@ -2,7 +2,7 @@
 
 import ReservationModal from "@/components/reservation/ReservationModal";
 import RoomPickerModal from "@/components/reservation/RoomPickerModal";
-import { getReservations, toRequestBody, updateReservation } from "@/lib/api/reservation";
+import { createReservation, getReservations, toRequestBody, updateReservation } from "@/lib/api/reservation";
 import { Reservation, RoomReservation } from "@/types/reservation";
 import { isHoliday } from "@hyunbinseo/holidays-kr";
 import { useEffect, useRef, useState } from "react";
@@ -50,6 +50,7 @@ export default function AccommodationPage() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [editTarget, setEditTarget] = useState<Reservation | null>(null);
   const [dateView, setDateView] = useState<string | null>(null);
+  const [createDate, setCreateDate] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
 
@@ -151,6 +152,18 @@ export default function AccommodationPage() {
     if (month === 11) { setYear((y) => y + 1); setMonth(0); } else setMonth((m) => m + 1);
   };
 
+  const handleCreate = async (data: Reservation) => {
+    try {
+      const body = toRequestBody(data);
+      const created = await createReservation(body);
+      setReservations((prev) => [...prev, created]);
+      setCreateDate(null);
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      alert(status === 403 ? "등록 권한이 없습니다." : "저장 중 오류가 발생했습니다.");
+    }
+  };
+
   const handleSave = async (data: Reservation) => {
     try {
       const body = toRequestBody(data);
@@ -212,6 +225,12 @@ export default function AccommodationPage() {
                           className={thCls(cal)}
                           style={{ cursor: cal.isCurrent ? "pointer" : undefined }}
                           onClick={() => cal.isCurrent && setDateView(cal.dateStr)}
+                          onDoubleClick={() => {
+                            if (!cal.isCurrent) return;
+                            const end = new Date(cal.date);
+                            end.setDate(end.getDate() + 2);
+                            setCreateDate(cal.dateStr + "/" + makeDateStr(end));
+                          }}
                         >
                           <div className={styles.dateNum}>{cal.date.getDate()}일</div>
                           <div className={styles.dayLabel}>{WEEK_DAYS[cal.date.getDay()]}</div>
@@ -410,6 +429,19 @@ export default function AccommodationPage() {
           onSave={handleSave}
         />
       )}
+
+      {createDate && (() => {
+        const [start, end] = createDate.split("/");
+        return (
+          <ReservationModal
+            reservation={null}
+            allReservations={reservations}
+            onClose={() => setCreateDate(null)}
+            onSave={handleCreate}
+            defaultValues={{ startDate: start, endDate: end }}
+          />
+        );
+      })()}
     </div>
   );
 }

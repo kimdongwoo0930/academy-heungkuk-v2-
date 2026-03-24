@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Schema(description = "예약 응답")
@@ -58,6 +59,9 @@ public class ReservationResponse {
     @Schema(description = "식사 예약 목록")
     private List<MealReservationResponse> meals;
 
+    @Schema(description = "등록일시", example = "2026-03-01T10:00:00")
+    private LocalDateTime createdAt;
+
     public static ReservationResponse of(Reservation reservation,
                                          List<RoomReservationResponse> rooms,
                                          List<ClassroomReservationResponse> classrooms,
@@ -83,6 +87,7 @@ public class ReservationResponse {
                 .rooms(rooms)
                 .classrooms(classrooms)
                 .meals(meals)
+                .createdAt(reservation.getCreatedAt())
                 .build();
     }
 }

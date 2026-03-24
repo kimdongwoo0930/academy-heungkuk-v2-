@@ -19,6 +19,7 @@ export interface Reservation {
   rooms?: RoomReservation[];
   classrooms?: ClassroomReservation[];
   meals?: MealReservation[];
+  createdAt?: string;
 }
 
 export interface RoomReservation {
