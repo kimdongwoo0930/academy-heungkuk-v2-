@@ -112,3 +112,43 @@ export async function deleteReservation(id: number): Promise<void> {
 export async function hardDeleteReservation(id: number): Promise<void> {
   await instance.delete(`/v1/admin/reservations/${id}/hard`);
 }
+
+/**
+ * 전체 예약 데이터를 xlsx 파일로 다운로드
+ *
+ * responseType: 'blob' — 서버에서 byte[]로 내려주는 파일을
+ * axios가 Blob(브라우저 바이너리 객체)으로 받아주는 설정
+ *
+ * URL.createObjectURL(blob) — Blob을 가리키는 임시 URL 생성
+ * → <a> 태그에 연결해서 클릭하면 파일 저장 다이얼로그가 뜸
+ */
+export interface ImportResult {
+  created: number;
+  updated: number;
+  failed: number;
+  errors: string[];
+}
+
+/**
+ * xlsx 파일을 서버로 업로드하여 예약 데이터를 일괄 등록/수정
+ * FormData에 파일을 담아 multipart/form-data 로 전송
+ */
+export async function importReservations(file: File): Promise<ImportResult> {
+  const formData = new FormData();
+  formData.append('file', file);
+  const res = await instance.post<{ data: ImportResult }>('/v1/admin/reservations/import', formData);
+  return res.data.data;
+}
+
+export async function exportReservations(): Promise<void> {
+  const res = await instance.get('/v1/admin/reservations/export', {
+    responseType: 'blob',
+  });
+
+  const url = URL.createObjectURL(new Blob([res.data]));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `reservations_export_${new Date().toISOString().slice(0, 10)}.xlsx`;
+  a.click();
+  URL.revokeObjectURL(url); // 메모리 해제
+}
