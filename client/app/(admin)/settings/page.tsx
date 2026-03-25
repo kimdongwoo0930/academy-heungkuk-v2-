@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AccountInfo, getAccounts, updateAccountRole, deleteAccount, createAccount, updateAccountPassword } from '@/lib/api/account';
 import { getSettings, saveSettings } from '@/lib/api/settings';
+import { exportReservations, importReservations, ImportResult } from '@/lib/api/reservation';
 import { isAdmin, parseJwtPayload } from '@/lib/utils/auth';
 import { CLASSROOM_CATEGORIES } from '@/lib/constants/classrooms';
 import {
@@ -48,6 +49,9 @@ export default function SettingsPage() {
   const [appSettings, setAppSettings] = useState<AppSettings>(() => getDefaultAppSettings());
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [settingsSaved, setSettingsSaved] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState<ImportResult | null>(null);
 
   useEffect(() => {
     getSettings()
@@ -87,6 +91,35 @@ export default function SettingsPage() {
 
   const setContact = (key: keyof AppSettings['contact'], value: string) => {
     setAppSettings((s) => ({ ...s, contact: { ...s.contact, [key]: value } }));
+  };
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      await exportReservations();
+    } catch {
+      alert('내보내기에 실패했습니다.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    // input 초기화 — 같은 파일을 다시 선택해도 onChange 발생하도록
+    e.target.value = '';
+    if (!confirm(`'${file.name}' 파일로 예약 데이터를 가져옵니다.\n기존 예약은 덮어씌워집니다. 계속하시겠습니까?`)) return;
+    setImporting(true);
+    setImportResult(null);
+    try {
+      const result = await importReservations(file);
+      setImportResult(result);
+    } catch {
+      alert('가져오기에 실패했습니다.');
+    } finally {
+      setImporting(false);
+    }
   };
 
   // ── 계정 관리 ──
@@ -311,6 +344,47 @@ export default function SettingsPage() {
                 />
               </label>
             ))}
+          </div>
+        </div>
+      </div>
+
+      {/* 데이터 백업 */}
+      <div className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.title}>데이터 백업</h2>
+        </div>
+        <div className={styles.backupBlock}>
+          <div className={styles.backupRow}>
+            <div>
+              <p className={styles.backupLabel}>예약 데이터 내보내기</p>
+              <p className={styles.backupDesc}>모든 예약 정보를 xlsx 파일로 다운로드합니다.</p>
+            </div>
+            <button className={styles.exportBtn} onClick={handleExport} disabled={exporting}>
+              {exporting ? '다운로드 중...' : 'xlsx 내보내기'}
+            </button>
+          </div>
+          <div className={styles.backupDivider} />
+          <div className={styles.backupRow}>
+            <div>
+              <p className={styles.backupLabel}>예약 데이터 가져오기</p>
+              <p className={styles.backupDesc}>내보내기한 xlsx 파일로 데이터를 복원합니다. 예약 코드 기준으로 덮어씁니다.</p>
+              {importResult && (
+                <p className={styles.importResult}>
+                  완료 — 신규 {importResult.created}건 / 수정 {importResult.updated}건
+                  {importResult.failed > 0 && ` / 실패 ${importResult.failed}건`}
+                </p>
+              )}
+            </div>
+            <label className={`${styles.importBtn} ${importing ? styles.importing : ''}`}>
+              {importing ? '가져오는 중...' : 'xlsx 가져오기'}
+              <input
+                type="file"
+                accept=".xlsx"
+                onChange={handleImport}
+                disabled={importing}
+                style={{ display: 'none' }}
+              />
+            </label>
           </div>
         </div>
       </div>

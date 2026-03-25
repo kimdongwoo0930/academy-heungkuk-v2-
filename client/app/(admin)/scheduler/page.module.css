@@ -225,6 +225,12 @@
 .roomBottomBorder {
   border-bottom: 2px solid #f87171 !important;
 }
+.roomLeftBorder {
+  border-left: 2px solid #f87171 !important;
+}
+.roomRightBorder {
+  border-right: 2px solid #f87171 !important;
+}
 
 /* 숙박 count */
 .roomCount {

@@ -7,7 +7,6 @@ import {
   toRequestBody, hardDeleteReservation, getReservationsByYear,
 } from '@/lib/api/reservation';
 import { isAdmin } from '@/lib/utils/auth';
-import { exportReservationsToExcel } from '@/lib/utils/exportReservationsToExcel';
 import ReservationModal from '@/components/reservation/ReservationModal';
 import SurveyModal from '@/components/reservation/SurveyModal';
 import styles from './page.module.css';
@@ -120,8 +119,7 @@ export default function ReservationPage() {
       <div className={styles.header}>
         <h2 className={styles.title}>예약 관리</h2>
         <div className={styles.headerBtns}>
-          {admin && <button className={styles.excelBtn} onClick={() => exportReservationsToExcel(reservations)}>엑셀 다운로드</button>}
-          {admin && <button className={styles.addBtn} onClick={openCreate}>+ 예약 등록</button>}
+{admin && <button className={styles.addBtn} onClick={openCreate}>+ 예약 등록</button>}
         </div>
       </div>
 

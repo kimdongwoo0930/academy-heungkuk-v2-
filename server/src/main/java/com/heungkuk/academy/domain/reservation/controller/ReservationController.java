@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,8 +20,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import com.heungkuk.academy.domain.reservation.dto.request.ReservationRequest;
+import com.heungkuk.academy.domain.reservation.dto.response.ImportResult;
 import com.heungkuk.academy.domain.reservation.dto.response.ReservationResponse;
+import com.heungkuk.academy.domain.reservation.service.ExcelExportService;
+import com.heungkuk.academy.domain.reservation.service.ExcelImportService;
 import com.heungkuk.academy.domain.reservation.service.ReservationService;
 import com.heungkuk.academy.global.response.CommonResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,6 +45,8 @@ import lombok.extern.slf4j.Slf4j;
 public class ReservationController {
 
         private final ReservationService reservationService;
+        private final ExcelExportService excelExportService;
+        private final ExcelImportService excelImportService;
 
         // ── 등록 ──────────────────────────────────────────────────────────────
 
@@ -118,6 +126,47 @@ public class ReservationController {
                         @Parameter(description = "예약 ID", example = "1") @PathVariable Long id) {
                 reservationService.hardDeleteReservation(id);
                 return ResponseEntity.status(204).build();
+        }
+
+        // ── Excel Export ──────────────────────────────────────────────────────
+
+        /**
+         * 모든 예약 데이터를 xlsx 파일로 다운로드
+         *
+         * ResponseEntity<byte[]> 로 반환하는 이유:
+         *   - 일반 API는 JSON을 반환하지만, 파일 다운로드는 raw byte를 내려야 함
+         *   - Content-Disposition: attachment → 브라우저가 파일 저장 다이얼로그를 띄움
+         *   - Content-Type: spreadsheetml.sheet → xlsx 형식임을 알림
+         */
+        @Operation(summary = "예약 데이터 Excel 내보내기", description = "전체 예약 데이터를 xlsx 파일로 다운로드합니다.")
+        @GetMapping("/export")
+        public ResponseEntity<byte[]> exportReservations() {
+                byte[] excelBytes = excelExportService.exportAll();
+
+                HttpHeaders headers = new HttpHeaders();
+                // attachment → 브라우저에 파일 저장 요청 (inline이면 브라우저에서 직접 열림)
+                headers.setContentDispositionFormData("attachment", "reservations_export.xlsx");
+                headers.setContentType(MediaType.parseMediaType(
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+                headers.setContentLength(excelBytes.length);
+
+                return ResponseEntity.ok().headers(headers).body(excelBytes);
+        }
+
+        // ── Excel Import ──────────────────────────────────────────────────────
+
+        /**
+         * xlsx 파일을 업로드하면 예약 데이터를 일괄 등록/수정
+         *
+         * consumes = MULTIPART_FORM_DATA_VALUE 로 지정해야
+         * Spring이 파일 업로드 요청임을 인식하고 MultipartFile 로 바인딩합니다.
+         */
+        @Operation(summary = "예약 데이터 Excel 가져오기",
+                        description = "export한 xlsx 파일을 업로드하면 예약 코드 기준으로 일괄 등록/수정합니다.")
+        @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+        public ResponseEntity<CommonResponse<ImportResult>> importReservations(
+                        @RequestParam("file") MultipartFile file) {
+                return ResponseEntity.ok(CommonResponse.success(excelImportService.importAll(file)));
         }
 
         // ── 유틸 ──────────────────────────────────────────────────────────────

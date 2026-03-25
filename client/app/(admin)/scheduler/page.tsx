@@ -379,14 +379,14 @@ export default function SchedulerPage() {
                             <tr key={`lane-${idx}`}>
                               {isFirst && (
                                 <td
-                                  className={`${styles.tdType} ${styles.bgAccom} ${styles.roomTopBorder} ${styles.roomBottomBorder}`}
+                                  className={`${styles.tdType} ${styles.bgAccom} ${styles.roomTopBorder} ${styles.roomBottomBorder} ${styles.roomLeftBorder}`}
                                   rowSpan={totalSpan}
                                 >
                                   숙박
                                 </td>
                               )}
                               <td
-                                className={`${styles.tdRoom} ${styles.bgAccom} ${isFirst ? styles.roomTopBorder : ""}`}
+                                className={`${styles.tdRoom} ${styles.bgAccom} ${isFirst ? styles.roomTopBorder : styles.roomLeftBorder}`}
                               >
                                 {idx + 1}
                               </td>
@@ -406,7 +406,7 @@ export default function SchedulerPage() {
                                 return (
                                   <td
                                     key={cal.dateStr}
-                                    className={`${tdCls(cal)} ${isFirst ? styles.roomTopBorder : ""}`}
+                                    className={`${tdCls(cal)} ${isFirst ? styles.roomTopBorder : ""} ${cal.dateStr === halfDays[halfDays.length - 1].dateStr ? styles.roomRightBorder : ""}`}
                                     onDoubleClick={() =>
                                       !res &&
                                       setCreateDefaults({
@@ -438,7 +438,7 @@ export default function SchedulerPage() {
                           <tr key="room-계">
                             {lanes.length === 0 && (
                               <td
-                                className={`${styles.tdType} ${styles.bgAccom} ${styles.roomTopBorder} ${styles.roomBottomBorder}`}
+                                className={`${styles.tdType} ${styles.bgAccom} ${styles.roomTopBorder} ${styles.roomBottomBorder} ${styles.roomLeftBorder}`}
                               >
                                 숙박
                               </td>
@@ -462,7 +462,7 @@ export default function SchedulerPage() {
                               return (
                                 <td
                                   key={cal.dateStr}
-                                  className={`${tdCls(cal)} ${styles.roomTotalCell} ${lanes.length === 0 ? styles.roomTopBorder : ""} ${styles.roomBottomBorder}`}
+                                  className={`${tdCls(cal)} ${styles.roomTotalCell} ${lanes.length === 0 ? styles.roomTopBorder : ""} ${styles.roomBottomBorder} ${cal.dateStr === halfDays[halfDays.length - 1].dateStr ? styles.roomRightBorder : ""}`}
                                   onDoubleClick={() =>
                                     setCreateDefaults({
                                       date: cal.dateStr,

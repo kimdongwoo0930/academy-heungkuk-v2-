@@ -342,6 +342,85 @@
   background: #f5f5f5;
 }
 
+/* 백업 섹션 */
+.backupBlock {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 20px;
+}
+
+.backupRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+}
+
+.backupLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.backupDesc {
+  font-size: 12px;
+  color: var(--text-sub);
+}
+
+.exportBtn {
+  height: 36px;
+  padding: 0 18px;
+  background: #16a34a;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.exportBtn:hover {
+  background: #15803d;
+}
+.exportBtn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.backupDivider {
+  border-top: 1px solid var(--border);
+}
+
+.importBtn {
+  height: 36px;
+  padding: 0 18px;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background 0.15s;
+}
+.importBtn:hover {
+  background: #1d4ed8;
+}
+.importBtn.importing {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.importResult {
+  font-size: 12px;
+  color: #16a34a;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
 /* 삭제 버튼 */
 .deleteBtn {
   padding: 4px 12px;

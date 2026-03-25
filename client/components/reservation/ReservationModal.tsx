@@ -105,6 +105,7 @@ export default function ReservationModal({
   defaultValues,
 }: Props) {
   const isEdit = reservation !== null;
+  const [saving, setSaving] = useState(false);
 
   // 드래그
   const [pos, setPos] = useState({ dx: 0, dy: 0 });
@@ -520,7 +521,8 @@ export default function ReservationModal({
     );
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (saving) return;
     if (!form.organization.trim()) {
       alert("단체명을 입력해주세요.");
       setTab("기본정보");
@@ -594,13 +596,18 @@ export default function ReservationModal({
       return;
     }
 
-    onSave({
-      id: isEdit ? reservation.id : Date.now(),
-      reservationCode: isEdit
-        ? reservation.reservationCode
-        : `HK-${Date.now()}`,
-      ...form,
-    });
+    setSaving(true);
+    try {
+      await onSave({
+        id: isEdit ? reservation.id : Date.now(),
+        reservationCode: isEdit
+          ? reservation.reservationCode
+          : `HK-${Date.now()}`,
+        ...form,
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -1351,8 +1358,8 @@ export default function ReservationModal({
           <button className={styles.cancelBtn} onClick={onClose}>
             닫기
           </button>
-          <button className={styles.saveBtn} onClick={handleSave}>
-            저장
+          <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
+            {saving ? "저장 중..." : "저장"}
           </button>
         </div>
       </div>

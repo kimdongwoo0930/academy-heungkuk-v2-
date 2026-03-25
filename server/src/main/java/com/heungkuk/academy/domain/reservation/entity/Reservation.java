@@ -112,4 +112,44 @@ public class Reservation extends BaseTimeEntity {
     public void updateStatus(String status) {
         this.status = status;
     }
+
+    /** Excel import 전용 — reservation_code가 없는 신규 행 생성 */
+    public static Reservation fromImport(String code, String organization, String purpose,
+            Integer people, String customer, String customerPhone, String customerPhone2,
+            String customerEmail, LocalDate startDate, LocalDate endDate,
+            String colorCode, String status, String companyAddress,
+            String siteManager, String siteManagerPhone, String memo) {
+        return Reservation.builder().reservationCode(code).organization(organization)
+                .purpose(purpose).people(people).customer(customer)
+                .customerPhone(customerPhone)
+                .customerPhone2(customerPhone2 != null && customerPhone2.isBlank() ? null : customerPhone2)
+                .customerEmail(customerEmail).startDate(startDate).endDate(endDate)
+                .colorCode(colorCode).status(status)
+                .companyAddress(companyAddress != null && companyAddress.isBlank() ? null : companyAddress)
+                .siteManager(siteManager != null && siteManager.isBlank() ? null : siteManager)
+                .siteManagerPhone(siteManagerPhone != null && siteManagerPhone.isBlank() ? null : siteManagerPhone)
+                .memo(memo != null && memo.isBlank() ? null : memo).build();
+    }
+
+    /** Excel import 전용 — 기존 예약 필드 업데이트 */
+    public void updateFromImport(String organization, String purpose, Integer people,
+            String customer, String customerPhone, String customerPhone2, String customerEmail,
+            LocalDate startDate, LocalDate endDate, String colorCode, String status,
+            String companyAddress, String siteManager, String siteManagerPhone, String memo) {
+        this.organization = organization;
+        this.purpose = purpose;
+        this.people = people;
+        this.customer = customer;
+        this.customerPhone = customerPhone;
+        this.customerPhone2 = customerPhone2 != null && customerPhone2.isBlank() ? null : customerPhone2;
+        this.customerEmail = customerEmail;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.colorCode = colorCode;
+        this.status = status;
+        this.companyAddress = companyAddress != null && companyAddress.isBlank() ? null : companyAddress;
+        this.siteManager = siteManager != null && siteManager.isBlank() ? null : siteManager;
+        this.siteManagerPhone = siteManagerPhone != null && siteManagerPhone.isBlank() ? null : siteManagerPhone;
+        this.memo = memo != null && memo.isBlank() ? null : memo;
+    }
 }
