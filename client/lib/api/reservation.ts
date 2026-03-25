@@ -136,7 +136,9 @@ export interface ImportResult {
 export async function importReservations(file: File): Promise<ImportResult> {
   const formData = new FormData();
   formData.append('file', file);
-  const res = await instance.post<{ data: ImportResult }>('/v1/admin/reservations/import', formData);
+  const res = await instance.post<{ data: ImportResult }>('/v1/admin/reservations/import', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
   return res.data.data;
 }
 

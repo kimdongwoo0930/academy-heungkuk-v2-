@@ -38,7 +38,7 @@ public class AccountService {
 
     /**
      * 회원 정보 조회
-     * 
+     *
      * @return List<AccountResponse>
      */
     public List<AccountResponse> getAccounts() {
@@ -50,6 +50,10 @@ public class AccountService {
         return response;
     }
 
+    /**
+     * 계정 삭제
+     * @param id
+     */
     @Transactional
     public void deleteAccount(Long id) {
         Account account = accountRepository.findById(id)
@@ -57,13 +61,22 @@ public class AccountService {
         accountRepository.delete(account);
     }
 
+    /**
+     * 일반유저/ 관리자 전환
+     * @param id
+     * @param role
+     */
     @Transactional
     public void updateRole(Long id, String role){
         Account account = accountRepository.findById(id).orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
         account.updateRole(role);
     }
 
-
+    /**
+     * 비밀번호 변경
+     * @param id
+     * @param newPassword
+     */
     @Transactional
     public void updatePassword(Long id, String newPassword) {
         Account account = accountRepository.findById(id)
@@ -71,6 +84,7 @@ public class AccountService {
         account.updatePassword(passwordEncoder.encode(newPassword));
     }
 
+    
     @Transactional
     public void updatePasswordByUserId(String userId, String newPassword) {
         Account account = accountRepository.findByUserId(userId)
