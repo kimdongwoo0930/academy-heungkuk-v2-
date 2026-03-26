@@ -177,3 +177,82 @@
   color: #bbb;
   cursor: not-allowed;
 }
+
+.filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.filterSelect {
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.filterSelect:focus {
+  border-color: var(--accent);
+}
+
+.filterInput {
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text);
+}
+.filterInput:focus {
+  border-color: var(--accent);
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  margin-top: 24px;
+  padding-bottom: 16px;
+}
+
+.pageBtn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.pageBtn:hover:not(:disabled) {
+  background: #f0f4ff;
+  border-color: var(--accent);
+}
+.pageBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.pageBtnActive {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.pageInfo {
+  font-size: 13px;
+  color: var(--text-sub);
+  padding: 0 8px;
+}

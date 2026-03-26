@@ -10,6 +10,7 @@ import { useRef, useState } from "react";
 // RoomReservation used in handleRoomConfirm type annotation
 import { CLASSROOM_ROOM_TO_CATEGORY } from "@/lib/constants/classrooms";
 import { ROOM_INFO, RoomType } from "@/lib/constants/rooms";
+import { downloadEstimate } from "@/lib/api/reservation";
 import styles from "./ReservationModal.module.css";
 import RoomPickerModal from "./RoomPickerModal";
 
@@ -106,6 +107,7 @@ export default function ReservationModal({
 }: Props) {
   const isEdit = reservation !== null;
   const [saving, setSaving] = useState(false);
+  const [estimating, setEstimating] = useState(false);
 
   // 드래그
   const [pos, setPos] = useState({ dx: 0, dy: 0 });
@@ -1358,6 +1360,20 @@ export default function ReservationModal({
           <button className={styles.cancelBtn} onClick={onClose}>
             닫기
           </button>
+          {isEdit && reservation.id && (
+            <button
+              className={styles.estimateBtn}
+              disabled={estimating}
+              onClick={async () => {
+                setEstimating(true);
+                try { await downloadEstimate(reservation.id, reservation.organization); }
+                catch { alert("견적서 생성에 실패했습니다."); }
+                finally { setEstimating(false); }
+              }}
+            >
+              {estimating ? "생성 중..." : "견적서"}
+            </button>
+          )}
           <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
             {saving ? "저장 중..." : "저장"}
           </button>

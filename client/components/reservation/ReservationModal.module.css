@@ -627,6 +627,21 @@
   background: #f5f5f5;
 }
 
+.estimateBtn {
+  height: 36px;
+  padding: 0 18px;
+  background: #fff;
+  color: #27ae60;
+  border: 1.5px solid #27ae60;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.estimateBtn:hover { background: #f0faf4; }
+.estimateBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
 .saveBtn {
   height: 36px;
   padding: 0 24px;

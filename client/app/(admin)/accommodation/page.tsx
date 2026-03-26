@@ -269,7 +269,7 @@ export default function AccommodationPage() {
                           <tr key={res.id}>
                             <td
                               className={styles.tdOrg}
-                              style={{ borderLeft: `4px solid ${res.colorCode}`, cursor: "pointer" }}
+                              style={{ boxShadow: `inset 4px 0 0 0 ${res.colorCode}`, borderRadius: '4px 0 0 4px', cursor: "pointer" }}
                               onClick={() => setEditTarget(res)}
                             >
                               {res.organization}

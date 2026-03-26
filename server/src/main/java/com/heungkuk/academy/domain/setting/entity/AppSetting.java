@@ -4,6 +4,28 @@ import com.heungkuk.academy.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * 애플리케이션 공통 설정 (key-value 구조)
+ *
+ * ── 요금 설정 ────────────────────────────────────────────────────────────────
+ * price.room                  숙박비 단가 (원/실·박)           기본: 85000
+ * price.meal                  식비 단가 - 일반식 (원/식)       기본: 8300
+ * price.specialMeal           식비 단가 - 특식 (원/식)         기본: 35000
+ * price.classroom.대형(120인)  강의실 요금 (원/일)              기본: 1200000
+ * price.classroom.중형(70인)   강의실 요금 (원/일)              기본: 560000
+ * price.classroom.중형(50인)   강의실 요금 (원/일)              기본: 400000
+ * price.classroom.소형(30인)   강의실 요금 (원/일)              기본: 240000
+ * price.classroom.소형(20인)   강의실 요금 (원/일)              기본: 160000
+ * price.classroom.분임실(12인) 강의실 요금 (원/일)              기본: 96000
+ * price.classroom.다목적실     강의실 요금 (원/일)              기본: 250000
+ *
+ * ── 연수원 담당자 정보 (견적서 헤더에 출력) ───────────────────────────────────
+ * contact.representative      대표이사명                        기본: 임형준
+ * contact.manager             담당 소장명                       기본: 김 대 술 소장
+ * contact.phone               대표 전화번호                     기본: 031-283-6157
+ * contact.fax                 팩스 번호                         기본: 031-284-5323
+ * contact.email               이메일 주소                       기본: hka6157@naver.com
+ */
 @Getter
 @Entity
 @Table(name = "app_setting")

@@ -142,6 +142,18 @@ export async function importReservations(file: File): Promise<ImportResult> {
   return res.data.data;
 }
 
+export async function downloadEstimate(id: number, org?: string): Promise<void> {
+  const res = await instance.get(`/v1/admin/reservations/${id}/estimate`, {
+    responseType: 'blob',
+  });
+  const url = URL.createObjectURL(new Blob([res.data]));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = org ? `견적서_${org}.xlsx` : `견적서_${id}.xlsx`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export async function exportReservations(): Promise<void> {
   const res = await instance.get('/v1/admin/reservations/export', {
     responseType: 'blob',
