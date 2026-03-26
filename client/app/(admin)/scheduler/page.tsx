@@ -379,19 +379,17 @@ export default function SchedulerPage() {
                             <tr key={`lane-${idx}`}>
                               {isFirst && (
                                 <td
-                                  className={`${styles.tdType} ${styles.bgAccom} ${styles.roomTopBorder} ${styles.roomBottomBorder} ${styles.roomLeftBorder}`}
+                                  className={`${styles.tdType} ${styles.bgAccom} ${styles.roomTopBorder} ${styles.roomBottomBorder} ${styles.roomLeftBorder} ${styles.roomCornerTL} ${styles.roomCornerBL}`}
                                   rowSpan={totalSpan}
                                 >
                                   숙박
                                 </td>
                               )}
                               <td
-                                className={`${styles.tdRoom} ${styles.bgAccom} ${isFirst ? styles.roomTopBorder : styles.roomLeftBorder}`}
-                              >
-                                {idx + 1}
-                              </td>
+                                className={`${styles.tdRoom} ${styles.bgAccom} ${isFirst ? styles.roomTopBorder : styles.roomInnerRow}`}
+                              />
                               <td
-                                className={`${styles.tdCap} ${styles.bgAccom} ${isFirst ? styles.roomTopBorder : ""}`}
+                                className={`${styles.tdCap} ${styles.bgAccom} ${isFirst ? styles.roomTopBorder : styles.roomInnerRow}`}
                               />
                               {halfDays.map((cal) => {
                                 const res = lane.find((r) =>
@@ -406,7 +404,7 @@ export default function SchedulerPage() {
                                 return (
                                   <td
                                     key={cal.dateStr}
-                                    className={`${tdCls(cal)} ${isFirst ? styles.roomTopBorder : ""} ${cal.dateStr === halfDays[halfDays.length - 1].dateStr ? styles.roomRightBorder : ""}`}
+                                    className={`${tdCls(cal)} ${isFirst ? styles.roomTopBorder : ""} ${cal.dateStr === halfDays[halfDays.length - 1].dateStr ? `${styles.roomRightBorder} ${isFirst ? styles.roomCornerTR : ""}` : ""}`}
                                     onDoubleClick={() =>
                                       !res &&
                                       setCreateDefaults({
@@ -462,7 +460,7 @@ export default function SchedulerPage() {
                               return (
                                 <td
                                   key={cal.dateStr}
-                                  className={`${tdCls(cal)} ${styles.roomTotalCell} ${lanes.length === 0 ? styles.roomTopBorder : ""} ${styles.roomBottomBorder} ${cal.dateStr === halfDays[halfDays.length - 1].dateStr ? styles.roomRightBorder : ""}`}
+                                  className={`${tdCls(cal)} ${styles.roomTotalCell} ${lanes.length === 0 ? `${styles.roomTopBorder} ${styles.roomCornerTL}` : ""} ${styles.roomBottomBorder} ${cal.dateStr === halfDays[halfDays.length - 1].dateStr ? `${styles.roomRightBorder} ${styles.roomCornerBR} ${lanes.length === 0 ? styles.roomCornerTR : ""}` : ""}`}
                                   onDoubleClick={() =>
                                     setCreateDefaults({
                                       date: cal.dateStr,

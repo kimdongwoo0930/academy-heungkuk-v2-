@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.heungkuk.academy.domain.reservation.dto.request.ReservationRequest;
 import com.heungkuk.academy.domain.reservation.dto.response.ImportResult;
 import com.heungkuk.academy.domain.reservation.dto.response.ReservationResponse;
+import com.heungkuk.academy.domain.reservation.service.ExcelEstimateService;
 import com.heungkuk.academy.domain.reservation.service.ExcelExportService;
 import com.heungkuk.academy.domain.reservation.service.ExcelImportService;
 import com.heungkuk.academy.domain.reservation.service.ReservationService;
@@ -47,6 +48,7 @@ public class ReservationController {
         private final ReservationService reservationService;
         private final ExcelExportService excelExportService;
         private final ExcelImportService excelImportService;
+        private final ExcelEstimateService excelEstimateService;
 
         // ── 등록 ──────────────────────────────────────────────────────────────
 
@@ -128,15 +130,34 @@ public class ReservationController {
                 return ResponseEntity.status(204).build();
         }
 
+        // ── Excel 견적서 ──────────────────────────────────────────────────────
+
+        /**
+         * 특정 예약의 견적서 xlsx 다운로드
+         *
+         * 템플릿 파일(estimate_template.xlsx)을 열고 예약 데이터 + 설정값(단가)을 채워 반환
+         */
+        @Operation(summary = "견적서 다운로드", description = "예약 ID 기준으로 견적서 xlsx 파일을 생성하여 다운로드합니다.")
+        @GetMapping("/{id}/estimate")
+        public ResponseEntity<byte[]> downloadEstimate(
+                        @Parameter(description = "예약 ID") @PathVariable Long id) {
+                byte[] bytes = excelEstimateService.generateEstimate(id);
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentDispositionFormData("attachment", "estimate_" + id + ".xlsx");
+                headers.setContentType(MediaType.parseMediaType(
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+                headers.setContentLength(bytes.length);
+                return ResponseEntity.ok().headers(headers).body(bytes);
+        }
+
         // ── Excel Export ──────────────────────────────────────────────────────
 
         /**
          * 모든 예약 데이터를 xlsx 파일로 다운로드
          *
-         * ResponseEntity<byte[]> 로 반환하는 이유:
-         *   - 일반 API는 JSON을 반환하지만, 파일 다운로드는 raw byte를 내려야 함
-         *   - Content-Disposition: attachment → 브라우저가 파일 저장 다이얼로그를 띄움
-         *   - Content-Type: spreadsheetml.sheet → xlsx 형식임을 알림
+         * ResponseEntity<byte[]> 로 반환하는 이유: - 일반 API는 JSON을 반환하지만, 파일 다운로드는 raw byte를 내려야 함 -
+         * Content-Disposition: attachment → 브라우저가 파일 저장 다이얼로그를 띄움 - Content-Type:
+         * spreadsheetml.sheet → xlsx 형식임을 알림
          */
         @Operation(summary = "예약 데이터 Excel 내보내기", description = "전체 예약 데이터를 xlsx 파일로 다운로드합니다.")
         @GetMapping("/export")
@@ -158,15 +179,16 @@ public class ReservationController {
         /**
          * xlsx 파일을 업로드하면 예약 데이터를 일괄 등록/수정
          *
-         * consumes = MULTIPART_FORM_DATA_VALUE 로 지정해야
-         * Spring이 파일 업로드 요청임을 인식하고 MultipartFile 로 바인딩합니다.
+         * consumes = MULTIPART_FORM_DATA_VALUE 로 지정해야 Spring이 파일 업로드 요청임을 인식하고 MultipartFile 로
+         * 바인딩합니다.
          */
         @Operation(summary = "예약 데이터 Excel 가져오기",
                         description = "export한 xlsx 파일을 업로드하면 예약 코드 기준으로 일괄 등록/수정합니다.")
         @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
         public ResponseEntity<CommonResponse<ImportResult>> importReservations(
                         @RequestParam("file") MultipartFile file) {
-                return ResponseEntity.ok(CommonResponse.success(excelImportService.importAll(file)));
+                return ResponseEntity
+                                .ok(CommonResponse.success(excelImportService.importAll(file)));
         }
 
         // ── 유틸 ──────────────────────────────────────────────────────────────

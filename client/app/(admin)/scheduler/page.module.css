@@ -71,7 +71,8 @@
 
 /* ── 공통 테이블 ── */
 .table {
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 12px;
   white-space: nowrap;
   table-layout: fixed;
@@ -84,8 +85,13 @@
   padding: 5px 2px;
   text-align: center;
   font-weight: 700;
-  border: 1px solid #b0bdd0;
+  border-top: 1px solid #b0bdd0;
+  border-left: 1px solid #b0bdd0;
+  border-bottom: 1px solid #b0bdd0;
   cursor: default !important;
+}
+.table th:last-child {
+  border-right: 1px solid #b0bdd0;
 }
 
 .table th.todayTh {
@@ -145,7 +151,8 @@
 
 /* 일반 셀 */
 .table td {
-  border: 1px solid #d0d0d0;
+  border-top: 1px solid #d0d0d0;
+  border-left: 1px solid #d0d0d0;
   padding: 1px 2px;
   height: 26px;
   vertical-align: middle;
@@ -231,6 +238,19 @@
 .roomRightBorder {
   border-right: 2px solid #f87171 !important;
 }
+.roomInnerRow {
+  border-top: none !important;
+}
+.table td:last-child {
+  border-right: 1px solid #d0d0d0;
+}
+.table tr:last-child td {
+  border-bottom: 1px solid #d0d0d0;
+}
+.roomCornerTL { border-top-left-radius: 7px; }
+.roomCornerTR { border-top-right-radius: 7px; }
+.roomCornerBL { border-bottom-left-radius: 7px; }
+.roomCornerBR { border-bottom-right-radius: 7px; }
 
 /* 숙박 count */
 .roomCount {
