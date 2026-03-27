@@ -7,11 +7,14 @@ import styles from './page.module.css';
 
 export default function DashboardPage() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    setIsLoading(true);
     getReservations()
       .then(setReservations)
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setIsLoading(false));
   }, []);
 
   const today = new Date().toISOString().slice(0, 10);
@@ -36,8 +39,15 @@ export default function DashboardPage() {
     .sort((a, b) => b.id - a.id)
     .slice(0, 5);
 
+  if (isLoading) return (
+    <div style={{ padding: '80px 0', textAlign: 'center', color: 'var(--text-sub)', fontSize: 14 }}>
+      데이터를 가져오는 중...
+    </div>
+  );
+
   return (
     <div>
+      <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>대시보드</h2>
       {/* 통계 카드 */}
       <div className={styles.cards}>
         <div className={`${styles.card} ${styles.cardAccent}`}>

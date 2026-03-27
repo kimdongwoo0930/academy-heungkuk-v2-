@@ -120,27 +120,27 @@ public class ExcelEstimateService {
 
     /** 헤더 영역: 단체명, 날짜, 담당자, 기간 */
     private void fillHeader(XSSFSheet sheet, Reservation res, Map<String, String> settings) {
-        setStr(sheet, 4, 0, res.getOrganization());   // A5: 수신 단체명
-        setDate(sheet, 8, 3, LocalDate.now());         // D9: 견적일자
-        setStr(sheet, 9, 3, res.getCustomer() + " 님");        // D10: 고객사 담당자
-        setStr(sheet, 10, 3, res.getCustomerPhone());  // D11: 연락처
+        setStr(sheet, 4, 0, res.getOrganization()); // A5: 수신 단체명
+        setDate(sheet, 8, 3, LocalDate.now()); // D9: 견적일자
+        setStr(sheet, 9, 3, res.getCustomer() + "님"); // D10: 고객사 담당자
+        setStr(sheet, 10, 3, res.getCustomerPhone()); // D11: 연락처
         setStr(sheet, 11, 3, nvl(res.getCustomerEmail())); // D12: 이메일
-        setStr(sheet, 13, 3, res.getOrganization());   // D14: 회사명
-        setStr(sheet, 14, 3, nvl(res.getPurpose()));   // D15: 교육명칭
-        setDate(sheet, 15, 2, res.getStartDate());     // C16: 시작일
-        setDate(sheet, 15, 9, res.getEndDate());       // J16: 종료일
+        setStr(sheet, 13, 3, res.getOrganization()); // D14: 회사명
+        setStr(sheet, 14, 3, nvl(res.getPurpose())); // D15: 교육명칭
+        setDate(sheet, 15, 2, res.getStartDate()); // C16: 시작일
+        setDate(sheet, 15, 9, res.getEndDate()); // J16: 종료일
 
         // 연수원 측 정보 (O열 = index 14)
         String representative = settings.getOrDefault("contact.representative", "");
-        String manager        = settings.getOrDefault("contact.manager", "");
-        String phone          = settings.getOrDefault("contact.phone", "");
-        String fax            = settings.getOrDefault("contact.fax", "");
-        String email          = settings.getOrDefault("contact.email", "");
+        String manager = settings.getOrDefault("contact.manager", "");
+        String phone = settings.getOrDefault("contact.phone", "");
+        String fax = settings.getOrDefault("contact.fax", "");
+        String email = settings.getOrDefault("contact.email", "");
 
-        setStr(sheet, 5,  14, representative);                      // O6: 대표이사
-        setStr(sheet, 8,  14, manager);                             // O9: 담당자
-        setStr(sheet, 9,  14, "T. " + phone + "     F. " + fax);   // O10: 전화/팩스
-        setStr(sheet, 10, 14, email);                               // O11: 이메일
+        setStr(sheet, 5, 14, representative); // O6: 대표이사
+        setStr(sheet, 8, 14, manager); // O9: 담당자
+        setStr(sheet, 9, 14, "T. " + phone + "     F. " + fax); // O10: 전화/팩스
+        setStr(sheet, 10, 14, email); // O11: 이메일
     }
 
     /**
@@ -160,7 +160,12 @@ public class ExcelEstimateService {
             List<RoomReservation> typeRooms = byType.getOrDefault(typeKeys[ti], List.of());
 
             if (typeRooms.isEmpty()) {
+                blankCell(sheet, rowIdx, 5);  // F: 박 수
+                blankCell(sheet, rowIdx, 8);  // I: 실 수
                 setLong(sheet, rowIdx, 11, roomPrice); // L: 단가
+                blankCell(sheet, rowIdx, 13); // N: 공급가액
+                blankCell(sheet, rowIdx, 16); // Q: 세액
+                blankCell(sheet, rowIdx, 19); // T: 합계
                 continue;
             }
 
@@ -171,11 +176,11 @@ public class ExcelEstimateService {
             long subtotal = nights * roomCount * roomPrice;
             long tax = Math.round(subtotal * 0.1);
 
-            setLongNz(sheet, rowIdx, 5, nights);        // F: 박 수
-            setLongNz(sheet, rowIdx, 8, roomCount);     // I: 실 수
-            setLong  (sheet, rowIdx, 11, roomPrice);    // L: 단가
-            setLongNz(sheet, rowIdx, 13, subtotal);     // N: 공급가액
-            setLongNz(sheet, rowIdx, 16, tax);          // Q: 세액
+            setLongNz(sheet, rowIdx, 5, nights); // F: 박 수
+            setLongNz(sheet, rowIdx, 8, roomCount); // I: 실 수
+            setLong(sheet, rowIdx, 11, roomPrice); // L: 단가
+            setLongNz(sheet, rowIdx, 13, subtotal); // N: 공급가액
+            setLongNz(sheet, rowIdx, 16, tax); // Q: 세액
             setLongNz(sheet, rowIdx, 19, subtotal + tax); // T: 합계
 
             totalSubtotal += subtotal;
@@ -192,12 +197,25 @@ public class ExcelEstimateService {
     private long[] fillClassrooms(XSSFSheet sheet, List<ClassroomReservation> classrooms,
             Map<String, String> settings) {
 
-        // 전체 강의실 row 초기화 (단가 포함)
+        // 전체 강의실 row 초기화 (단가 설정, 나머지 blank)
         for (Map.Entry<String, Integer> e : CLASSROOM_ROW.entrySet()) {
             int rowIdx = e.getValue();
             long catPrice = toLong(settings.getOrDefault("price.classroom." + e.getKey(), "0"));
-            setLong(sheet, rowIdx, 11, catPrice);
+            blankCell(sheet, rowIdx, 5);  // F: 일 수
+            blankCell(sheet, rowIdx, 8);  // I: 실 수
+            setLong(sheet, rowIdx, 11, catPrice); // L: 단가
+            blankCell(sheet, rowIdx, 13); // N: 공급가액 (formula 제거)
+            blankCell(sheet, rowIdx, 16); // Q: 세액 (formula 제거)
+            blankCell(sheet, rowIdx, 19); // T: 합계 (formula 제거)
         }
+
+        // 소형(20인) 진행실 행(row 27, index 26) — DB 카테고리 없음, formula 제거 후 숨김
+        blankCell(sheet, 26, 13);
+        blankCell(sheet, 26, 16);
+        blankCell(sheet, 26, 19);
+        Row progressRow = sheet.getRow(26);
+        if (progressRow == null) progressRow = sheet.createRow(26);
+        progressRow.setZeroHeight(true);
 
         Map<String, List<ClassroomReservation>> byCategory = classrooms.stream()
                 .filter(c -> CLASSROOM_CATEGORY.containsKey(c.getClassroom()))
@@ -218,11 +236,11 @@ public class ExcelEstimateService {
             long subtotal = days * catCount * catPrice;
             long tax = Math.round(subtotal * 0.1);
 
-            setLongNz(sheet, rowIdx, 5, days);          // F: 일 수
-            setLongNz(sheet, rowIdx, 8, catCount);      // I: 실 수
-            setLong  (sheet, rowIdx, 11, catPrice);     // L: 단가
-            setLongNz(sheet, rowIdx, 13, subtotal);     // N: 공급가액
-            setLongNz(sheet, rowIdx, 16, tax);          // Q: 세액
+            setLongNz(sheet, rowIdx, 5, days); // F: 일 수
+            setLongNz(sheet, rowIdx, 8, catCount); // I: 실 수
+            setLong(sheet, rowIdx, 11, catPrice); // L: 단가
+            setLongNz(sheet, rowIdx, 13, subtotal); // N: 공급가액
+            setLongNz(sheet, rowIdx, 16, tax); // Q: 세액
             setLongNz(sheet, rowIdx, 19, subtotal + tax); // T: 합계
 
             totalSubtotal += subtotal;
@@ -236,15 +254,15 @@ public class ExcelEstimateService {
         long subtotal = roomTotals[0] + classroomTotals[0];
         long tax = roomTotals[1] + classroomTotals[1];
 
-        setLongNz(sheet, 29, 13, subtotal);          // N30: 계 공급가액
-        setLongNz(sheet, 29, 16, tax);               // Q30: 계 세액
-        setLongNz(sheet, 29, 19, subtotal + tax);    // T30: 계 합계
+        setLongNz(sheet, 29, 13, subtotal); // N30: 계 공급가액
+        setLongNz(sheet, 29, 16, tax); // Q30: 계 세액
+        setLongNz(sheet, 29, 19, subtotal + tax); // T30: 계 합계
 
         // N31: 할인 — 0이면 빈칸
 
-        setLongNz(sheet, 31, 13, subtotal);          // N32: 시설계 공급가액
-        setLongNz(sheet, 31, 16, tax);               // Q32: 시설계 세액
-        setLongNz(sheet, 31, 19, subtotal + tax);    // T32: 시설계 합계
+        setLongNz(sheet, 31, 13, subtotal); // N32: 시설계 공급가액
+        setLongNz(sheet, 31, 16, tax); // Q32: 시설계 세액
+        setLongNz(sheet, 31, 19, subtotal + tax); // T32: 시설계 합계
     }
 
     /**
@@ -272,22 +290,29 @@ public class ExcelEstimateService {
         long sTax = Math.round(sSub * 0.1);
 
         // 일반식 row 34 (index 33)
-        setLongNz(sheet, 33, 8,  totalNormal);       // I34: 식수
-        setLong  (sheet, 33, 11, mealPrice);         // L34: 단가
-        setLongNz(sheet, 33, 13, nSub);              // N34
-        setLongNz(sheet, 33, 16, nTax);              // Q34
-        setLongNz(sheet, 33, 19, nSub + nTax);       // T34
+        setLongNz(sheet, 33, 8, totalNormal); // I34: 식수
+        setLong(sheet, 33, 11, mealPrice); // L34: 단가
+        setLongNz(sheet, 33, 13, nSub); // N34
+        setLongNz(sheet, 33, 16, nTax); // Q34
+        setLongNz(sheet, 33, 19, nSub + nTax); // T34
 
-        // 특식 row 35 (index 34)
-        setLongNz(sheet, 34, 8,  totalSpecial);      // I35
-        setLong  (sheet, 34, 11, specialMealPrice);  // L35
-        setLongNz(sheet, 34, 13, sSub);              // N35
-        setLongNz(sheet, 34, 16, sTax);              // Q35
-        setLongNz(sheet, 34, 19, sSub + sTax);       // T35
+        // 특식 row 35 (index 34) — 특식 없으면 formula 제거 (남으면 "- 0" 표시됨)
+        if (totalSpecial == 0) {
+            blankCell(sheet, 34, 8);  // I35
+            blankCell(sheet, 34, 13); // N35
+            blankCell(sheet, 34, 16); // Q35
+            blankCell(sheet, 34, 19); // T35
+        } else {
+            setLongNz(sheet, 34, 8, totalSpecial); // I35
+            setLong(sheet, 34, 11, specialMealPrice); // L35
+            setLongNz(sheet, 34, 13, sSub); // N35
+            setLongNz(sheet, 34, 16, sTax); // Q35
+            setLongNz(sheet, 34, 19, sSub + sTax); // T35
+        }
 
         // 식비 계 row 36 (index 35)
-        setLongNz(sheet, 35, 13, nSub + sSub);       // N36
-        setLongNz(sheet, 35, 16, nTax + sTax);       // Q36
+        setLongNz(sheet, 35, 13, nSub + sSub); // N36
+        setLongNz(sheet, 35, 16, nTax + sTax); // Q36
         setLongNz(sheet, 35, 19, nSub + sSub + nTax + sTax); // T36
 
         return new long[] {nSub, nTax, sSub, sTax};
@@ -301,8 +326,8 @@ public class ExcelEstimateService {
         long mealSubtotal = mealTotals[0] + mealTotals[2];
         long mealTax = mealTotals[1] + mealTotals[3];
 
-        setLongNz(sheet, 37, 13, facilitySubtotal + mealSubtotal);              // N38
-        setLongNz(sheet, 37, 16, facilityTax + mealTax);                       // Q38
+        setLongNz(sheet, 37, 13, facilitySubtotal + mealSubtotal); // N38
+        setLongNz(sheet, 37, 16, facilityTax + mealTax); // Q38
         setLongNz(sheet, 37, 19, facilitySubtotal + mealSubtotal + facilityTax + mealTax); // T38
     }
 
@@ -347,10 +372,10 @@ public class ExcelEstimateService {
             int l = m.isSpecialLunch() ? 0 : nvl(m.getLunch());
             int dn = m.isSpecialDinner() ? 0 : nvl(m.getDinner());
 
-            setLong(sheet, 41, col, b);
-            setLong(sheet, 42, col, l);
-            setLong(sheet, 43, col, dn);
-            setLong(sheet, 44, col, b + l + dn);
+            setLongOrDash(sheet, 41, col, b);
+            setLongOrDash(sheet, 42, col, l);
+            setLongOrDash(sheet, 43, col, dn);
+            setLongOrDash(sheet, 44, col, b + l + dn);
 
             // 날짜 열 너비 자동 조정
             sheet.autoSizeColumn(col);
@@ -400,8 +425,23 @@ public class ExcelEstimateService {
 
     /** 0이면 쓰지 않음 — 수량·공급가액·세액·합계 칸에 사용 */
     private void setLongNz(XSSFSheet sheet, int row, int col, long value) {
-        if (value == 0) return;
+        if (value == 0)
+            return;
         getOrCreate(sheet, row, col).setCellValue((double) value);
+    }
+
+    /** 0이면 "-" 문자열, 아니면 숫자 — 식수 현황표에 사용 */
+    private void setLongOrDash(XSSFSheet sheet, int row, int col, long value) {
+        if (value == 0) setStr(sheet, row, col, "-");
+        else setLong(sheet, row, col, value);
+    }
+
+    /** 셀을 blank로 만들기 (formula 포함 제거) */
+    private void blankCell(XSSFSheet sheet, int rowIdx, int colIdx) {
+        Row row = sheet.getRow(rowIdx);
+        if (row == null) return;
+        Cell cell = row.getCell(colIdx);
+        if (cell != null) cell.setBlank();
     }
 
     /** LocalDate → "2026년 03월 26일" 형식 문자열로 설정 */

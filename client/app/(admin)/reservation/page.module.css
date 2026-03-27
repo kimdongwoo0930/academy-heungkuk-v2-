@@ -2,13 +2,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 4px;
   position: sticky;
   top: var(--header-height);
   z-index: 100;
   background: var(--bg);
-  padding: 8px 0;
-  margin-top: -8px;
+  padding: 2px 0;
+  margin-top: -2px;
 }
 
 .title {

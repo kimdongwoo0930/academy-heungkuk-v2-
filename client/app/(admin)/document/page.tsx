@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { searchReservations, downloadEstimate } from '@/lib/api/reservation';
+import { searchReservations, downloadEstimate, downloadTrade } from '@/lib/api/reservation';
 import { Reservation } from '@/types/reservation';
 import styles from './page.module.css';
 
@@ -24,6 +24,7 @@ export default function DocumentPage() {
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
+  const [tradingId, setTradingId] = useState<number | null>(null);
 
   const fetchList = useCallback(async (
     kw: string, st: string, sd: string, ed: string, pg: number
@@ -71,6 +72,15 @@ export default function DocumentPage() {
     }
   };
 
+  const handleTrade = async (id: number, org: string) => {
+    setTradingId(id);
+    try {
+      await downloadTrade(id, org);
+    } finally {
+      setTradingId(null);
+    }
+  };
+
   // 페이지 번호 배열 (최대 5개 표시)
   const pageNumbers = () => {
     const total = totalPages;
@@ -84,11 +94,9 @@ export default function DocumentPage() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <div>
+        <div className={styles.titleRow}>
           <div className={styles.title}>문서 관리</div>
-          <div className={styles.subtitle}>
-            총 {totalElements}건 · 예약별 견적서를 다운로드할 수 있습니다.
-          </div>
+          <div className={styles.subtitle}>총 {totalElements}건</div>
         </div>
         <input
           className={styles.searchInput}
@@ -176,8 +184,12 @@ export default function DocumentPage() {
                   <button className={`${styles.docBtn} ${styles.soonBtn}`} disabled>
                     확인서
                   </button>
-                  <button className={`${styles.docBtn} ${styles.soonBtn}`} disabled>
-                    거래명세서
+                  <button
+                    className={styles.docBtn}
+                    disabled={tradingId === r.id}
+                    onClick={() => handleTrade(r.id, r.organization)}
+                  >
+                    {tradingId === r.id ? '생성 중...' : '거래명세서'}
                   </button>
                 </div>
               </div>

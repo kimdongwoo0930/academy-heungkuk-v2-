@@ -91,17 +91,20 @@ export default function SchedulerPage() {
     endDate?: string;
     roomId?: string;
   } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchReservations = (y: number, m: number) => {
     const years = [y];
     if (m === 0) years.push(y - 1);   // 1월: 전년도 12월 trailing 포함
     if (m === 11) years.push(y + 1);  // 12월: 다음 연도 1월 trailing 포함
+    setIsLoading(true);
     Promise.all(years.map(getReservationsByYear))
       .then((results) => {
         const merged = [...new Map(results.flat().map((r) => [r.id, r])).values()];
         setReservations(merged);
       })
-      .catch(() => alert("예약 데이터를 불러오는데 실패했습니다."));
+      .catch(() => alert("예약 데이터를 불러오는데 실패했습니다."))
+      .finally(() => setIsLoading(false));
   };
 
   useEffect(() => {
@@ -246,7 +249,11 @@ export default function SchedulerPage() {
         </div>
       </div>
 
-      {halves.map((halfDays, hi) => {
+      {isLoading ? (
+        <div className={styles.loadingOverlay}>
+          <p className={styles.loadingText}>데이터를 가져오는 중...</p>
+        </div>
+      ) : halves.map((halfDays, hi) => {
         const leftW = TYPE_W + ROOM_W + CAP_W + halfDays.length * DATE_COL;
 
         return (

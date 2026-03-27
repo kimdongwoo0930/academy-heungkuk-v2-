@@ -248,7 +248,7 @@ async function buildHeader(representative?: string) {
             align: AlignmentType.CENTER,
             shading: GRAY_BG,
           }),
-          cell(representative ?? "임형준", { size: 14 }),
+          cell(representative ?? "", { size: 14 }),
         ],
       }),
     ],

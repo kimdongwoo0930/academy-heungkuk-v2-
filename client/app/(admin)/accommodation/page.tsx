@@ -52,18 +52,21 @@ export default function AccommodationPage() {
   const [dateView, setDateView] = useState<string | null>(null);
   const [createDate, setCreateDate] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const tooltipRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const years = [year];
     if (month === 0) years.push(year - 1);
     if (month === 11) years.push(year + 1);
+    setIsLoading(true);
     Promise.all(years.map(getReservationsByYear))
       .then((results) => {
         const merged = [...new Map(results.flat().map((r) => [r.id, r])).values()];
         setReservations(merged);
       })
-      .catch(() => alert("예약 데이터를 불러오는데 실패했습니다."));
+      .catch(() => alert("예약 데이터를 불러오는데 실패했습니다."))
+      .finally(() => setIsLoading(false));
   }, [year, month]);
 
   const firstDay = new Date(year, month, 1);
@@ -201,7 +204,11 @@ export default function AccommodationPage() {
         </div>
       </div>
 
-      {halves.map((halfDays, hi) => {
+      {isLoading ? (
+        <div style={{ padding: '80px 0', textAlign: 'center', color: 'var(--text-sub)', fontSize: 14 }}>
+          데이터를 가져오는 중...
+        </div>
+      ) : halves.map((halfDays, hi) => {
         const tableW = ORG_COL + halfDays.length * DATE_COL * 3 + TOTAL_COL;
         const halfActiveRes = activeRoomReservations.filter((res) =>
           halfDays.some((cal) => getRoomsOnDate(res.id, cal.dateStr).length > 0)
@@ -347,7 +354,7 @@ export default function AccommodationPage() {
       })}
 
       {/* 월 총합 */}
-      {(() => {
+      {!isLoading && (() => {
         const monthDates = calDays.filter((c) => c.isCurrent);
         const month4 = monthDates.reduce((s, c) => s + getDayTypeTotal(c.dateStr, "4인실"), 0);
         const month2 = monthDates.reduce((s, c) => s + getDayTypeTotal(c.dateStr, "2인실"), 0);
