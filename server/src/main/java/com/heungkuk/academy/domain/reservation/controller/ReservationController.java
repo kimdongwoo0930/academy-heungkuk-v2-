@@ -25,6 +25,7 @@ import com.heungkuk.academy.domain.reservation.dto.request.ReservationRequest;
 import com.heungkuk.academy.domain.reservation.dto.response.ImportResult;
 import com.heungkuk.academy.domain.reservation.dto.response.ReservationResponse;
 import com.heungkuk.academy.domain.reservation.service.ExcelEstimateService;
+import com.heungkuk.academy.domain.reservation.service.ExcelTradeService;
 import com.heungkuk.academy.domain.reservation.service.ExcelExportService;
 import com.heungkuk.academy.domain.reservation.service.ExcelImportService;
 import com.heungkuk.academy.domain.reservation.service.ReservationService;
@@ -49,6 +50,7 @@ public class ReservationController {
         private final ExcelExportService excelExportService;
         private final ExcelImportService excelImportService;
         private final ExcelEstimateService excelEstimateService;
+        private final ExcelTradeService excelTradeService;
 
         // ── 등록 ──────────────────────────────────────────────────────────────
 
@@ -128,6 +130,21 @@ public class ReservationController {
                         @Parameter(description = "예약 ID", example = "1") @PathVariable Long id) {
                 reservationService.hardDeleteReservation(id);
                 return ResponseEntity.status(204).build();
+        }
+
+        // ── Excel 거래명세서 ──────────────────────────────────────────────────
+
+        @Operation(summary = "거래명세서 다운로드", description = "예약 ID 기준으로 거래명세서 xlsx 파일을 생성하여 다운로드합니다.")
+        @GetMapping("/{id}/trade")
+        public ResponseEntity<byte[]> downloadTrade(
+                        @Parameter(description = "예약 ID") @PathVariable Long id) {
+                byte[] bytes = excelTradeService.generateTrade(id);
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentDispositionFormData("attachment", "trade_" + id + ".xlsx");
+                headers.setContentType(MediaType.parseMediaType(
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+                headers.setContentLength(bytes.length);
+                return ResponseEntity.ok().headers(headers).body(bytes);
         }
 
         // ── Excel 견적서 ──────────────────────────────────────────────────────

@@ -42,17 +42,20 @@ export default function RestaurantPage() {
   const [month, setMonth] = useState(today.getMonth());
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [editTarget, setEditTarget] = useState<Reservation | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const years = [year];
     if (month === 0) years.push(year - 1);
     if (month === 11) years.push(year + 1);
+    setIsLoading(true);
     Promise.all(years.map(getReservationsByYear))
       .then((results) => {
         const merged = [...new Map(results.flat().map((r) => [r.id, r])).values()];
         setReservations(merged);
       })
-      .catch(() => alert("예약 데이터를 불러오는데 실패했습니다."));
+      .catch(() => alert("예약 데이터를 불러오는데 실패했습니다."))
+      .finally(() => setIsLoading(false));
   }, [year, month]);
 
   // ── 주 단위 그리드 생성 (월요일 시작, 7일씩) ──
@@ -167,7 +170,11 @@ export default function RestaurantPage() {
         </div>
       </div>
 
-      {halves.map((halfDays, hi) => {
+      {isLoading ? (
+        <div style={{ padding: '80px 0', textAlign: 'center', color: 'var(--text-sub)', fontSize: 14 }}>
+          데이터를 가져오는 중...
+        </div>
+      ) : halves.map((halfDays, hi) => {
         const tableW = ORG_COL + halfDays.length * DATE_COL * 3 + TOTAL_COL;
         const halfActiveMealRes = activeMealReservations.filter((res) =>
           halfDays.some((cal) => {
@@ -374,7 +381,7 @@ export default function RestaurantPage() {
       })}
 
       {/* 월 총합 */}
-      {(() => {
+      {!isLoading && (() => {
         const monthDates = calDays.filter((c) => c.isCurrent);
         const monthB = monthDates.reduce(
           (s, c) => s + getDayTotal(c.dateStr, "breakfast"),

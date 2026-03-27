@@ -51,6 +51,8 @@
   font-size: 11px;
   color: var(--text-sub);
   opacity: 0.7;
+  margin-left: auto;
+  padding-bottom: 4px;
 }
 
 .closeBtn {
@@ -74,6 +76,7 @@
   gap: 0;
   padding: 8px 20px 0;
   border-bottom: 1px solid var(--border);
+  align-items: center;
 }
 
 .tab {
@@ -607,18 +610,29 @@
 /* 푸터 */
 .footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   gap: 8px;
   padding: 10px 20px;
   border-top: 1px solid var(--border);
 }
 
+.footerLeft {
+  display: flex;
+  gap: 6px;
+}
+
+.footerRight {
+  display: flex;
+  gap: 6px;
+}
+
 .cancelBtn {
-  height: 36px;
-  padding: 0 20px;
+  height: 30px;
+  padding: 0 14px;
   border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 13px;
+  border-radius: 6px;
+  font-size: 12px;
   color: var(--text-sub);
   background: var(--surface);
   transition: background 0.15s;
@@ -627,14 +641,29 @@
   background: #f5f5f5;
 }
 
+.tradeBtn {
+  height: 30px;
+  padding: 0 12px;
+  background: #fff;
+  color: #2980b9;
+  border: 1.5px solid #2980b9;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.tradeBtn:hover { background: #eef6fc; }
+.tradeBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
 .estimateBtn {
-  height: 36px;
-  padding: 0 18px;
+  height: 30px;
+  padding: 0 12px;
   background: #fff;
   color: #27ae60;
   border: 1.5px solid #27ae60;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
@@ -643,12 +672,12 @@
 .estimateBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .saveBtn {
-  height: 36px;
-  padding: 0 24px;
+  height: 30px;
+  padding: 0 18px;
   background: var(--accent);
   color: #fff;
-  border-radius: 8px;
-  font-size: 13px;
+  border-radius: 6px;
+  font-size: 12px;
   font-weight: 700;
   transition: background 0.15s;
 }

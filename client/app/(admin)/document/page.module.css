@@ -29,11 +29,16 @@
 
 .header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
+  margin-bottom: 8px;
   gap: 16px;
-  flex-wrap: wrap;
+}
+
+.titleRow {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
 }
 
 .title {
@@ -43,9 +48,8 @@
 }
 
 .subtitle {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-sub);
-  margin-top: 2px;
 }
 
 .searchInput {
@@ -182,7 +186,7 @@
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   align-items: center;
 }
 

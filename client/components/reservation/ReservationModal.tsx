@@ -10,7 +10,7 @@ import { useRef, useState } from "react";
 // RoomReservation used in handleRoomConfirm type annotation
 import { CLASSROOM_ROOM_TO_CATEGORY } from "@/lib/constants/classrooms";
 import { ROOM_INFO, RoomType } from "@/lib/constants/rooms";
-import { downloadEstimate } from "@/lib/api/reservation";
+import { downloadEstimate, downloadTrade } from "@/lib/api/reservation";
 import styles from "./ReservationModal.module.css";
 import RoomPickerModal from "./RoomPickerModal";
 
@@ -20,12 +20,13 @@ type Tab = (typeof TABS)[number];
 const STATUS_OPTIONS = ["확정", "예약", "문의", "취소"];
 const ROOM_TYPES: RoomType[] = ["1인실", "2인실", "4인실"];
 const COLOR_PRESETS = [
+  "#E0E0E0",
+  "#BDBDBD",
+  "#757575",
   "#4A90E2",
-  "#1565C0",
   "#0097A7",
   "#00897B",
   "#27AE60",
-  "#558B2F",
   "#F9C800",
   "#F5A623",
   "#E67E22",
@@ -33,13 +34,13 @@ const COLOR_PRESETS = [
   "#E53935",
   "#EC008C",
   "#9B59B6",
-  "#6A1B9A",
   "#1ABC9C",
   "#F06292",
   "#795548",
   "#546E7A",
-  "#37474F",
-  "#2C3E50",
+  "#7986CB",
+  "#FF8A65",
+  "#212121",
 ];
 
 const CLASSROOM_OPTIONS = [
@@ -108,6 +109,7 @@ export default function ReservationModal({
   const isEdit = reservation !== null;
   const [saving, setSaving] = useState(false);
   const [estimating, setEstimating] = useState(false);
+  const [trading, setTrading] = useState(false);
 
   // 드래그
   const [pos, setPos] = useState({ dx: 0, dy: 0 });
@@ -629,11 +631,6 @@ export default function ReservationModal({
             </h3>
             <p className={styles.reqNote}>
               <span className={styles.req}>*</span> 필수 입력 항목
-              {isEdit && reservation.createdAt && (
-                <span className={styles.createdAt}>
-                  등록일 {reservation.createdAt.slice(0, 10)}
-                </span>
-              )}
             </p>
           </div>
           <button className={styles.closeBtn} onClick={onClose}>
@@ -652,6 +649,11 @@ export default function ReservationModal({
               {t}
             </button>
           ))}
+          {isEdit && reservation.createdAt && (
+            <span className={styles.createdAt}>
+              등록일 {reservation.createdAt.slice(0, 10)}
+            </span>
+          )}
         </div>
 
         <div className={styles.body}>
@@ -1357,26 +1359,44 @@ export default function ReservationModal({
         </div>
 
         <div className={styles.footer}>
-          <button className={styles.cancelBtn} onClick={onClose}>
-            닫기
-          </button>
-          {isEdit && reservation.id && (
-            <button
-              className={styles.estimateBtn}
-              disabled={estimating}
-              onClick={async () => {
-                setEstimating(true);
-                try { await downloadEstimate(reservation.id, reservation.organization); }
-                catch { alert("견적서 생성에 실패했습니다."); }
-                finally { setEstimating(false); }
-              }}
-            >
-              {estimating ? "생성 중..." : "견적서"}
+          <div className={styles.footerLeft}>
+            {isEdit && reservation.id && (
+              <>
+                <button
+                  className={styles.tradeBtn}
+                  disabled={trading}
+                  onClick={async () => {
+                    setTrading(true);
+                    try { await downloadTrade(reservation.id, reservation.organization); }
+                    catch { alert("거래명세서 생성에 실패했습니다."); }
+                    finally { setTrading(false); }
+                  }}
+                >
+                  {trading ? "생성 중..." : "거래명세서"}
+                </button>
+                <button
+                  className={styles.estimateBtn}
+                  disabled={estimating}
+                  onClick={async () => {
+                    setEstimating(true);
+                    try { await downloadEstimate(reservation.id, reservation.organization); }
+                    catch { alert("견적서 생성에 실패했습니다."); }
+                    finally { setEstimating(false); }
+                  }}
+                >
+                  {estimating ? "생성 중..." : "견적서"}
+                </button>
+              </>
+            )}
+          </div>
+          <div className={styles.footerRight}>
+            <button className={styles.cancelBtn} onClick={onClose}>
+              닫기
             </button>
-          )}
-          <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
-            {saving ? "저장 중..." : "저장"}
-          </button>
+            <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
+              {saving ? "저장 중..." : "저장"}
+            </button>
+          </div>
         </div>
       </div>
 
