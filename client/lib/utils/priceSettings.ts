@@ -37,11 +37,11 @@ export function getDefaultPriceSettings(): PriceSettings {
 
 export function getDefaultContactSettings(): ContactSettings {
   return {
-    representative: '임형준',
-    manager: '김 대 술 소장',
-    phone: '031-283-6157',
-    fax: '031-284-5323',
-    email: 'hka6157@naver.com',
+    representative: '',
+    manager: '',
+    phone: '',
+    fax: '',
+    email: '',
   };
 }
 
