@@ -293,6 +293,8 @@ public class ExcelTradeService {
         setLongNz(sheet, kaeRow, 19, supply);      // 계 행 공급가액
         setLongNz(sheet, kaeRow, 25, tax);         // 계 행 세액
         setLongNz(sheet, kaeRow + 1, 19, grand);   // 합계 행
+        // 할인(kaeRow+2), 선금(kaeRow+3) 데이터 없음 → 잔금 = 합계
+        setLongNz(sheet, kaeRow + 4, 16, grand);   // 잔금 행 Q열
 
         // B6: "(₩xxx-)" 형식 총금액 (공급가액+세액)
         String formatted = "(₩" + NumberFormat.getNumberInstance(Locale.KOREA).format(grand) + "-)";
@@ -303,7 +305,7 @@ public class ExcelTradeService {
     // 계 행 기준 오프셋으로 위치 계산 (shiftRows 대응)
 
     private void fillContact(XSSFSheet sheet, Map<String, String> settings, int kaeRow) {
-        // 계(kaeRow) → 합계(+1) → 할인(+2) → 선금(+3) → [빈행] → 결제방식(+5) → 담당자(+6)
+        // 계(kaeRow) → 합계(+1) → 할인(+2) → 선금(+3) → 잔금(+4) → 결제방식(+5) → 담당자(+6)
         int contactRow = kaeRow + 6;
 
         setStr(sheet, contactRow, 4, settings.getOrDefault("contact.manager", ""));  // E: 담당자명

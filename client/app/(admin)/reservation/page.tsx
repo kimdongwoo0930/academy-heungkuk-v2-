@@ -116,13 +116,6 @@ export default function ReservationPage() {
 
   return (
     <div>
-      <div className={styles.header}>
-        <h2 className={styles.title}>예약 관리</h2>
-        <div className={styles.headerBtns}>
-{admin && <button className={styles.addBtn} onClick={openCreate}>+ 예약 등록</button>}
-        </div>
-      </div>
-
       <div className={styles.filters}>
         <div className={styles.sortBtns}>
           <button
@@ -154,6 +147,7 @@ export default function ReservationPage() {
           ))}
         </select>
         <span className={styles.countLabel}>총 {totalElements}건</span>
+        {admin && <button className={styles.addBtn} style={{ marginLeft: 'auto' }} onClick={openCreate}>+ 예약 등록</button>}
       </div>
 
       <div className={styles.tableWrap}>

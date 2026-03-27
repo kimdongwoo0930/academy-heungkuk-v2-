@@ -93,54 +93,49 @@ export default function DocumentPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
-        <div className={styles.titleRow}>
-          <div className={styles.title}>문서 관리</div>
-          <div className={styles.subtitle}>총 {totalElements}건</div>
-        </div>
+      <div className={styles.filters}>
         <input
           className={styles.searchInput}
           placeholder="단체명·담당자 검색"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
         />
-      </div>
-
-      <div className={styles.filters}>
-        <select
-          className={styles.filterSelect}
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-        >
-          <option value="">전체 상태</option>
-          <option value="확정">확정</option>
-          <option value="대기">대기</option>
-          <option value="취소">취소</option>
-        </select>
-        <input
-          type="date"
-          className={styles.filterInput}
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          placeholder="시작일"
-        />
-        <span style={{ color: 'var(--text-sub)', fontSize: 13 }}>~</span>
-        <input
-          type="date"
-          className={styles.filterInput}
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          placeholder="종료일"
-        />
-        {(keyword || status || startDate || endDate) && (
-          <button
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
+          <input
+            type="date"
+            className={styles.filterInput}
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            placeholder="시작일"
+          />
+          <span style={{ color: 'var(--text-sub)', fontSize: 13 }}>~</span>
+          <input
+            type="date"
+            className={styles.filterInput}
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            placeholder="종료일"
+          />
+          {(keyword || status || startDate || endDate) && (
+            <button
+              className={styles.filterSelect}
+              style={{ cursor: 'pointer', color: 'var(--text-sub)' }}
+              onClick={() => { setKeyword(''); setStatus(''); setStartDate(''); setEndDate(''); }}
+            >
+              초기화
+            </button>
+          )}
+          <select
             className={styles.filterSelect}
-            style={{ cursor: 'pointer', color: 'var(--text-sub)' }}
-            onClick={() => { setKeyword(''); setStatus(''); setStartDate(''); setEndDate(''); }}
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
           >
-            초기화
-          </button>
-        )}
+            <option value="">전체 상태</option>
+            <option value="확정">확정</option>
+            <option value="대기">대기</option>
+            <option value="취소">취소</option>
+          </select>
+        </div>
       </div>
 
       {loading ? (

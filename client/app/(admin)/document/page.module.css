@@ -185,8 +185,7 @@
 .filters {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   align-items: center;
 }
 
