@@ -196,7 +196,6 @@ export default function AccommodationPage() {
   return (
     <div>
       <div className={styles.header}>
-        <h2 className={styles.title}>숙박 현황</h2>
         <div className={styles.nav}>
           <button className={styles.navBtn} onClick={prevMonth}>‹</button>
           <span className={styles.monthLabel}>{year}년 {month + 1}월</span>

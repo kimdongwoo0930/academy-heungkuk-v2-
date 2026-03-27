@@ -235,7 +235,6 @@ export default function SchedulerPage() {
   return (
     <div>
       <div className={styles.header}>
-        <h2 className={styles.title}>일정 현황</h2>
         <div className={styles.nav}>
           <button className={styles.navBtn} onClick={prevMonth}>
             ‹

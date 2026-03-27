@@ -62,6 +62,7 @@ export default function Header({ collapsed }: Props) {
   return (
     <>
       <header className={`${styles.header} ${collapsed ? styles.headerCollapsed : ''}`}>
+        <span className={styles.title}>{title}</span>
         <button className={styles.user} onClick={() => setShowPwModal(true)}>
           <div className={styles.avatar}>{avatarChar}</div>
           <span>{userId}</span>

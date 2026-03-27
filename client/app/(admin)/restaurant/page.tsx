@@ -156,7 +156,6 @@ export default function RestaurantPage() {
   return (
     <div>
       <div className={styles.header}>
-        <h2 className={styles.title}>식수 현황</h2>
         <div className={styles.nav}>
           <button className={styles.navBtn} onClick={prevMonth}>
             ‹

@@ -47,7 +47,6 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>대시보드</h2>
       {/* 통계 카드 */}
       <div className={styles.cards}>
         <div className={`${styles.card} ${styles.cardAccent}`}>
