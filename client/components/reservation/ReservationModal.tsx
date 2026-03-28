@@ -11,6 +11,7 @@ import { useRef, useState } from "react";
 import { CLASSROOM_ROOM_TO_CATEGORY } from "@/lib/constants/classrooms";
 import { ROOM_INFO, RoomType } from "@/lib/constants/rooms";
 import { downloadEstimate, downloadTrade } from "@/lib/api/reservation";
+import { printRoomTableIntegrated } from "@/lib/utils/printRoomTable";
 import styles from "./ReservationModal.module.css";
 import RoomPickerModal from "./RoomPickerModal";
 
@@ -963,9 +964,29 @@ export default function ReservationModal({
                   <span className={styles.listCount}>
                     총 {(form.classrooms ?? []).length}건
                   </span>
-                  <button className={styles.addRowBtn} onClick={addClassroom}>
-                    + 추가
-                  </button>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    {(form.classrooms ?? []).length > 0 && (
+                      <button
+                        className={styles.removeAllBtn}
+                        onClick={() => {
+                          if (confirm("강의실 배정 전체를 삭제하시겠습니까?")) {
+                            const uniqueDates = [
+                              ...new Set((form.classrooms ?? []).map((c) => c.reservedDate)),
+                            ];
+                            setField(
+                              "classrooms",
+                              uniqueDates.map((date) => ({ classroomName: "", reservedDate: date })),
+                            );
+                          }
+                        }}
+                      >
+                        전체 제거
+                      </button>
+                    )}
+                    <button className={styles.addRowBtn} onClick={addClassroom}>
+                      + 추가
+                    </button>
+                  </div>
                 </div>
               </div>
               {(form.classrooms ?? []).length === 0 ? (
@@ -1068,20 +1089,49 @@ export default function ReservationModal({
                       <span className={styles.bulkLabel}>
                         전체 날짜 일괄 적용
                       </span>
-                      <button
-                        className={styles.applyBtn}
-                        onClick={() => setBulkRoomPickerOpen(true)}
-                      >
-                        호실 일괄 지정
-                      </button>
+                      <div style={{ display: "flex", gap: 6 }}>
+                        <button
+                          className={styles.roomPrintBtn}
+                          onClick={() =>
+                            printRoomTableIntegrated(
+                              roomDates,
+                              form.rooms ?? [],
+                              form.organization ?? ""
+                            )
+                          }
+                        >
+                          🖨 통합 숙소표
+                        </button>
+                        <button
+                          className={styles.applyBtn}
+                          onClick={() => setBulkRoomPickerOpen(true)}
+                        >
+                          호실 일괄 지정
+                        </button>
+                      </div>
                     </div>
                     <div className={styles.listHeader}>
                       <span className={styles.listCount}>
                         총 {roomDates.length}일
                       </span>
-                      <button className={styles.addRowBtn} onClick={addRoomDate}>
-                        + 추가
-                      </button>
+                      <div style={{ display: "flex", gap: 6 }}>
+                        {(form.rooms ?? []).length > 0 && (
+                          <button
+                            className={styles.removeAllBtn}
+                            onClick={() => {
+                              if (confirm("숙박 날짜 및 호실 배정 전체를 삭제하시겠습니까?")) {
+                                setRoomDates([]);
+                                setField("rooms", []);
+                              }
+                            }}
+                          >
+                            전체 제거
+                          </button>
+                        )}
+                        <button className={styles.addRowBtn} onClick={addRoomDate}>
+                          + 추가
+                        </button>
+                      </div>
                     </div>
                   </div>
                   <table className={styles.listTable}>
@@ -1126,7 +1176,7 @@ export default function ReservationModal({
                             {ROOM_TYPES.map((type) => (
                               <td key={type} className={styles.countCell}>
                                 {countRoomsForDate(date, type) > 0 ? (
-                                  <span className={styles.roomCountBadge}>
+                                  <span className={`${styles.roomCountBadge} ${styles[`roomCountBadge${type.charAt(0)}`]}`}>
                                     {countRoomsForDate(date, type)}
                                   </span>
                                 ) : (
