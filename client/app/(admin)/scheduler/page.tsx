@@ -233,8 +233,11 @@ export default function SchedulerPage() {
   };
 
   return (
-    <div>
+    <div id="schedulerPrintArea">
       <div className={styles.header}>
+        <button className={styles.printBtn} onClick={() => window.print()}>
+          🖨 인쇄 / PDF
+        </button>
         <div className={styles.nav}>
           <button className={styles.navBtn} onClick={prevMonth}>
             ‹
@@ -246,6 +249,10 @@ export default function SchedulerPage() {
             ›
           </button>
         </div>
+      </div>
+
+      <div className={styles.printTitle}>
+        {year}년 {month + 1}월 일정 현황
       </div>
 
       {isLoading ? (
