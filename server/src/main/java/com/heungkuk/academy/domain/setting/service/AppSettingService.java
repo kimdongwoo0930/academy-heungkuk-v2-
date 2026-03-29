@@ -1,34 +1,13 @@
 package com.heungkuk.academy.domain.setting.service;
 
-import com.heungkuk.academy.domain.setting.entity.AppSetting;
-import com.heungkuk.academy.domain.setting.repository.AppSettingRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Map;
-import java.util.stream.Collectors;
 
-@Service
-@RequiredArgsConstructor
-public class AppSettingService {
+/** 앱 설정(단가·연락처 등) 조회 및 저장 인터페이스 */
+public interface AppSettingService {
 
-    private final AppSettingRepository appSettingRepository;
+    /** 전체 설정값 조회 (key-value 맵) */
+    Map<String, String> getAll();
 
-    @Transactional(readOnly = true)
-    public Map<String, String> getAll() {
-        return appSettingRepository.findAll().stream()
-                .collect(Collectors.toMap(AppSetting::getSettingKey, AppSetting::getSettingValue));
-    }
-
-    @Transactional
-    public void saveAll(Map<String, String> settings) {
-        for (Map.Entry<String, String> entry : settings.entrySet()) {
-            appSettingRepository.findBySettingKey(entry.getKey())
-                    .ifPresentOrElse(
-                            s -> s.updateValue(entry.getValue()),
-                            () -> appSettingRepository.save(AppSetting.of(entry.getKey(), entry.getValue()))
-                    );
-        }
-    }
+    /** 설정값 일괄 저장 (기존 항목은 업데이트, 신규는 insert) */
+    void saveAll(Map<String, String> settings);
 }

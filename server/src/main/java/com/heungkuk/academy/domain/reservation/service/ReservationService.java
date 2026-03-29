@@ -1,193 +1,40 @@
 package com.heungkuk.academy.domain.reservation.service;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import com.heungkuk.academy.domain.reservation.dto.request.ReservationRequest;
-import com.heungkuk.academy.domain.reservation.dto.response.ClassroomReservationResponse;
-import com.heungkuk.academy.domain.reservation.dto.response.MealReservationResponse;
 import com.heungkuk.academy.domain.reservation.dto.response.ReservationResponse;
-import com.heungkuk.academy.domain.reservation.dto.response.RoomReservationResponse;
-import com.heungkuk.academy.domain.reservation.entity.ClassroomReservation;
-import com.heungkuk.academy.domain.reservation.entity.MealReservation;
-import com.heungkuk.academy.domain.reservation.entity.Reservation;
-import com.heungkuk.academy.domain.reservation.entity.RoomReservation;
-import com.heungkuk.academy.domain.reservation.repository.ClassroomReservationRepository;
-import com.heungkuk.academy.domain.reservation.repository.MealReservationRepository;
-import com.heungkuk.academy.domain.reservation.repository.ReservationRepository;
-import com.heungkuk.academy.domain.reservation.repository.RoomReservationRepository;
-import com.heungkuk.academy.global.exception.BusinessException;
-import com.heungkuk.academy.global.exception.ErrorCode;
-import lombok.RequiredArgsConstructor;
 
-@Service
-@RequiredArgsConstructor
-@Transactional(readOnly = true)
-public class ReservationService {
+/** 예약 CRUD 및 조회 기능 인터페이스 */
+public interface ReservationService {
 
-    private final ReservationRepository reservationRepository;
-    private final ClassroomReservationRepository classroomReservationRepository;
-    private final MealReservationRepository mealReservationRepository;
-    private final RoomReservationRepository roomReservationRepository;
+    /** 예약 등록 (강의실·객실·식사 포함) */
+    ReservationResponse createReservation(ReservationRequest request);
 
-    /**
-     * 예약 등록 예약 코드 생성 → Reservation 저장 → 객실/강의실/식사 예약 순으로 처리
-     */
-    @Transactional
-    public ReservationResponse createReservation(ReservationRequest request) {
+    /** 특정 날짜에 해당 강의실 사용 가능 여부 확인 */
+    boolean checkClassroom(String classroom, LocalDate date);
 
-        // 1. 예약 코드 생성 (HK-20260316-001)
-        String reservationCode = generateReservationCode(request.getStartDate());
+    /** 해당 연도 전체 예약 조회 — 연도별 현황표용 */
+    List<ReservationResponse> getReservationsByYear(int year);
 
-        // 2. Reservation 엔티티 생성 후 저장
-        Reservation reservation =
-                reservationRepository.save(Reservation.from(request, reservationCode));
+    /** 날짜 범위(from ~ to)에 걸치는 예약 조회 — 일정현황 3개월 뷰용 */
+    List<ReservationResponse> getReservationsByDateRange(LocalDate from, LocalDate to);
 
-        // 3. 객실 예약 저장
-        saveRooms(reservation, request);
-
-        // 4. 강의실 예약 저장
-        saveClassrooms(reservation, request);
-
-        // 5. 식사 예약 저장
-        saveMeals(reservation, request);
-
-        return toResponse(reservation);
-    }
-
-
-    /** 강의실 중복 체크 (true = 사용 가능, false = 중복) */
-    public boolean checkClassroom(String classroom, LocalDate date) {
-        return !classroomReservationRepository.existsConflict(classroom, date);
-    }
-
-    /** 연도별 전체 조회 — 일정/숙박 현황표용 */
-    public List<ReservationResponse> getReservationsByYear(int year) {
-        List<ReservationResponse> responses = reservationRepository
-                .findByYear(LocalDate.of(year, 1, 1), LocalDate.of(year, 12, 31)).stream()
-                .map(this::toResponse).toList();
-
-        return responses;
-
-    }
-
-    /** 검색 + 필터 + 페이징 — 예약 관리 리스트용 */
-    public Page<ReservationResponse> searchReservations(String keyword, String status,
-            LocalDate startDate, LocalDate endDate, Pageable pageable) {
-
-        return reservationRepository.search(keyword, status, startDate, endDate, pageable)
-                .map(this::toResponse); // Page<Reservation> → Page<ReservationResponse>
-    }
+    /** 키워드·상태·날짜 범위 필터 + 페이징 — 예약 관리 리스트용 */
+    Page<ReservationResponse> searchReservations(String keyword, String status, LocalDate startDate,
+            LocalDate endDate, Pageable pageable);
 
     /** 예약 단건 조회 */
-    public ReservationResponse getReservation(Long id) {
-        Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
-        return toResponse(reservation);
-    }
+    ReservationResponse getReservation(Long id);
 
-    /**
-     * 예약 취소 (완전 삭제 X, status를 "취소"로 변경) 이력 보존을 위해 소프트 딜리트 방식 사용
-     */
-    @Transactional
-    public void deleteReservation(Long id) {
-        Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
-        reservation.updateStatus("취소");
-    }
+    /** 예약 취소 (상태를 '취소'로 변경, 소프트 삭제) */
+    void deleteReservation(Long id);
 
-    /**
-     * 예약 완전 삭제 (하위 데이터 포함 DB에서 영구 제거)
-     */
-    @Transactional
-    public void hardDeleteReservation(Long id) {
-        Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
-        roomReservationRepository.deleteByReservation(reservation);
-        classroomReservationRepository.deleteByReservation(reservation);
-        mealReservationRepository.deleteByReservation(reservation);
-        reservationRepository.delete(reservation);
-    }
+    /** 예약 영구 삭제 (하위 데이터 포함 DB에서 완전 제거) */
+    void hardDeleteReservation(Long id);
 
-    /**
-     * 예약 수정 기존 객실/강의실/식사 예약을 전부 삭제 후 새로 저장 (단순 재생성 방식)
-     */
-    @Transactional
-    public ReservationResponse updateReservation(Long id, ReservationRequest request) {
-        Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
-
-        // 기존 하위 예약 전부 삭제
-        roomReservationRepository.deleteByReservation(reservation);
-        classroomReservationRepository.deleteByReservation(reservation);
-        mealReservationRepository.deleteByReservation(reservation);
-
-        // 새 데이터로 다시 저장
-        saveRooms(reservation, request);
-        saveClassrooms(reservation, request);
-        saveMeals(reservation, request);
-
-        reservation.update(request);
-
-        return toResponse(reservation);
-    }
-
-
-
-    /**
-     * 예약 코드 생성 형식: HK-yyyyMMdd-순번 (예: HK-20260316-001) 같은 날짜의 기존 예약 수를 조회해서 순번 결정
-     */
-    private String generateReservationCode(LocalDate date) {
-        String dateStr = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        int count = reservationRepository.countByCodePrefix("HK-" + dateStr);
-        String seq = String.format("%03d", count + 1);
-        return "HK-" + dateStr + "-" + seq;
-    }
-
-
-    private ReservationResponse toResponse(Reservation reservation) {
-        List<RoomReservationResponse> rooms = roomReservationRepository
-                .findByReservation(reservation).stream().map(RoomReservationResponse::of).toList();
-        List<ClassroomReservationResponse> classrooms =
-                classroomReservationRepository.findByReservation(reservation).stream()
-                        .map(ClassroomReservationResponse::of).toList();
-        List<MealReservationResponse> meals = mealReservationRepository
-                .findByReservation(reservation).stream().map(MealReservationResponse::of).toList();
-        return ReservationResponse.of(reservation, rooms, classrooms, meals);
-    }
-
-    private void saveRooms(Reservation reservation, ReservationRequest request) {
-        if (request.getRooms() == null || request.getRooms().isEmpty())
-            return;
-
-        List<RoomReservation> roomReservations = request.getRooms().stream()
-                .map(r -> RoomReservation.of(reservation, r.getRoomNumber(), r.getReservedDate()))
-                .toList();
-
-        roomReservationRepository.saveAll(roomReservations);
-    }
-
-    private void saveClassrooms(Reservation reservation, ReservationRequest request) {
-        if (request.getClassrooms() == null || request.getClassrooms().isEmpty())
-            return;
-
-        List<ClassroomReservation> classroomReservations = request.getClassrooms().stream()
-                .map(cr -> ClassroomReservation.of(reservation, cr)).toList();
-        classroomReservationRepository.saveAll(classroomReservations);
-    }
-
-
-    private void saveMeals(Reservation reservation, ReservationRequest request) {
-        if (request.getMeals() != null && !request.getMeals().isEmpty()) {
-            List<MealReservation> mealReservations = request.getMeals().stream()
-                    .map(cr -> MealReservation.of(reservation, cr)).toList();
-
-            mealReservationRepository.saveAll(mealReservations);
-        }
-    }
-
+    /** 예약 수정 (기존 강의실·객실·식사 삭제 후 재등록) */
+    ReservationResponse updateReservation(Long id, ReservationRequest request);
 }
