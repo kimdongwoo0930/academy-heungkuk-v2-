@@ -24,10 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.heungkuk.academy.domain.reservation.dto.request.ReservationRequest;
 import com.heungkuk.academy.domain.reservation.dto.response.ImportResult;
 import com.heungkuk.academy.domain.reservation.dto.response.ReservationResponse;
-import com.heungkuk.academy.domain.reservation.service.ExcelEstimateService;
-import com.heungkuk.academy.domain.reservation.service.ExcelTradeService;
-import com.heungkuk.academy.domain.reservation.service.ExcelExportService;
-import com.heungkuk.academy.domain.reservation.service.ExcelImportService;
+import com.heungkuk.academy.domain.reservation.service.ExcelService;
 import com.heungkuk.academy.domain.reservation.service.ReservationService;
 import com.heungkuk.academy.global.response.CommonResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,10 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ReservationController {
 
         private final ReservationService reservationService;
-        private final ExcelExportService excelExportService;
-        private final ExcelImportService excelImportService;
-        private final ExcelEstimateService excelEstimateService;
-        private final ExcelTradeService excelTradeService;
+        private final ExcelService excelService;
 
         // ── 등록 ──────────────────────────────────────────────────────────────
 
@@ -72,6 +66,18 @@ public class ReservationController {
                                         example = "2026") @RequestParam int year) {
                 return ResponseEntity.ok(CommonResponse
                                 .success(reservationService.getReservationsByYear(year)));
+        }
+
+        /** 일정현황 3개월 뷰용 — 날짜 범위 조회 */
+        @Operation(summary = "날짜 범위 예약 조회", description = "from ~ to 범위에 걸치는 예약 전체를 반환합니다.")
+        @GetMapping("/range")
+        public ResponseEntity<CommonResponse<List<ReservationResponse>>> getReservationsByRange(
+                        @Parameter(description = "시작일 (yyyy-MM-dd)") @RequestParam @DateTimeFormat(
+                                        iso = DateTimeFormat.ISO.DATE) LocalDate from,
+                        @Parameter(description = "종료일 (yyyy-MM-dd)") @RequestParam @DateTimeFormat(
+                                        iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+                return ResponseEntity.ok(CommonResponse
+                                .success(reservationService.getReservationsByDateRange(from, to)));
         }
 
         /** 예약 관리 리스트용 — 키워드 + 상태 + 날짜 범위 + 페이징 */
@@ -138,7 +144,7 @@ public class ReservationController {
         @GetMapping("/{id}/trade")
         public ResponseEntity<byte[]> downloadTrade(
                         @Parameter(description = "예약 ID") @PathVariable Long id) {
-                byte[] bytes = excelTradeService.generateTrade(id);
+                byte[] bytes = excelService.generateTrade(id);
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentDispositionFormData("attachment", "trade_" + id + ".xlsx");
                 headers.setContentType(MediaType.parseMediaType(
@@ -158,7 +164,7 @@ public class ReservationController {
         @GetMapping("/{id}/estimate")
         public ResponseEntity<byte[]> downloadEstimate(
                         @Parameter(description = "예약 ID") @PathVariable Long id) {
-                byte[] bytes = excelEstimateService.generateEstimate(id);
+                byte[] bytes = excelService.generateEstimate(id);
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentDispositionFormData("attachment", "estimate_" + id + ".xlsx");
                 headers.setContentType(MediaType.parseMediaType(
@@ -179,7 +185,7 @@ public class ReservationController {
         @Operation(summary = "예약 데이터 Excel 내보내기", description = "전체 예약 데이터를 xlsx 파일로 다운로드합니다.")
         @GetMapping("/export")
         public ResponseEntity<byte[]> exportReservations() {
-                byte[] excelBytes = excelExportService.exportAll();
+                byte[] excelBytes = excelService.exportAll();
 
                 HttpHeaders headers = new HttpHeaders();
                 // attachment → 브라우저에 파일 저장 요청 (inline이면 브라우저에서 직접 열림)
@@ -205,7 +211,7 @@ public class ReservationController {
         public ResponseEntity<CommonResponse<ImportResult>> importReservations(
                         @RequestParam("file") MultipartFile file) {
                 return ResponseEntity
-                                .ok(CommonResponse.success(excelImportService.importAll(file)));
+                                .ok(CommonResponse.success(excelService.importAll(file)));
         }
 
         // ── 유틸 ──────────────────────────────────────────────────────────────

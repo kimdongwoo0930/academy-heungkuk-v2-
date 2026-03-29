@@ -69,6 +69,11 @@ export async function getReservationsByYear(year: number): Promise<Reservation[]
   return res.data.data;
 }
 
+export async function getReservationsByRange(from: string, to: string): Promise<Reservation[]> {
+  const res = await instance.get('/v1/admin/reservations/range', { params: { from, to } });
+  return res.data.data;
+}
+
 export interface PageResult<T> {
   content: T[];
   totalElements: number;
