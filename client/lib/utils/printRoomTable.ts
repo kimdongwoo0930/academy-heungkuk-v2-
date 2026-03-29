@@ -1,33 +1,60 @@
-import { RoomReservation } from "@/types/reservation";
 import { ROOM_INFO } from "@/lib/constants/rooms";
+import { RoomReservation } from "@/types/reservation";
 
 // ── RoomPickerModal과 동일한 레이아웃 정의 ──────────────────────────────────
-interface CellDef { id: string; isLabel?: boolean; row: number; col: number; colSpan?: number; }
+interface CellDef {
+  id: string;
+  isLabel?: boolean;
+  row: number;
+  col: number;
+  colSpan?: number;
+}
 
 const LAYOUT: CellDef[] = [
-  { id: "109", row: 1, col: 5 },  { id: "110", row: 1, col: 6 },
-  { id: "111", row: 1, col: 7 },  { id: "화장실", isLabel: true, row: 1, col: 8 },
-  { id: "127", row: 1, col: 9 },  { id: "126", row: 1, col: 10 },
-  { id: "108", row: 2, col: 4 },  { id: "107", row: 3, col: 3 },
-  { id: "106", row: 4, col: 2 },  { id: "105", row: 5, col: 1 },
-  { id: "125", row: 2, col: 11 }, { id: "124", row: 3, col: 12 },
-  { id: "123", row: 4, col: 13 }, { id: "122", row: 5, col: 14 },
-  { id: "121", row: 6, col: 15 }, { id: "120", row: 7, col: 16 },
+  { id: "109", row: 1, col: 5 },
+  { id: "110", row: 1, col: 6 },
+  { id: "111", row: 1, col: 7 },
+  { id: "화장실", isLabel: true, row: 1, col: 8 },
+  { id: "127", row: 1, col: 9 },
+  { id: "126", row: 1, col: 10 },
+  { id: "108", row: 2, col: 4 },
+  { id: "107", row: 3, col: 3 },
+  { id: "106", row: 4, col: 2 },
+  { id: "105", row: 5, col: 1 },
+  { id: "125", row: 2, col: 11 },
+  { id: "124", row: 3, col: 12 },
+  { id: "123", row: 4, col: 13 },
+  { id: "122", row: 5, col: 14 },
+  { id: "121", row: 6, col: 15 },
+  { id: "120", row: 7, col: 16 },
   { id: "119", row: 8, col: 17 },
   { id: "현관", isLabel: true, row: 6, col: 7, colSpan: 2 },
-  { id: "101", row: 6, col: 5 },  { id: "102", row: 7, col: 4 },
-  { id: "103", row: 8, col: 3 },  { id: "104", row: 9, col: 2 },
-  { id: "112", row: 6, col: 10 }, { id: "113", row: 7, col: 11 },
-  { id: "114", row: 8, col: 12 }, { id: "115", row: 9, col: 13 },
-  { id: "116", row: 10, col: 14 },{ id: "117", row: 11, col: 15 },
+  { id: "101", row: 6, col: 5 },
+  { id: "102", row: 7, col: 4 },
+  { id: "103", row: 8, col: 3 },
+  { id: "104", row: 9, col: 2 },
+  { id: "112", row: 6, col: 10 },
+  { id: "113", row: 7, col: 11 },
+  { id: "114", row: 8, col: 12 },
+  { id: "115", row: 9, col: 13 },
+  { id: "116", row: 10, col: 14 },
+  { id: "117", row: 11, col: 15 },
   { id: "118", row: 12, col: 16 },
 ];
 
 const TYPE_COLOR: Record<string, string> = {
-  "1인실": "#EC008C", "2인실": "#0087D4", "4인실": "#F5A623",
+  "1인실": "#EC008C",
+  "2인실": "#0087D4",
+  "4인실": "#F5A623",
 };
 
 // ── 공통 유틸 ──────────────────────────────────────────────────────────────
+
+function nextDay(dateStr: string): string {
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
 
 function openAndPrint(html: string) {
   const win = window.open("", "_blank", "width=900,height=720");
@@ -41,11 +68,17 @@ function openAndPrint(html: string) {
 }
 
 // 도면 그리드 HTML 생성 (한 날짜)
-function buildFloorGridHtml(assignedSet: Set<string>, cellPx = 46, halfRowPx = 22): string {
+function buildFloorGridHtml(
+  assignedSet: Set<string>,
+  cellPx = 46,
+  halfRowPx = 22,
+): string {
   const gap = 3;
   const cells = LAYOUT.map((cell) => {
     const gridRow = `${cell.row} / span 2`;
-    const gridCol = cell.colSpan ? `${cell.col} / span ${cell.colSpan}` : `${cell.col}`;
+    const gridCol = cell.colSpan
+      ? `${cell.col} / span ${cell.colSpan}`
+      : `${cell.col}`;
 
     if (cell.isLabel) {
       return `<div class="floor-label" style="grid-row:${gridRow};grid-column:${gridCol}">${cell.id}</div>`;
@@ -90,13 +123,15 @@ export function printRoomTableForDate(
   const count = (type: string) =>
     assigned.filter((r) => ROOM_INFO[r.roomNumber]?.type === type).length;
 
-  const legend = (Object.entries(TYPE_COLOR) as [string, string][]).map(
-    ([type, color]) => `
+  const legend = (Object.entries(TYPE_COLOR) as [string, string][])
+    .map(
+      ([type, color]) => `
     <div class="legend-item">
       <span class="legend-dot" style="background:${color}"></span>
       <span>${type} ${count(type) > 0 ? `(${count(type)}실)` : ""}</span>
-    </div>`
-  ).join("");
+    </div>`,
+    )
+    .join("");
 
   const html = `<!DOCTYPE html><html><head>
   <meta charset="UTF-8">
@@ -155,8 +190,14 @@ export function printRoomTableIntegrated(
   rooms: RoomReservation[],
   organization: string,
 ) {
-  if (dates.length === 0) { alert("날짜가 없습니다."); return; }
-  if (rooms.length === 0) { alert("배정된 호실이 없습니다."); return; }
+  if (dates.length === 0) {
+    alert("날짜가 없습니다.");
+    return;
+  }
+  if (rooms.length === 0) {
+    alert("배정된 호실이 없습니다.");
+    return;
+  }
 
   // ── 날짜별 호실 키 생성 (정렬된 쉼표 문자열) ──
   const keyOf = (date: string) =>
@@ -183,17 +224,21 @@ export function printRoomTableIntegrated(
   const halfRowPx = 24;
 
   const legendHtml = `<div class="legend">
-    ${(Object.entries(TYPE_COLOR) as [string, string][]).map(([type, color]) =>
-      `<div class="legend-item"><span class="legend-dot" style="background:${color}"></span><span>${type} 배정</span></div>`
-    ).join("")}
+    ${(Object.entries(TYPE_COLOR) as [string, string][])
+      .map(
+        ([type, color]) =>
+          `<div class="legend-item"><span class="legend-dot" style="background:${color}"></span><span>${type} 배정</span></div>`,
+      )
+      .join("")}
     <div class="legend-item"><span class="legend-dot" style="background:#d4d4d4;border:1px solid #aaa"></span><span>미배정</span></div>
   </div>`;
 
-  const blocks = groups.map(({ startDate, endDate, key }) => {
-    const assignedSet = new Set(key ? key.split(",") : []);
-    const total = assignedSet.size;
-    const label = startDate === endDate ? startDate : `${startDate} ~ ${endDate}`;
-    return `
+  const blocks = groups
+    .map(({ startDate, endDate, key }) => {
+      const assignedSet = new Set(key ? key.split(",") : []);
+      const total = assignedSet.size;
+      const label = `${startDate} ~ ${nextDay(endDate)}`;
+      return `
     <div class="date-block">
       <div class="block-header">
         <h2>${organization}</h2>
@@ -203,7 +248,8 @@ export function printRoomTableIntegrated(
       <div class="date-title">${label} <span class="date-count">(${total}실)</span></div>
       ${buildFloorGridHtml(assignedSet, cellPx, halfRowPx)}
     </div>`;
-  }).join("");
+    })
+    .join("");
 
   const html = `<!DOCTYPE html><html><head>
   <meta charset="UTF-8">
