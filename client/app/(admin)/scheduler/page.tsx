@@ -258,243 +258,253 @@ export default function SchedulerPage() {
         <div className={styles.loadingOverlay}>
           <p className={styles.loadingText}>데이터를 가져오는 중...</p>
         </div>
-      ) : halves.map((halfDays, hi) => {
-        const leftW = TYPE_W + ROOM_W + CAP_W + halfDays.length * DATE_COL;
+      ) : (
+        halves.map((halfDays, hi) => {
+          const leftW = TYPE_W + ROOM_W + CAP_W + halfDays.length * DATE_COL;
 
-        return (
-          <div key={hi} className={styles.halfBlock}>
-            {/* ── 일정 현황 ── */}
-            <div className={styles.tableWrap}>
-              <div className={styles.sectionTitle}>일정 현황</div>
-              <div style={{ minWidth: leftW, width: "100%" }}>
-                <table
-                  className={styles.table}
-                  style={{ minWidth: leftW, width: "100%" }}
-                >
-                  <colgroup>
-                    <col style={{ width: `${TYPE_W}px` }} />
-                    <col style={{ width: `${ROOM_W}px` }} />
-                    <col style={{ width: `${CAP_W}px` }} />
-                    {halfDays.map((cal) => (
-                      <col
-                        key={cal.dateStr}
-                        style={{ width: `${DATE_COL}px` }}
-                      />
-                    ))}
-                  </colgroup>
-                  <thead>
-                    <tr>
-                      <th className={styles.thType}>구분</th>
-                      <th className={styles.thRoom}>호실</th>
-                      <th className={styles.thCap}>정원</th>
+          return (
+            <div key={hi} className={styles.halfBlock}>
+              {/* ── 일정 현황 ── */}
+              <div className={styles.tableWrap}>
+                <div className={styles.sectionTitle}>일정 현황</div>
+                <div style={{ minWidth: leftW, width: "100%" }}>
+                  <table
+                    className={styles.table}
+                    style={{ minWidth: leftW, width: "100%" }}
+                  >
+                    <colgroup>
+                      <col style={{ width: `${TYPE_W}px` }} />
+                      <col style={{ width: `${ROOM_W}px` }} />
+                      <col style={{ width: `${CAP_W}px` }} />
                       {halfDays.map((cal) => (
-                        <th key={cal.dateStr} className={thCls(cal)}>
-                          <div className={styles.dateNum}>{cal.date.getDate()}일</div>
-                          <div className={styles.dayLabel}>
-                            {WEEK_DAYS[cal.date.getDay()]}
-                          </div>
-                        </th>
+                        <col
+                          key={cal.dateStr}
+                          style={{ width: `${DATE_COL}px` }}
+                        />
                       ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {CLASSROOM_GROUPS.map((group, gi) =>
-                      group.rooms.map((room, ri) => (
-                        <tr key={`${gi}-${ri}`}>
-                          {ri === 0 && (
-                            <td
-                              className={`${styles.tdType} ${styles[group.bg]}`}
-                              rowSpan={group.rooms.length}
-                            >
-                              {group.type}
-                            </td>
-                          )}
-                          <td
-                            className={`${styles.tdRoom} ${styles[group.bg]}`}
-                          >
-                            {/^\d+$/.test(room.id) ? `${room.id} 호` : room.id}
-                          </td>
-                          <td className={`${styles.tdCap} ${styles[group.bg]}`}>
-                            {room.cap != null ? `${room.cap} 인` : ""}
-                          </td>
-                          {halfDays.map((cal) => {
-                            const res = getClassroomRes(room.id, cal.dateStr);
-                            return (
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        <th className={styles.thType}>구분</th>
+                        <th className={styles.thRoom}>호실</th>
+                        <th className={styles.thCap}>정원</th>
+                        {halfDays.map((cal) => (
+                          <th key={cal.dateStr} className={thCls(cal)}>
+                            <div className={styles.dateNum}>
+                              {cal.date.getDate()}일
+                            </div>
+                            <div className={styles.dayLabel}>
+                              {WEEK_DAYS[cal.date.getDay()]}
+                            </div>
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {CLASSROOM_GROUPS.map((group, gi) =>
+                        group.rooms.map((room, ri) => (
+                          <tr key={`${gi}-${ri}`}>
+                            {ri === 0 && (
                               <td
-                                key={cal.dateStr}
-                                className={tdCls(cal)}
-                                onDoubleClick={() =>
-                                  handleCellDoubleClick(cal.dateStr, room.id)
-                                }
-                                style={{ cursor: res ? undefined : "cell" }}
+                                className={`${styles.tdType} ${styles[group.bg]}${gi > 0 ? ` ${styles.groupDivider}` : ""}`}
+                                rowSpan={group.rooms.length}
                               >
-                                {res && (
-                                  <ReservationTooltip reservation={res}>
-                                    <span
-                                      className={styles.bar}
-                                      style={{
-                                        backgroundColor: res.colorCode,
-                                        cursor: "pointer",
-                                      }}
-                                      onClick={() => setEditTarget(res)}
-                                    >
-                                      {res.organization.slice(0, 6)}
-                                    </span>
-                                  </ReservationTooltip>
-                                )}
+                                {group.type}
                               </td>
-                            );
-                          })}
-                        </tr>
-                      )),
-                    )}
-                    {/* ── 숙박 섹션 ── */}
-                    {(() => {
-                      const halfRoomRes = reservations.filter(
-                        (r) =>
-                          r.status !== "취소" &&
-                          r.rooms?.some((rm) =>
-                            halfDays.some(
-                              (d) => d.dateStr === String(rm.reservedDate),
-                            ),
-                          ),
-                      );
-
-                      // 레인 패킹: 날짜 안 겹치면 같은 행에 배치
-                      const lanes: Reservation[][] = [];
-                      for (const res of halfRoomRes) {
-                        const resDates = new Set(
-                          res.rooms?.map((rm) => String(rm.reservedDate)) ?? [],
-                        );
-                        let placed = false;
-                        for (const lane of lanes) {
-                          const conflict = lane.some((r) =>
-                            r.rooms?.some((rm) =>
-                              resDates.has(String(rm.reservedDate)),
-                            ),
-                          );
-                          if (!conflict) {
-                            lane.push(res);
-                            placed = true;
-                            break;
-                          }
-                        }
-                        if (!placed) lanes.push([res]);
-                      }
-
-                      const totalSpan = lanes.length + 1;
-                      return (
-                        <>
-                          {lanes.map((lane, idx) => {
-                            const isFirst = idx === 0;
-                            return (
-                            <tr key={`lane-${idx}`}>
-                              {isFirst && (
+                            )}
+                            <td
+                              className={`${styles.tdRoom} ${styles[group.bg]}${ri === 0 && gi > 0 ? ` ${styles.groupDivider}` : ""}`}
+                            >
+                              {/^\d+$/.test(room.id)
+                                ? `${room.id} 호`
+                                : room.id}
+                            </td>
+                            <td
+                              className={`${styles.tdCap} ${styles[group.bg]}${ri === 0 && gi > 0 ? ` ${styles.groupDivider}` : ""}`}
+                            >
+                              {room.cap != null ? `${room.cap} 인` : ""}
+                            </td>
+                            {halfDays.map((cal) => {
+                              const res = getClassroomRes(room.id, cal.dateStr);
+                              return (
                                 <td
-                                  className={`${styles.tdType} ${styles.bgAccom} ${styles.roomTopBorder} ${styles.roomBottomBorder} ${styles.roomLeftBorder} ${styles.roomCornerTL} ${styles.roomCornerBL}`}
-                                  rowSpan={totalSpan}
+                                  key={cal.dateStr}
+                                  className={`${tdCls(cal)}${ri === 0 && gi > 0 ? ` ${styles.groupDivider}` : ""}`}
+                                  onDoubleClick={() =>
+                                    handleCellDoubleClick(cal.dateStr, room.id)
+                                  }
+                                  style={{ cursor: res ? undefined : "cell" }}
+                                >
+                                  {res && (
+                                    <ReservationTooltip reservation={res}>
+                                      <span
+                                        className={styles.bar}
+                                        style={{
+                                          backgroundColor: res.colorCode,
+                                          cursor: "pointer",
+                                        }}
+                                        onClick={() => setEditTarget(res)}
+                                      >
+                                        {res.organization.slice(0, 6)}
+                                      </span>
+                                    </ReservationTooltip>
+                                  )}
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        )),
+                      )}
+                      {/* ── 숙박 섹션 ── */}
+                      {(() => {
+                        const halfRoomRes = reservations.filter(
+                          (r) =>
+                            r.status !== "취소" &&
+                            r.rooms?.some((rm) =>
+                              halfDays.some(
+                                (d) => d.dateStr === String(rm.reservedDate),
+                              ),
+                            ),
+                        );
+
+                        // 레인 패킹: 날짜 안 겹치면 같은 행에 배치
+                        const lanes: Reservation[][] = [];
+                        for (const res of halfRoomRes) {
+                          const resDates = new Set(
+                            res.rooms?.map((rm) => String(rm.reservedDate)) ??
+                              [],
+                          );
+                          let placed = false;
+                          for (const lane of lanes) {
+                            const conflict = lane.some((r) =>
+                              r.rooms?.some((rm) =>
+                                resDates.has(String(rm.reservedDate)),
+                              ),
+                            );
+                            if (!conflict) {
+                              lane.push(res);
+                              placed = true;
+                              break;
+                            }
+                          }
+                          if (!placed) lanes.push([res]);
+                        }
+
+                        const totalSpan = lanes.length + 1;
+                        return (
+                          <>
+                            {lanes.map((lane, idx) => {
+                              const isFirst = idx === 0;
+                              return (
+                                <tr key={`lane-${idx}`}>
+                                  {isFirst && (
+                                    <td
+                                      className={`${styles.tdType} ${styles.bgAccom} ${styles.roomTopBorder} ${styles.roomBottomBorder} ${styles.roomLeftBorder} ${styles.roomCornerTL} ${styles.roomCornerBL}`}
+                                      rowSpan={totalSpan}
+                                    >
+                                      숙박
+                                    </td>
+                                  )}
+                                  <td
+                                    className={`${styles.tdRoom} ${styles.bgAccom} ${isFirst ? styles.roomTopBorder : styles.roomInnerRow}`}
+                                  />
+                                  <td
+                                    className={`${styles.tdCap} ${styles.bgAccom} ${isFirst ? styles.roomTopBorder : styles.roomInnerRow}`}
+                                  />
+                                  {halfDays.map((cal) => {
+                                    const res = lane.find((r) =>
+                                      r.rooms?.some(
+                                        (rm) =>
+                                          String(rm.reservedDate) ===
+                                          cal.dateStr,
+                                      ),
+                                    );
+                                    const endDate = new Date(cal.date);
+                                    endDate.setDate(endDate.getDate() + 1);
+                                    const endDateStr = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, "0")}-${String(endDate.getDate()).padStart(2, "0")}`;
+                                    return (
+                                      <td
+                                        key={cal.dateStr}
+                                        className={`${tdCls(cal)} ${isFirst ? styles.roomTopBorder : ""} ${cal.dateStr === halfDays[halfDays.length - 1].dateStr ? `${styles.roomRightBorder} ${isFirst ? styles.roomCornerTR : ""}` : ""}`}
+                                        onDoubleClick={() =>
+                                          !res &&
+                                          setCreateDefaults({
+                                            date: cal.dateStr,
+                                            endDate: endDateStr,
+                                          })
+                                        }
+                                      >
+                                        {res && (
+                                          <ReservationTooltip reservation={res}>
+                                            <span
+                                              className={styles.bar}
+                                              style={{
+                                                backgroundColor: res.colorCode,
+                                                cursor: "pointer",
+                                              }}
+                                              onClick={() => setEditTarget(res)}
+                                            >
+                                              {res.organization.slice(0, 6)}
+                                            </span>
+                                          </ReservationTooltip>
+                                        )}
+                                      </td>
+                                    );
+                                  })}
+                                </tr>
+                              );
+                            })}
+                            <tr key="room-계">
+                              {lanes.length === 0 && (
+                                <td
+                                  className={`${styles.tdType} ${styles.bgAccom} ${styles.roomTopBorder} ${styles.roomBottomBorder} ${styles.roomLeftBorder}`}
                                 >
                                   숙박
                                 </td>
                               )}
                               <td
-                                className={`${styles.tdRoom} ${styles.bgAccom} ${isFirst ? styles.roomTopBorder : styles.roomInnerRow}`}
-                              />
+                                className={`${styles.tdRoom} ${styles.bgAccom} ${lanes.length === 0 ? styles.roomTopBorder : ""} ${styles.roomBottomBorder}`}
+                              >
+                                계(4/2/1인실)
+                              </td>
                               <td
-                                className={`${styles.tdCap} ${styles.bgAccom} ${isFirst ? styles.roomTopBorder : styles.roomInnerRow}`}
+                                className={`${styles.tdCap} ${styles.bgAccom} ${lanes.length === 0 ? styles.roomTopBorder : ""} ${styles.roomBottomBorder}`}
                               />
                               {halfDays.map((cal) => {
-                                const res = lane.find((r) =>
-                                  r.rooms?.some(
-                                    (rm) =>
-                                      String(rm.reservedDate) === cal.dateStr,
-                                  ),
-                                );
+                                const c4 = getRoomCount(cal.dateStr, "4인실");
+                                const c2 = getRoomCount(cal.dateStr, "2인실");
+                                const c1 = getRoomCount(cal.dateStr, "1인실");
+                                const total = c4 + c2 + c1;
                                 const endDate = new Date(cal.date);
                                 endDate.setDate(endDate.getDate() + 1);
                                 const endDateStr = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, "0")}-${String(endDate.getDate()).padStart(2, "0")}`;
                                 return (
                                   <td
                                     key={cal.dateStr}
-                                    className={`${tdCls(cal)} ${isFirst ? styles.roomTopBorder : ""} ${cal.dateStr === halfDays[halfDays.length - 1].dateStr ? `${styles.roomRightBorder} ${isFirst ? styles.roomCornerTR : ""}` : ""}`}
+                                    className={`${tdCls(cal)} ${styles.roomTotalCell} ${lanes.length === 0 ? `${styles.roomTopBorder} ${styles.roomCornerTL}` : ""} ${styles.roomBottomBorder} ${cal.dateStr === halfDays[halfDays.length - 1].dateStr ? `${styles.roomRightBorder} ${styles.roomCornerBR} ${lanes.length === 0 ? styles.roomCornerTR : ""}` : ""}`}
                                     onDoubleClick={() =>
-                                      !res &&
                                       setCreateDefaults({
                                         date: cal.dateStr,
                                         endDate: endDateStr,
                                       })
                                     }
                                   >
-                                    {res && (
-                                      <ReservationTooltip reservation={res}>
-                                        <span
-                                          className={styles.bar}
-                                          style={{
-                                            backgroundColor: res.colorCode,
-                                            cursor: "pointer",
-                                          }}
-                                          onClick={() => setEditTarget(res)}
-                                        >
-                                          {res.organization.slice(0, 6)}
-                                        </span>
-                                      </ReservationTooltip>
-                                    )}
+                                    {total > 0 && `${c4}/${c2}/${c1}`}
                                   </td>
                                 );
                               })}
                             </tr>
-                            );
-                          })}
-                          <tr key="room-계">
-                            {lanes.length === 0 && (
-                              <td
-                                className={`${styles.tdType} ${styles.bgAccom} ${styles.roomTopBorder} ${styles.roomBottomBorder} ${styles.roomLeftBorder}`}
-                              >
-                                숙박
-                              </td>
-                            )}
-                            <td
-                              className={`${styles.tdRoom} ${styles.bgAccom} ${lanes.length === 0 ? styles.roomTopBorder : ""} ${styles.roomBottomBorder}`}
-                            >
-                              계(4/2/1인실)
-                            </td>
-                            <td
-                              className={`${styles.tdCap} ${styles.bgAccom} ${lanes.length === 0 ? styles.roomTopBorder : ""} ${styles.roomBottomBorder}`}
-                            />
-                            {halfDays.map((cal) => {
-                              const c4 = getRoomCount(cal.dateStr, "4인실");
-                              const c2 = getRoomCount(cal.dateStr, "2인실");
-                              const c1 = getRoomCount(cal.dateStr, "1인실");
-                              const total = c4 + c2 + c1;
-                              const endDate = new Date(cal.date);
-                              endDate.setDate(endDate.getDate() + 1);
-                              const endDateStr = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, "0")}-${String(endDate.getDate()).padStart(2, "0")}`;
-                              return (
-                                <td
-                                  key={cal.dateStr}
-                                  className={`${tdCls(cal)} ${styles.roomTotalCell} ${lanes.length === 0 ? `${styles.roomTopBorder} ${styles.roomCornerTL}` : ""} ${styles.roomBottomBorder} ${cal.dateStr === halfDays[halfDays.length - 1].dateStr ? `${styles.roomRightBorder} ${styles.roomCornerBR} ${lanes.length === 0 ? styles.roomCornerTR : ""}` : ""}`}
-                                  onDoubleClick={() =>
-                                    setCreateDefaults({
-                                      date: cal.dateStr,
-                                      endDate: endDateStr,
-                                    })
-                                  }
-                                >
-                                  {total > 0 && `${c4}/${c2}/${c1}`}
-                                </td>
-                              );
-                            })}
-                          </tr>
-                        </>
-                      );
-                    })()}
-                  </tbody>
-                </table>
+                          </>
+                        );
+                      })()}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })
+      )}
 
       {editTarget && (
         <ReservationModal

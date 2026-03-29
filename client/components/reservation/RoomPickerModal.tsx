@@ -1,6 +1,7 @@
 "use client";
 
 import { ROOM_INFO, RoomType } from "@/lib/constants/rooms";
+import { printRoomViewForDate } from "@/lib/utils/printRoomTable";
 import { useRef, useState } from "react";
 import styles from "./RoomPickerModal.module.css";
 
@@ -186,11 +187,29 @@ export default function RoomPickerModal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className={styles.modal} style={{ transform: `translate(${pos.dx}px, ${pos.dy}px)` }}>
-        <div className={styles.header} onMouseDown={handleDragStart} onTouchStart={handleTouchStart}>
+      <div
+        className={styles.modal}
+        style={{ transform: `translate(${pos.dx}px, ${pos.dy}px)` }}
+      >
+        <div
+          className={styles.header}
+          onMouseDown={handleDragStart}
+          onTouchStart={handleTouchStart}
+        >
           <div>
-            <h3 className={styles.title}>{viewOnly ? "호실 현황" : "호실 선택"}</h3>
-            <p className={styles.subtitle}>{date}</p>
+            <h3 className={styles.title}>
+              {viewOnly ? "호실 현황" : "호실 선택"}
+            </h3>
+            <p className={styles.subtitle}>
+              {viewOnly
+                ? (() => {
+                    const d = new Date(date);
+                    d.setDate(d.getDate() + 1);
+                    const next = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+                    return `${date} ~ ${next}`;
+                  })()
+                : date}
+            </p>
           </div>
           <button className={styles.closeBtn} onClick={onClose}>
             ✕
@@ -200,30 +219,46 @@ export default function RoomPickerModal({
         {/* 범례 */}
         <div className={styles.legend}>
           {viewOnly ? (
-            orgLegend.length > 0 ? orgLegend.map(({ color, organization }) => (
-              <div key={color} className={styles.legendItem}>
-                <span className={styles.legendDot} style={{ background: color }} />
-                <span>{organization}</span>
-              </div>
-            )) : (
+            orgLegend.length > 0 ? (
+              orgLegend.map(({ color, organization }) => (
+                <div key={color} className={styles.legendItem}>
+                  <span
+                    className={styles.legendDot}
+                    style={{ background: color }}
+                  />
+                  <span>{organization}</span>
+                </div>
+              ))
+            ) : (
               <div className={styles.legendItem}>
-                <span className={styles.legendDot} style={{ background: "#ccc" }} />
+                <span
+                  className={styles.legendDot}
+                  style={{ background: "#ccc" }}
+                />
                 <span>예약 없음</span>
               </div>
             )
           ) : (
             <>
-              {(Object.entries(TYPE_COLOR) as [RoomType, string][]).map(([type, color]) => (
-                <div key={type} className={styles.legendItem}>
-                  <span className={styles.legendDot} style={{ background: color }} />
-                  <span>
-                    {type}
-                    {countByType(type) > 0 ? ` (${countByType(type)}개)` : ""}
-                  </span>
-                </div>
-              ))}
+              {(Object.entries(TYPE_COLOR) as [RoomType, string][]).map(
+                ([type, color]) => (
+                  <div key={type} className={styles.legendItem}>
+                    <span
+                      className={styles.legendDot}
+                      style={{ background: color }}
+                    />
+                    <span>
+                      {type}
+                      {countByType(type) > 0 ? ` (${countByType(type)}개)` : ""}
+                    </span>
+                  </div>
+                ),
+              )}
               <div className={styles.legendItem}>
-                <span className={styles.legendDot} style={{ background: "#ccc" }} />
+                <span
+                  className={styles.legendDot}
+                  style={{ background: "#ccc" }}
+                />
                 <span>사용중</span>
               </div>
             </>
@@ -270,19 +305,34 @@ export default function RoomPickerModal({
                 viewOnly && viewColor ? styles.roomPicked : "",
                 !viewOnly && isPicked ? styles.roomPicked : "",
                 !viewOnly && isOccupied ? styles.roomOccupied : "",
-              ].filter(Boolean).join(" ");
+              ]
+                .filter(Boolean)
+                .join(" ");
 
               return (
                 <button
                   key={cell.id}
                   className={cellClass}
-                  style={{ gridRow, gridColumn, "--c": color, "--bg": pastel } as React.CSSProperties}
-                  onClick={viewOnly ? undefined : () => !isOccupied && toggle(cell.id)}
+                  style={
+                    {
+                      gridRow,
+                      gridColumn,
+                      "--c": color,
+                      "--bg": pastel,
+                    } as React.CSSProperties
+                  }
+                  onClick={
+                    viewOnly ? undefined : () => !isOccupied && toggle(cell.id)
+                  }
                   disabled={!viewOnly && isOccupied}
                   title={
                     viewOnly
-                      ? viewColor ? `${cell.id}호 — 예약됨` : `${cell.id}호 (${info.type})`
-                      : isOccupied ? `${cell.id}호 — 사용중` : `${cell.id}호 (${info.type})`
+                      ? viewColor
+                        ? `${cell.id}호 — 예약됨`
+                        : `${cell.id}호 (${info.type})`
+                      : isOccupied
+                        ? `${cell.id}호 — 사용중`
+                        : `${cell.id}호 (${info.type})`
                   }
                 >
                   <span className={styles.cellNum}>{cell.id}</span>
@@ -297,9 +347,21 @@ export default function RoomPickerModal({
 
         {viewOnly ? (
           <div className={styles.footer}>
-            <span className={styles.total}>사용중 {occupiedRooms.length}개</span>
+            <span className={styles.total}>
+              사용중 {occupiedRooms.length}개
+            </span>
             <div className={styles.footerBtns}>
-              <button className={styles.cancelBtn} onClick={onClose}>닫기</button>
+              <button
+                className={styles.cancelBtn}
+                onClick={() =>
+                  printRoomViewForDate(date, occupiedRooms, roomColors, orgLegend)
+                }
+              >
+                인쇄
+              </button>
+              <button className={styles.cancelBtn} onClick={onClose}>
+                닫기
+              </button>
             </div>
           </div>
         ) : (
