@@ -84,10 +84,18 @@ export default function ReservationTooltip({
             <span>{res.customerPhone}</span>
           </div>
           <div className={styles.tags}>
-            <span className={res.rooms && res.rooms.length > 0 ? styles.tagOn : styles.tagOff}>
+            <span
+              className={
+                res.rooms && res.rooms.length > 0 ? styles.tagOn : styles.tagOff
+              }
+            >
               숙박 {res.rooms && res.rooms.length > 0 ? "O" : "X"}
             </span>
-            <span className={res.meals && res.meals.length > 0 ? styles.tagOn : styles.tagOff}>
+            <span
+              className={
+                res.meals && res.meals.length > 0 ? styles.tagOn : styles.tagOff
+              }
+            >
               식사 {res.meals && res.meals.length > 0 ? "O" : "X"}
             </span>
           </div>

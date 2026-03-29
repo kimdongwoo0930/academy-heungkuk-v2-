@@ -110,6 +110,111 @@ function buildFloorGridHtml(
   ">${cells}</div>`;
 }
 
+// 도면 그리드 HTML 생성 (업체 색상별 — 숙박 현황 뷰용)
+function buildFloorGridHtmlColored(
+  roomColors: Record<string, string>,
+  cellPx = 46,
+  halfRowPx = 22,
+): string {
+  const gap = 3;
+  const cells = LAYOUT.map((cell) => {
+    const gridRow = `${cell.row} / span 2`;
+    const gridCol = cell.colSpan
+      ? `${cell.col} / span ${cell.colSpan}`
+      : `${cell.col}`;
+
+    if (cell.isLabel) {
+      return `<div class="floor-label" style="grid-row:${gridRow};grid-column:${gridCol}">${cell.id}</div>`;
+    }
+
+    const info = ROOM_INFO[cell.id];
+    if (!info) return "";
+    const color = roomColors[cell.id];
+    const bg = color ?? "#d4d4d4";
+    const border = color ?? "#aaa";
+    const numColor = color ? "#fff" : "#555";
+    const capColor = color ? "rgba(255,255,255,0.85)" : "#777";
+
+    return `<div class="room-cell" style="
+      grid-row:${gridRow};grid-column:${gridCol};
+      background:${bg};border:2px solid ${border}">
+      <span class="cell-num" style="color:${numColor}">${cell.id}</span>
+      <span class="cell-cap" style="color:${capColor}">${info.cap}인</span>
+    </div>`;
+  }).join("");
+
+  return `
+  <div class="floor-grid" style="
+    display:grid;
+    gap:${gap}px;
+    grid-template-columns:repeat(17,${cellPx}px);
+    grid-template-rows:repeat(13,${halfRowPx}px);
+  ">${cells}</div>`;
+}
+
+// ── 숙박 현황 뷰 출력 (업체 색상 기준, 날짜 클릭 모달용) ────────────────────
+
+export function printRoomViewForDate(
+  date: string,
+  occupiedRooms: string[],
+  roomColors: Record<string, string>,
+  orgLegend: { color: string; organization: string }[],
+) {
+  const legend =
+    orgLegend
+      .map(
+        ({ color, organization }) => `
+    <div class="legend-item">
+      <span class="legend-dot" style="background:${color}"></span>
+      <span>${organization}</span>
+    </div>`,
+      )
+      .join("") +
+    `<div class="legend-item">
+      <span class="legend-dot" style="background:#d4d4d4;border:1px solid #aaa"></span>
+      <span>미배정</span>
+    </div>`;
+
+  const html = `<!DOCTYPE html><html><head>
+  <meta charset="UTF-8">
+  <title>숙소 현황 – ${date}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Apple SD Gothic Neo', Arial, sans-serif; font-size: 13px;
+           padding: 14mm 12mm; color: #111; background: #fff; }
+    h2 { font-size: 20px; font-weight: 700; margin-bottom: 3px; }
+    .sub { font-size: 12px; color: #777; margin-bottom: 12px; }
+    .legend { display: flex; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #555; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+    .floor-grid { margin-bottom: 14px; }
+    .room-cell { display: flex; flex-direction: column; align-items: center;
+                 justify-content: center; border-radius: 4px; gap: 1px; }
+    .cell-num { font-size: 11px; font-weight: 700; line-height: 1; }
+    .cell-cap { font-size: 9px; font-weight: 600; line-height: 1; }
+    .floor-label { display: flex; align-items: center; justify-content: center;
+                   font-size: 9px; color: #888; border: 1px dashed #ddd;
+                   border-radius: 4px; background: #fafafa; }
+    .date-heading { font-size: 28px; font-weight: 700; text-align: center;
+                    margin: 8px 0 14px; color: #111; letter-spacing: 1px; }
+    .summary { margin-top: 10px; padding: 8px 14px; background: #f5f5f5;
+               border-radius: 6px; font-size: 13px; color: #333; text-align: center; }
+    @page { size: A4 landscape; margin: 10mm 12mm; }
+    @media print { * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
+  </style>
+  </head><body>
+  <h2>숙소 현황</h2>
+  <div class="sub">숙소 배정표</div>
+  <div class="date-heading">${date} ~ ${nextDay(date)}</div>
+  <div class="legend">${legend}</div>
+  ${buildFloorGridHtmlColored(roomColors)}
+  <div class="summary">사용중 <strong>${occupiedRooms.length}</strong>실</div>
+  <script>window.onafterprint = function(){ window.close(); }</script>
+  </body></html>`;
+
+  openAndPrint(html);
+}
+
 // ── 일별 숙소 배정표 ────────────────────────────────────────────────────────
 
 export function printRoomTableForDate(
@@ -242,7 +347,7 @@ export function printRoomTableIntegrated(
     <div class="date-block">
       <div class="block-header">
         <h2>${organization}</h2>
-        <div class="sub">통합 숙소 배정표 &nbsp;|&nbsp; ${dates[0]} ~ ${dates[dates.length - 1]}</div>
+        <div class="sub">통합 숙소 배정표 &nbsp;|&nbsp; ${dates[0]} ~ ${nextDay(dates[dates.length - 1])}</div>
         ${legendHtml}
       </div>
       <div class="date-title">${label} <span class="date-count">(${total}실)</span></div>

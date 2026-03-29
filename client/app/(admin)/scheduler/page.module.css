@@ -201,13 +201,27 @@
 }
 
 /* 색상별 그룹 배경 */
-.bgYellow { background: #fffde6; }
-.bgGreen  { background: #e8f5e9; }
-.bgBlue   { background: #e3f0fb; }
-.bgPink   { background: #fce4ec; }
-.bgGray   { background: #eeeeee; }
-.bgOrange { background: #fff3e0; }
-.bgWhite  { background: #ffffff; }
+.bgYellow {
+  background: #fffde6;
+}
+.bgGreen {
+  background: #e8f5e9;
+}
+.bgBlue {
+  background: #e3f0fb;
+}
+.bgPink {
+  background: #fce4ec;
+}
+.bgGray {
+  background: #eeeeee;
+}
+.bgOrange {
+  background: #fff3e0;
+}
+.bgWhite {
+  background: #ffffff;
+}
 
 /* 예약 바 */
 .bar {
@@ -237,6 +251,11 @@
   background: #f5f5f5 !important;
 }
 
+/* 강의실 타입 그룹 구분선 */
+.groupDivider {
+  border-top: 2px solid #bebcbc !important;
+}
+
 /* 숙박 섹션 강조 */
 .bgAccom {
   background: #fff0f3 !important;
@@ -262,10 +281,18 @@
 .table tr:last-child td {
   border-bottom: 1px solid #d0d0d0;
 }
-.roomCornerTL { border-top-left-radius: 7px; }
-.roomCornerTR { border-top-right-radius: 7px; }
-.roomCornerBL { border-bottom-left-radius: 7px; }
-.roomCornerBR { border-bottom-right-radius: 7px; }
+.roomCornerTL {
+  border-top-left-radius: 0px;
+}
+.roomCornerTR {
+  border-top-right-radius: 0px;
+}
+.roomCornerBL {
+  border-bottom-left-radius: 7px;
+}
+.roomCornerBR {
+  border-bottom-right-radius: 7px;
+}
 
 /* 숙박 count */
 .roomCount {
@@ -301,8 +328,12 @@
   font-weight: 600;
 }
 
-.confirmed { color: #dc2626; }
-.pending   { color: #16a34a; }
+.confirmed {
+  color: #dc2626;
+}
+.pending {
+  color: #16a34a;
+}
 
 /* 합계 / 식수계 */
 .totalRow td {
@@ -362,7 +393,6 @@
     size: A3 landscape;
     margin: 15mm 10mm 10mm;
   }
-
 
   .header {
     display: none !important;

@@ -8,9 +8,9 @@ import {
 } from "@/types/reservation";
 import { useRef, useState } from "react";
 // RoomReservation used in handleRoomConfirm type annotation
+import { downloadEstimate, downloadTrade } from "@/lib/api/reservation";
 import { CLASSROOM_ROOM_TO_CATEGORY } from "@/lib/constants/classrooms";
 import { ROOM_INFO, RoomType } from "@/lib/constants/rooms";
-import { downloadEstimate, downloadTrade } from "@/lib/api/reservation";
 import { printRoomTableIntegrated } from "@/lib/utils/printRoomTable";
 import styles from "./ReservationModal.module.css";
 import RoomPickerModal from "./RoomPickerModal";
@@ -196,7 +196,10 @@ export default function ReservationModal({
         return [...new Set(rooms.map((r) => r.reservedDate))].sort();
       }
       if (reservation.startDate && reservation.endDate) {
-        return buildRange(String(reservation.startDate), String(reservation.endDate));
+        return buildRange(
+          String(reservation.startDate),
+          String(reservation.endDate),
+        );
       }
     } else if (defaultValues?.startDate && defaultValues?.endDate) {
       return buildRange(defaultValues.startDate, defaultValues.endDate);
@@ -971,11 +974,18 @@ export default function ReservationModal({
                         onClick={() => {
                           if (confirm("강의실 배정 전체를 삭제하시겠습니까?")) {
                             const uniqueDates = [
-                              ...new Set((form.classrooms ?? []).map((c) => c.reservedDate)),
+                              ...new Set(
+                                (form.classrooms ?? []).map(
+                                  (c) => c.reservedDate,
+                                ),
+                              ),
                             ];
                             setField(
                               "classrooms",
-                              uniqueDates.map((date) => ({ classroomName: "", reservedDate: date })),
+                              uniqueDates.map((date) => ({
+                                classroomName: "",
+                                reservedDate: date,
+                              })),
                             );
                           }
                         }}
@@ -1096,7 +1106,7 @@ export default function ReservationModal({
                             printRoomTableIntegrated(
                               roomDates,
                               form.rooms ?? [],
-                              form.organization ?? ""
+                              form.organization ?? "",
                             )
                           }
                         >
@@ -1119,7 +1129,11 @@ export default function ReservationModal({
                           <button
                             className={styles.removeAllBtn}
                             onClick={() => {
-                              if (confirm("숙박 날짜 및 호실 배정 전체를 삭제하시겠습니까?")) {
+                              if (
+                                confirm(
+                                  "숙박 날짜 및 호실 배정 전체를 삭제하시겠습니까?",
+                                )
+                              ) {
                                 setRoomDates([]);
                                 setField("rooms", []);
                               }
@@ -1128,7 +1142,10 @@ export default function ReservationModal({
                             전체 제거
                           </button>
                         )}
-                        <button className={styles.addRowBtn} onClick={addRoomDate}>
+                        <button
+                          className={styles.addRowBtn}
+                          onClick={addRoomDate}
+                        >
                           + 추가
                         </button>
                       </div>
@@ -1176,7 +1193,9 @@ export default function ReservationModal({
                             {ROOM_TYPES.map((type) => (
                               <td key={type} className={styles.countCell}>
                                 {countRoomsForDate(date, type) > 0 ? (
-                                  <span className={`${styles.roomCountBadge} ${styles[`roomCountBadge${type.charAt(0)}`]}`}>
+                                  <span
+                                    className={`${styles.roomCountBadge} ${styles[`roomCountBadge${type.charAt(0)}`]}`}
+                                  >
                                     {countRoomsForDate(date, type)}
                                   </span>
                                 ) : (
@@ -1417,9 +1436,16 @@ export default function ReservationModal({
                   disabled={trading}
                   onClick={async () => {
                     setTrading(true);
-                    try { await downloadTrade(reservation.id, reservation.organization); }
-                    catch { alert("거래명세서 생성에 실패했습니다."); }
-                    finally { setTrading(false); }
+                    try {
+                      await downloadTrade(
+                        reservation.id,
+                        reservation.organization,
+                      );
+                    } catch {
+                      alert("거래명세서 생성에 실패했습니다.");
+                    } finally {
+                      setTrading(false);
+                    }
                   }}
                 >
                   {trading ? "생성 중..." : "거래명세서"}
@@ -1429,9 +1455,16 @@ export default function ReservationModal({
                   disabled={estimating}
                   onClick={async () => {
                     setEstimating(true);
-                    try { await downloadEstimate(reservation.id, reservation.organization); }
-                    catch { alert("견적서 생성에 실패했습니다."); }
-                    finally { setEstimating(false); }
+                    try {
+                      await downloadEstimate(
+                        reservation.id,
+                        reservation.organization,
+                      );
+                    } catch {
+                      alert("견적서 생성에 실패했습니다.");
+                    } finally {
+                      setEstimating(false);
+                    }
                   }}
                 >
                   {estimating ? "생성 중..." : "견적서"}
@@ -1443,7 +1476,11 @@ export default function ReservationModal({
             <button className={styles.cancelBtn} onClick={onClose}>
               닫기
             </button>
-            <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
+            <button
+              className={styles.saveBtn}
+              onClick={handleSave}
+              disabled={saving}
+            >
               {saving ? "저장 중..." : "저장"}
             </button>
           </div>
