@@ -13,7 +13,8 @@ import styles from './page.module.css';
 
 const STATUS_OPTIONS = ['전체', '확정', '예약', '문의', '취소'];
 const PAGE_SIZE = 20;
-type SortBy = 'createdAt' | 'startDate';
+type SortField = 'createdAt' | 'startDate';
+type SortDir = 'asc' | 'desc';
 
 export default function ReservationPage() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
@@ -23,7 +24,8 @@ export default function ReservationPage() {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [status, setStatus] = useState('전체');
-  const [sortBy, setSortBy] = useState<SortBy>('createdAt');
+  const [sortBy, setSortBy] = useState<SortField>('createdAt');
+  const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [page, setPage] = useState(0);
   const [fetchTick, setFetchTick] = useState(0);
   const [selected, setSelected] = useState<Reservation | null>(null);
@@ -49,7 +51,7 @@ export default function ReservationPage() {
       status: status === '전체' ? undefined : status,
       page,
       size: PAGE_SIZE,
-      sort: `${sortBy},desc`,
+      sort: `${sortBy},${sortDir}`,
     })
       .then((result) => {
         setReservations(result.content);
@@ -58,10 +60,18 @@ export default function ReservationPage() {
       })
       .catch(() => alert('예약 목록을 불러오는데 실패했습니다.'))
       .finally(() => setLoading(false));
-  }, [debouncedSearch, status, sortBy, page, fetchTick]);
+  }, [debouncedSearch, status, sortBy, sortDir, page, fetchTick]);
 
   const handleStatusChange = (v: string) => { setStatus(v); setPage(0); };
-  const handleSortChange = (v: SortBy) => { setSortBy(v); setPage(0); };
+  const handleSortChange = (field: SortField) => {
+    if (field === sortBy) {
+      setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'));
+    } else {
+      setSortBy(field);
+      setSortDir('desc');
+    }
+    setPage(0);
+  };
   const refetch = () => setFetchTick((t) => t + 1);
 
   const fetchModalReservations = (years: number[]) => {
@@ -122,13 +132,13 @@ export default function ReservationPage() {
             className={`${styles.sortBtn} ${sortBy === 'createdAt' ? styles.sortBtnActive : ''}`}
             onClick={() => handleSortChange('createdAt')}
           >
-            등록일순
+            등록일순 {sortBy === 'createdAt' ? (sortDir === 'desc' ? '↓' : '↑') : ''}
           </button>
           <button
             className={`${styles.sortBtn} ${sortBy === 'startDate' ? styles.sortBtnActive : ''}`}
             onClick={() => handleSortChange('startDate')}
           >
-            입실일순
+            입실일순 {sortBy === 'startDate' ? (sortDir === 'desc' ? '↓' : '↑') : ''}
           </button>
         </div>
         <input

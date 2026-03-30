@@ -38,7 +38,13 @@ public class SecurityConfig {
                                 "/swagger-ui.html", "/v3/api-docs/**", "/v3/api-docs",
                                 "/webjars/**")
                         .permitAll()
-                        // 조회(GET)는 인증된 사용자라면 누구나 가능
+                        // Excel 다운로드/내보내기/가져오기는 ROLE_ADMIN만 가능
+                        .requestMatchers(HttpMethod.GET,
+                                "/v1/admin/reservations/*/estimate",
+                                "/v1/admin/reservations/*/trade",
+                                "/v1/admin/reservations/export")
+                        .hasAuthority("ROLE_ADMIN")
+                        // 그 외 GET 조회는 인증된 사용자라면 누구나 가능
                         .requestMatchers(HttpMethod.GET, "/v1/admin/**").authenticated()
                         // 본인 비밀번호 변경은 누구나 가능
                         .requestMatchers(HttpMethod.PATCH, "/v1/admin/accounts/me/password")
