@@ -55,7 +55,7 @@
 | start_date         | DATE         | ✅   | 시작일                                       |
 | end_date           | DATE         | ✅   | 종료일                                       |
 | color_code         | VARCHAR(10)  | ✅   | 캘린더 표시 색상 (#FF5733)                   |
-| status             | VARCHAR(20)  | ✅   | 확정 / 대기 / 취소                           |
+| status             | VARCHAR(20)  | ✅   | 확정 / 예약 / 문의 / 취소                    |
 | company_address    | VARCHAR(255) | ❌   | 업체 주소                                    |
 | site_manager       | VARCHAR(50)  | ❌   | 현장 담당자                                  |
 | site_manager_phone | VARCHAR(20)  | ❌   | 현장 담당자 연락처                           |

@@ -137,7 +137,7 @@ public class ExcelServiceImpl implements ExcelService {
     private void fillEstimateHeader(XSSFSheet sheet, Reservation res,
             Map<String, String> settings) {
         setStr(sheet, 4, 0, res.getOrganization()); // A5: 수신 단체명
-        setDate(sheet, 8, 3, LocalDate.now()); // D9: 견적일자
+        getOrCreate(sheet, 8, 3).setCellValue(formatDateWithDay(LocalDate.now())); // D9: 견적일자
         setStr(sheet, 9, 3, res.getCustomer() + "님"); // D10: 고객사 담당자
         setStr(sheet, 10, 3, res.getCustomerPhone()); // D11: 연락처
         setStr(sheet, 11, 3, nvl(res.getCustomerEmail())); // D12: 이메일
@@ -1029,6 +1029,15 @@ public class ExcelServiceImpl implements ExcelService {
             return "";
         return date.getYear() + "년 " + String.format("%02d", date.getMonthValue()) + "월 "
                 + String.format("%02d", date.getDayOfMonth()) + "일";
+    }
+
+    private static final String[] DAY_NAMES = {"일", "월", "화", "수", "목", "금", "토"};
+
+    private String formatDateWithDay(LocalDate date) {
+        if (date == null)
+            return "";
+        String day = DAY_NAMES[date.getDayOfWeek().getValue() % 7];
+        return formatDate(date) + " (" + day + ")";
     }
 
     private long toLong(String s) {

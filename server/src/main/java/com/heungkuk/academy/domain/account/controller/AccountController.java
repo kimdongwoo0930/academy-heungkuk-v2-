@@ -36,7 +36,7 @@ public class AccountController {
 
     private final AccountService accountService;
 
-    @Operation(summary = "계정 생성", description = "관리자가 새 계정을 생성합니다. 생성된 계정은 즉시 활성화됩니다.")
+    @Operation(summary = "계정 생성", description = "관리자가 새 계정을 생성합니다. 생성된 계정은 즉시 활성화됩니다.", hidden = true)
     @PostMapping
     public ResponseEntity<CommonResponse<SignupResponse>> createAccount(
             @RequestBody SignupRequest request) {

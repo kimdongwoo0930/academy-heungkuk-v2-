@@ -57,14 +57,18 @@ function nextDay(dateStr: string): string {
 }
 
 function openAndPrint(html: string) {
-  const win = window.open("", "_blank", "width=900,height=720");
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, "_blank", "width=900,height=720");
   if (!win) {
     alert("팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.");
+    URL.revokeObjectURL(url);
     return;
   }
-  win.document.write(html);
-  win.document.close();
-  setTimeout(() => win.print(), 300);
+  win.addEventListener("load", () => {
+    win.print();
+    URL.revokeObjectURL(url);
+  });
 }
 
 // 도면 그리드 HTML 생성 (한 날짜)
@@ -187,7 +191,7 @@ export function printRoomViewForDate(
     .legend { display: flex; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
     .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #555; }
     .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
-    .floor-grid { margin-bottom: 14px; }
+    .floor-grid { margin: 0 auto 14px; width: fit-content; }
     .room-cell { display: flex; flex-direction: column; align-items: center;
                  justify-content: center; border-radius: 4px; gap: 1px; }
     .cell-num { font-size: 11px; font-weight: 700; line-height: 1; }
@@ -250,7 +254,7 @@ export function printRoomTableForDate(
     .legend { display: flex; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
     .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #555; }
     .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
-    .floor-grid { margin-bottom: 14px; }
+    .floor-grid { margin: 0 auto 14px; width: fit-content; }
     .room-cell { display: flex; flex-direction: column; align-items: center;
                  justify-content: center; border-radius: 4px; gap: 1px; }
     .cell-num { font-size: 11px; font-weight: 700; line-height: 1; }

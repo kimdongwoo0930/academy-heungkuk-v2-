@@ -6,8 +6,9 @@ import { Reservation } from '@/types/reservation';
 import styles from './page.module.css';
 
 const STATUS_COLOR: Record<string, string> = {
-  확정: '#2563eb',
-  대기: '#f59e0b',
+  확정: '#16a34a',
+  예약: '#d97706',
+  문의: '#6366f1',
   취소: '#ef4444',
 };
 
@@ -21,7 +22,6 @@ export default function DocumentPage() {
   const [endDate, setEndDate] = useState('');
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [tradingId, setTradingId] = useState<number | null>(null);
@@ -42,7 +42,6 @@ export default function DocumentPage() {
       });
       setReservations(result.content);
       setTotalPages(result.totalPages);
-      setTotalElements(result.totalElements);
     } finally {
       setLoading(false);
     }
@@ -132,7 +131,8 @@ export default function DocumentPage() {
           >
             <option value="">전체 상태</option>
             <option value="확정">확정</option>
-            <option value="대기">대기</option>
+            <option value="예약">예약</option>
+            <option value="문의">문의</option>
             <option value="취소">취소</option>
           </select>
         </div>
