@@ -2,6 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 8px;
   margin-bottom: 4px;
   position: sticky;
   top: var(--header-height);
@@ -35,6 +36,23 @@
   transition: background 0.15s;
 }
 .navBtn:hover {
+  background: #f0f0f0;
+}
+
+.printBtn {
+  height: 32px;
+  padding: 0 14px;
+  background: var(--surface);
+  color: var(--text-sub);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-right: auto;
+}
+.printBtn:hover {
   background: #f0f0f0;
 }
 

@@ -149,6 +149,7 @@ export default function ReservationPage() {
         />
         <select
           className={styles.statusSelect}
+          aria-label="예약 상태 필터"
           value={status}
           onChange={(e) => handleStatusChange(e.target.value)}
         >

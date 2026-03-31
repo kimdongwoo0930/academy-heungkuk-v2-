@@ -203,10 +203,12 @@ export default function RoomPickerModal({
             <p className={styles.subtitle}>
               {viewOnly
                 ? (() => {
+                    const DAYS = ["일", "월", "화", "수", "목", "금", "토"];
                     const d = new Date(date);
-                    d.setDate(d.getDate() + 1);
-                    const next = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-                    return `${date} ~ ${next}`;
+                    const d2 = new Date(date);
+                    d2.setDate(d2.getDate() + 1);
+                    const next = `${d2.getFullYear()}-${String(d2.getMonth() + 1).padStart(2, "0")}-${String(d2.getDate()).padStart(2, "0")}`;
+                    return `${date} (${DAYS[d.getDay()]}) ~ ${next} (${DAYS[d2.getDay()]})`;
                   })()
                 : date}
             </p>
@@ -335,7 +337,7 @@ export default function RoomPickerModal({
                         : `${cell.id}호 (${info.type})`
                   }
                 >
-                  <span className={styles.cellNum}>{cell.id}</span>
+                  <span className={styles.cellNum}>{cell.id}호</span>
                   <span className={styles.cellCap}>
                     {!viewOnly && isOccupied ? "사용중" : `${info.cap}인`}
                   </span>
