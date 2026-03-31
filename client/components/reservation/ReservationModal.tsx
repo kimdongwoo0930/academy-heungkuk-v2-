@@ -492,6 +492,7 @@ export default function ReservationModal({
         reservedDate: date,
       })),
     );
+    setRoomDates(dates);
     setField("rooms", newEntries);
     setBulkRoomPickerOpen(false);
   };
@@ -1101,6 +1102,19 @@ export default function ReservationModal({
                       </span>
                       <div style={{ display: "flex", gap: 6 }}>
                         <button
+                          className={styles.applyBtn}
+                          onClick={() => setBulkRoomPickerOpen(true)}
+                        >
+                          호실 일괄 지정
+                        </button>
+                      </div>
+                    </div>
+                    <div className={styles.listHeader}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span className={styles.listCount}>
+                          총 {roomDates.length}일
+                        </span>
+                        <button
                           className={styles.roomPrintBtn}
                           onClick={() =>
                             printRoomTableIntegrated(
@@ -1112,18 +1126,7 @@ export default function ReservationModal({
                         >
                           🖨 통합 숙소표
                         </button>
-                        <button
-                          className={styles.applyBtn}
-                          onClick={() => setBulkRoomPickerOpen(true)}
-                        >
-                          호실 일괄 지정
-                        </button>
                       </div>
-                    </div>
-                    <div className={styles.listHeader}>
-                      <span className={styles.listCount}>
-                        총 {roomDates.length}일
-                      </span>
                       <div style={{ display: "flex", gap: 6 }}>
                         {(form.rooms ?? []).length > 0 && (
                           <button

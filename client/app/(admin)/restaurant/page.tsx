@@ -6,6 +6,7 @@ import {
   toRequestBody,
   updateReservation,
 } from "@/lib/api/reservation";
+import { printMealTable } from "@/lib/utils/printRoomTable";
 import { Reservation } from "@/types/reservation";
 import { isHoliday } from "@hyunbinseo/holidays-kr";
 import { useEffect, useState } from "react";
@@ -156,6 +157,12 @@ export default function RestaurantPage() {
   return (
     <div>
       <div className={styles.header}>
+        <button
+          className={styles.printBtn}
+          onClick={() => printMealTable(year, month, reservations)}
+        >
+          🖨 인쇄 / PDF
+        </button>
         <div className={styles.nav}>
           <button className={styles.navBtn} onClick={prevMonth}>
             ‹

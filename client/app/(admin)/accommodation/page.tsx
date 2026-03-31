@@ -8,6 +8,7 @@ import {
   toRequestBody,
   updateReservation,
 } from "@/lib/api/reservation";
+import { printAccommodationTable } from "@/lib/utils/printRoomTable";
 import { Reservation, RoomReservation } from "@/types/reservation";
 import { isHoliday } from "@hyunbinseo/holidays-kr";
 import { useEffect, useRef, useState } from "react";
@@ -254,6 +255,12 @@ export default function AccommodationPage() {
   return (
     <div>
       <div className={styles.header}>
+        <button
+          className={styles.printBtn}
+          onClick={() => printAccommodationTable(year, month, reservations)}
+        >
+          🖨 인쇄 / PDF
+        </button>
         <div className={styles.nav}>
           <button className={styles.navBtn} onClick={prevMonth}>
             ‹
