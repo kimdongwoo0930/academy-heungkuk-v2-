@@ -1,14 +1,18 @@
 package com.heungkuk.academy.domain.reservation.entity;
 
 import java.time.LocalDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
+
 import com.heungkuk.academy.domain.reservation.dto.request.ReservationRequest;
 import com.heungkuk.academy.global.entity.BaseTimeEntity;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +24,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Entity
-@Table(name = "reservation")
+@Table(name = "reservation", indexes = {
+        @Index(name = "idx_reservation_dates", columnList = "start_date, end_date")
+})
 public class Reservation extends BaseTimeEntity {
 
     @Id
@@ -75,7 +81,6 @@ public class Reservation extends BaseTimeEntity {
 
     @Column(columnDefinition = "TEXT")
     private String memo;
-
 
     public static Reservation from(ReservationRequest request, String reservationCode) {
         return Reservation.builder().reservationCode(reservationCode)

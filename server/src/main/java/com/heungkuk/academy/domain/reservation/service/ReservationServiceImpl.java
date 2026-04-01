@@ -3,10 +3,12 @@ package com.heungkuk.academy.domain.reservation.service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.heungkuk.academy.domain.reservation.dto.request.ReservationRequest;
 import com.heungkuk.academy.domain.reservation.dto.response.ClassroomReservationResponse;
 import com.heungkuk.academy.domain.reservation.dto.response.MealReservationResponse;
@@ -22,6 +24,7 @@ import com.heungkuk.academy.domain.reservation.repository.ReservationRepository;
 import com.heungkuk.academy.domain.reservation.repository.RoomReservationRepository;
 import com.heungkuk.academy.global.exception.BusinessException;
 import com.heungkuk.academy.global.exception.ErrorCode;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -45,8 +48,7 @@ public class ReservationServiceImpl implements ReservationService {
         String reservationCode = generateReservationCode(request.getStartDate());
 
         // 2. Reservation 엔티티 생성 후 저장
-        Reservation reservation =
-                reservationRepository.save(Reservation.from(request, reservationCode));
+        Reservation reservation = reservationRepository.save(Reservation.from(request, reservationCode));
 
         // 3. 객실 예약 저장
         saveRooms(reservation, request);
@@ -60,7 +62,6 @@ public class ReservationServiceImpl implements ReservationService {
         return toResponse(reservation);
     }
 
-
     /** 강의실 중복 체크 (true = 사용 가능, false = 중복) */
     @Override
     public boolean checkClassroom(String classroom, LocalDate date) {
@@ -71,14 +72,14 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public List<ReservationResponse> getReservationsByYear(int year) {
         return reservationRepository
-                .findByYear(LocalDate.of(year, 1, 1), LocalDate.of(year, 12, 31)).stream()
+                .findByDateRange(LocalDate.of(year, 1, 1), LocalDate.of(year, 12, 31)).stream()
                 .map(this::toResponse).toList();
     }
 
     /** 날짜 범위 조회 — 일정현황 3개월 뷰용 */
     @Override
     public List<ReservationResponse> getReservationsByDateRange(LocalDate from, LocalDate to) {
-        return reservationRepository.findByYear(from, to).stream().map(this::toResponse).toList();
+        return reservationRepository.findByDateRange(from, to).stream().map(this::toResponse).toList();
     }
 
     /** 검색 + 필터 + 페이징 — 예약 관리 리스트용 */
@@ -147,8 +148,6 @@ public class ReservationServiceImpl implements ReservationService {
         return toResponse(reservation);
     }
 
-
-
     /**
      * 예약 코드 생성 형식: HK-yyyyMMdd-순번 (예: HK-20260316-001) 같은 날짜의 기존 예약 수를 조회해서 순번 결정
      */
@@ -159,13 +158,12 @@ public class ReservationServiceImpl implements ReservationService {
         return "HK-" + dateStr + "-" + seq;
     }
 
-
     private ReservationResponse toResponse(Reservation reservation) {
         List<RoomReservationResponse> rooms = roomReservationRepository
                 .findByReservation(reservation).stream().map(RoomReservationResponse::of).toList();
-        List<ClassroomReservationResponse> classrooms =
-                classroomReservationRepository.findByReservation(reservation).stream()
-                        .map(ClassroomReservationResponse::of).toList();
+        List<ClassroomReservationResponse> classrooms = classroomReservationRepository.findByReservation(reservation)
+                .stream()
+                .map(ClassroomReservationResponse::of).toList();
         List<MealReservationResponse> meals = mealReservationRepository
                 .findByReservation(reservation).stream().map(MealReservationResponse::of).toList();
         return ReservationResponse.of(reservation, rooms, classrooms, meals);
@@ -190,7 +188,6 @@ public class ReservationServiceImpl implements ReservationService {
                 .map(cr -> ClassroomReservation.of(reservation, cr)).toList();
         classroomReservationRepository.saveAll(classroomReservations);
     }
-
 
     private void saveMeals(Reservation reservation, ReservationRequest request) {
         if (request.getMeals() != null && !request.getMeals().isEmpty()) {
