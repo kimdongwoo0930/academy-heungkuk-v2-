@@ -46,18 +46,25 @@ function calTdStyle(cal: CalDay) {
 }
 
 const STATUS_COLOR_PRINT = (status: string) =>
-  status === "확정" ? "#16a34a" : status === "예약" ? "#d97706" : "#7c3aed";
+  status === "확정" ? "#dc2626" : "#9ca3af";
 
 const LEGEND_HTML =
   `<div class="legend">` +
-  `<span class="legend-item"><span class="legend-dot" style="background:#16a34a"></span>확정</span>` +
-  `<span class="legend-item"><span class="legend-dot" style="background:#d97706"></span>예약</span>` +
-  `<span class="legend-item"><span class="legend-dot" style="background:#7c3aed"></span>문의</span>` +
+  `<span class="legend-item"><span class="legend-dot" style="background:#dc2626"></span>확정</span>` +
+  `<span class="legend-item"><span class="legend-dot" style="background:#9ca3af"></span>예약 / 문의</span>` +
+  `</div>`;
+
+const MEAL_LEGEND_HTML =
+  `<div class="legend">` +
+  `<span class="legend-item"><span class="legend-dot" style="background:#dc2626"></span>확정</span>` +
+  `<span class="legend-item"><span class="legend-dot" style="background:#9ca3af"></span>예약 / 문의</span>` +
+  `<span class="legend-item"><span class="legend-dot" style="background:#e67e22"></span>특식(확정)</span>` +
+  `<span class="legend-item"><span class="legend-dot" style="background:#ccc"></span>특식(예약/문의)</span>` +
   `</div>`;
 
 const TABLE_COMMON_CSS = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Apple SD Gothic Neo', Arial, sans-serif; font-size: 11px;
+  body { font-family: 'Pretendard', 'Apple SD Gothic Neo', Arial, sans-serif; font-size: 11px;
          padding: 8mm 10mm; color: #111; background: #fff; }
   h2 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
   .legend { display: flex; gap: 14px; margin-bottom: 10px; }
@@ -269,7 +276,7 @@ export function printRoomViewForDate(
     </div>`;
 
   const html = `<!DOCTYPE html><html><head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/static/pretendard.css">
   <title>숙소 현황 – ${date}</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -332,7 +339,7 @@ export function printRoomTableForDate(
     .join("");
 
   const html = `<!DOCTYPE html><html><head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/static/pretendard.css">
   <title>숙소 배정표 – ${date}</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -450,7 +457,7 @@ export function printRoomTableIntegrated(
     .join("");
 
   const html = `<!DOCTYPE html><html><head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/static/pretendard.css">
   <title>통합 숙소 배정표 – ${organization}</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -568,10 +575,11 @@ export function printMealTable(
                 const statusColor = STATUS_COLOR_PRINT(res.status);
                 const mealSpan = (count: number, isSpecial: boolean) => {
                   if (count === 0) return "";
-                  const color = isSpecial
-                    ? isConfirmed ? "#0087D4" : "#F5A623"
-                    : statusColor;
-                  return `<span style="font-weight:700;color:${color}">${count}</span>`;
+                  if (isSpecial) {
+                    const bg = isConfirmed ? "#e67e22" : "#ccc";
+                    return `<span style="display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 2px;background:${bg};color:#fff;border-radius:3px;font-size:9px;font-weight:700;">${count}</span>`;
+                  }
+                  return `<span style="font-weight:700;color:${statusColor}">${count}</span>`;
                 };
                 return [
                   `<td class="meal-cell" style="${calTdStyle(cal)}">${mealSpan(b, sb)}</td>`,
@@ -625,11 +633,11 @@ export function printMealTable(
   const monthTotal = monthB + monthL + monthD;
 
   const mealHtml =
-    `<!DOCTYPE html><html><head><meta charset="UTF-8">` +
+    `<!DOCTYPE html><html><head><meta charset="UTF-8"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/static/pretendard.css">` +
     `<title>${year}년 ${month + 1}월 식수 현황</title>` +
     `<style>${TABLE_COMMON_CSS}.meal-cell{font-size:10px;}</style></head><body>` +
     `<h2>${year}년 ${month + 1}월 식수 현황</h2>` +
-    LEGEND_HTML +
+    MEAL_LEGEND_HTML +
     halfTablesHtml +
     `<div class="month-summary"><strong>${year}년 ${month + 1}월 합계</strong>&nbsp;&nbsp;` +
     `조식 <strong>${monthB}</strong>&nbsp;·&nbsp;` +
@@ -769,7 +777,7 @@ export function printAccommodationTable(
   const monthTotal = month4 + month2 + month1;
 
   const accomHtml =
-    `<!DOCTYPE html><html><head><meta charset="UTF-8">` +
+    `<!DOCTYPE html><html><head><meta charset="UTF-8"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/static/pretendard.css">` +
     `<title>${year}년 ${month + 1}월 숙박 현황</title>` +
     `<style>${TABLE_COMMON_CSS}.room-cell{font-size:10px;}</style></head><body>` +
     `<h2>${year}년 ${month + 1}월 숙박 현황</h2>` +
