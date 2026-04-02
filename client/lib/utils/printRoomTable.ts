@@ -908,8 +908,7 @@ export function printSchedulerWeekly(
 
   const weekHtmls = weeks
     .map((weekDays) => {
-      const fmt = (d: Date) => `${d.getMonth() + 1}/${d.getDate()}`;
-      const rangeLabel = `${fmt(weekDays[0].date)} ~ ${fmt(weekDays[weekDays.length - 1].date)}`;
+
 
       // 강의실 행 (colspan 스패닝 바)
       const classroomRows = SCHED_CLASSROOM_GROUPS.flatMap((group, gi) =>

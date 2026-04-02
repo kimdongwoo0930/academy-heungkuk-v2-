@@ -350,7 +350,7 @@ export default function ReservationModal({
       const filled = bulkClassrooms.filter((c) => c !== "");
 
       // 기존 데이터 중 새 날짜 범위에 속하는 것 유지, 새 날짜만 빈 값 추가
-      const existingClassrooms = form.classrooms.filter((c) => datesSet.has(c.reservedDate));
+      const existingClassrooms = (form.classrooms ?? []).filter((c) => datesSet.has(c.reservedDate));
       const existingClassroomDates = new Set(existingClassrooms.map((c) => c.reservedDate));
       const newClassrooms: ClassroomReservation[] = dates.flatMap((d) =>
         existingClassroomDates.has(d)
@@ -363,7 +363,7 @@ export default function ReservationModal({
         a.reservedDate < b.reservedDate ? -1 : 1,
       );
 
-      const existingMeals = form.meals.filter((m) => datesSet.has(m.reservedDate));
+      const existingMeals = (form.meals ?? []).filter((m) => datesSet.has(m.reservedDate));
       const existingMealDates = new Set(existingMeals.map((m) => m.reservedDate));
       const newMeals: MealReservation[] = dates
         .filter((d) => !existingMealDates.has(d))
@@ -384,7 +384,7 @@ export default function ReservationModal({
         ? allDates.slice(0, -1).filter(isWeekday)
         : allDates.slice(0, -1);
       const roomRangeSet = new Set(roomRange);
-      const rooms = form.rooms.filter((r) => roomRangeSet.has(String(r.reservedDate)));
+      const rooms = (form.rooms ?? []).filter((r) => roomRangeSet.has(String(r.reservedDate)));
 
       setRoomDates(roomRange);
       setForm((prev) => ({
