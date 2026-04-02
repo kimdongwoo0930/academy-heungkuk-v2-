@@ -8,6 +8,7 @@ import {
   toRequestBody,
   updateReservation,
 } from "@/lib/api/reservation";
+import { printSchedulerWeekly } from "@/lib/utils/printRoomTable";
 import { Reservation } from "@/types/reservation";
 import { isHoliday } from "@hyunbinseo/holidays-kr";
 import { useEffect, useState } from "react";
@@ -234,9 +235,17 @@ export default function SchedulerPage() {
   return (
     <div id="schedulerPrintArea">
       <div className={styles.header}>
-        <button className={styles.printBtn} onClick={() => window.print()}>
-          🖨 인쇄 / PDF
-        </button>
+        <div style={{ display: "flex", gap: 6 }}>
+          <button className={styles.printBtn} onClick={() => window.print()}>
+            🖨 인쇄 / PDF
+          </button>
+          <button
+            className={styles.printBtn}
+            onClick={() => printSchedulerWeekly(year, month, reservations)}
+          >
+            🖨 주차별 인쇄
+          </button>
+        </div>
         <div className={styles.nav}>
           <button className={styles.navBtn} onClick={prevMonth}>
             ‹
@@ -302,36 +311,58 @@ export default function SchedulerPage() {
                     </thead>
                     <tbody>
                       {CLASSROOM_GROUPS.map((group, gi) =>
-                        group.rooms.map((room, ri) => (
-                          <tr key={`${gi}-${ri}`}>
-                            {ri === 0 && (
+                        group.rooms.map((room, ri) => {
+                          // colspan 스패닝: 연속된 같은 예약을 하나의 셀로 묶음
+                          const cells: {
+                            cal: CalDay;
+                            res: ReturnType<typeof getClassroomRes>;
+                            span: number;
+                          }[] = [];
+                          let di = 0;
+                          while (di < halfDays.length) {
+                            const cal = halfDays[di];
+                            const res = getClassroomRes(room.id, cal.dateStr);
+                            if (res) {
+                              let span = 1;
+                              while (di + span < halfDays.length) {
+                                const nr = getClassroomRes(room.id, halfDays[di + span].dateStr);
+                                if (nr && nr.id === res.id) span++;
+                                else break;
+                              }
+                              cells.push({ cal, res, span });
+                              di += span;
+                            } else {
+                              cells.push({ cal, res: undefined, span: 1 });
+                              di++;
+                            }
+                          }
+                          return (
+                            <tr key={`${gi}-${ri}`}>
+                              {ri === 0 && (
+                                <td
+                                  className={`${styles.tdType} ${styles[group.bg]}${gi > 0 ? ` ${styles.groupDivider}` : ""}`}
+                                  rowSpan={group.rooms.length}
+                                >
+                                  {group.type}
+                                </td>
+                              )}
                               <td
-                                className={`${styles.tdType} ${styles[group.bg]}${gi > 0 ? ` ${styles.groupDivider}` : ""}`}
-                                rowSpan={group.rooms.length}
+                                className={`${styles.tdRoom} ${styles[group.bg]}${ri === 0 && gi > 0 ? ` ${styles.groupDivider}` : ""}`}
                               >
-                                {group.type}
+                                {/^\d+$/.test(room.id) ? `${room.id} 호` : room.id}
                               </td>
-                            )}
-                            <td
-                              className={`${styles.tdRoom} ${styles[group.bg]}${ri === 0 && gi > 0 ? ` ${styles.groupDivider}` : ""}`}
-                            >
-                              {/^\d+$/.test(room.id)
-                                ? `${room.id} 호`
-                                : room.id}
-                            </td>
-                            <td
-                              className={`${styles.tdCap} ${styles[group.bg]}${ri === 0 && gi > 0 ? ` ${styles.groupDivider}` : ""}`}
-                            >
-                              {room.cap != null ? `${room.cap} 인` : ""}
-                            </td>
-                            {halfDays.map((cal) => {
-                              const res = getClassroomRes(room.id, cal.dateStr);
-                              return (
+                              <td
+                                className={`${styles.tdCap} ${styles[group.bg]}${ri === 0 && gi > 0 ? ` ${styles.groupDivider}` : ""}`}
+                              >
+                                {room.cap != null ? `${room.cap} 인` : ""}
+                              </td>
+                              {cells.map(({ cal, res, span }) => (
                                 <td
                                   key={cal.dateStr}
+                                  colSpan={span > 1 ? span : undefined}
                                   className={`${tdCls(cal)}${ri === 0 && gi > 0 ? ` ${styles.groupDivider}` : ""}`}
                                   onDoubleClick={() =>
-                                    handleCellDoubleClick(cal.dateStr, room.id)
+                                    !res && handleCellDoubleClick(cal.dateStr, room.id)
                                   }
                                   style={{ cursor: res ? undefined : "cell" }}
                                 >
@@ -350,10 +381,10 @@ export default function SchedulerPage() {
                                     </ReservationTooltip>
                                   )}
                                 </td>
-                              );
-                            })}
-                          </tr>
-                        )),
+                              ))}
+                            </tr>
+                          );
+                        }),
                       )}
                       {/* ── 숙박 섹션 ── */}
                       {(() => {
@@ -395,6 +426,35 @@ export default function SchedulerPage() {
                           <>
                             {lanes.map((lane, idx) => {
                               const isFirst = idx === 0;
+                              // colspan 스패닝
+                              const cells: {
+                                cal: CalDay;
+                                res: Reservation | undefined;
+                                span: number;
+                                isLast: boolean;
+                              }[] = [];
+                              let di = 0;
+                              while (di < halfDays.length) {
+                                const cal = halfDays[di];
+                                const res = lane.find((r) =>
+                                  r.rooms?.some((rm) => String(rm.reservedDate) === cal.dateStr),
+                                );
+                                if (res) {
+                                  let span = 1;
+                                  while (di + span < halfDays.length) {
+                                    const hasNext = res.rooms?.some(
+                                      (rm) => String(rm.reservedDate) === halfDays[di + span].dateStr,
+                                    );
+                                    if (hasNext) span++;
+                                    else break;
+                                  }
+                                  cells.push({ cal, res, span, isLast: di + span === halfDays.length });
+                                  di += span;
+                                } else {
+                                  cells.push({ cal, res: undefined, span: 1, isLast: di + 1 === halfDays.length });
+                                  di++;
+                                }
+                              }
                               return (
                                 <tr key={`lane-${idx}`}>
                                   {isFirst && (
@@ -405,43 +465,26 @@ export default function SchedulerPage() {
                                       숙박
                                     </td>
                                   )}
-                                  <td
-                                    className={`${styles.tdRoom} ${styles.bgAccom} ${isFirst ? styles.roomTopBorder : styles.roomInnerRow}`}
-                                  />
-                                  <td
-                                    className={`${styles.tdCap} ${styles.bgAccom} ${isFirst ? styles.roomTopBorder : styles.roomInnerRow}`}
-                                  />
-                                  {halfDays.map((cal) => {
-                                    const res = lane.find((r) =>
-                                      r.rooms?.some(
-                                        (rm) =>
-                                          String(rm.reservedDate) ===
-                                          cal.dateStr,
-                                      ),
-                                    );
+                                  <td className={`${styles.tdRoom} ${styles.bgAccom} ${isFirst ? styles.roomTopBorder : styles.roomInnerRow}`} />
+                                  <td className={`${styles.tdCap} ${styles.bgAccom} ${isFirst ? styles.roomTopBorder : styles.roomInnerRow}`} />
+                                  {cells.map(({ cal, res, span, isLast }) => {
                                     const endDate = new Date(cal.date);
                                     endDate.setDate(endDate.getDate() + 1);
                                     const endDateStr = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, "0")}-${String(endDate.getDate()).padStart(2, "0")}`;
                                     return (
                                       <td
                                         key={cal.dateStr}
-                                        className={`${tdCls(cal)} ${isFirst ? styles.roomTopBorder : ""} ${cal.dateStr === halfDays[halfDays.length - 1].dateStr ? `${styles.roomRightBorder} ${isFirst ? styles.roomCornerTR : ""}` : ""}`}
+                                        colSpan={span > 1 ? span : undefined}
+                                        className={`${tdCls(cal)} ${isFirst ? styles.roomTopBorder : ""} ${isLast ? `${styles.roomRightBorder} ${isFirst ? styles.roomCornerTR : ""}` : ""}`}
                                         onDoubleClick={() =>
-                                          !res &&
-                                          setCreateDefaults({
-                                            date: cal.dateStr,
-                                            endDate: endDateStr,
-                                          })
+                                          !res && setCreateDefaults({ date: cal.dateStr, endDate: endDateStr })
                                         }
                                       >
                                         {res && (
                                           <ReservationTooltip reservation={res}>
                                             <span
                                               className={styles.bar}
-                                              style={{
-                                                backgroundColor: res.colorCode,
-                                                cursor: "pointer",
-                                              }}
+                                              style={{ backgroundColor: res.colorCode, cursor: "pointer" }}
                                               onClick={() => setEditTarget(res)}
                                             >
                                               {res.organization.slice(0, 6)}

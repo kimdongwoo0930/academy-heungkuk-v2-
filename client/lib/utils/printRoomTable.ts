@@ -793,3 +793,328 @@ export function printAccommodationTable(
 
   openAndPrint(accomHtml);
 }
+
+// ── 일정 현황 주차별 인쇄 ────────────────────────────────────────────────────
+
+const SCHED_CLASSROOM_GROUPS = [
+  { type: "대강의실", bg: "#fffde6", rooms: [{ id: "105", cap: 120 }] },
+  {
+    type: "중강의실",
+    bg: "#fffde6",
+    rooms: [
+      { id: "201", cap: 70 },
+      { id: "203", cap: 50 },
+      { id: "204", cap: 50 },
+    ],
+  },
+  {
+    type: "소강의실",
+    bg: "#fffde6",
+    rooms: [
+      { id: "101", cap: 30 },
+      { id: "102", cap: 20 },
+      { id: "103", cap: 30 },
+      { id: "202", cap: 30 },
+    ],
+  },
+  {
+    type: "분임실",
+    bg: "#e8f5e9",
+    rooms: [
+      { id: "106", cap: 12 },
+      { id: "107", cap: 12 },
+      { id: "205", cap: 12 },
+      { id: "206", cap: 12 },
+    ],
+  },
+  {
+    type: "다목적실",
+    bg: "#e3f0fb",
+    rooms: [
+      { id: "A", cap: 80 },
+      { id: "B", cap: 40 },
+    ],
+  },
+];
+
+const SCHED_WEEK_DAYS = ["일", "월", "화", "수", "목", "금", "토"];
+
+export function printSchedulerWeekly(
+  year: number,
+  month: number,
+  reservations: Reservation[],
+) {
+  // 달력 날짜 생성 (월요일 시작)
+  const firstDayMon = (new Date(year, month, 1).getDay() + 6) % 7; // Mon=0..Sun=6
+  const lastDate = new Date(year, month + 1, 0).getDate();
+  const lastDayMon = (new Date(year, month + 1, 0).getDay() + 6) % 7; // Mon=0..Sun=6
+
+  type SchedDay = { date: Date; dateStr: string; isCurrent: boolean };
+  const calDays: SchedDay[] = [];
+
+  const toStr = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+  for (let i = firstDayMon - 1; i >= 0; i--) {
+    const d = new Date(year, month, -i);
+    calDays.push({ date: d, dateStr: toStr(d), isCurrent: false });
+  }
+  for (let i = 1; i <= lastDate; i++) {
+    const d = new Date(year, month, i);
+    calDays.push({ date: d, dateStr: toStr(d), isCurrent: true });
+  }
+  const trailing = lastDayMon === 6 ? 0 : 6 - lastDayMon;
+  for (let i = 1; i <= trailing; i++) {
+    const d = new Date(year, month + 1, i);
+    calDays.push({ date: d, dateStr: toStr(d), isCurrent: false });
+  }
+
+  // 7일씩 주차 분리 (월요일 시작)
+  const weeks: SchedDay[][] = [];
+  for (let i = 0; i < calDays.length; i += 7) weeks.push(calDays.slice(i, i + 7));
+
+  const getClassroomRes = (roomId: string, dateStr: string) =>
+    reservations.find(
+      (r) =>
+        r.status !== "취소" &&
+        r.classrooms?.some(
+          (c) => c.classroomName === roomId && String(c.reservedDate) === dateStr,
+        ),
+    );
+
+  const getRoomCount = (dateStr: string, type: string) => {
+    let count = 0;
+    reservations.forEach((r) => {
+      if (r.status !== "취소")
+        r.rooms?.forEach((rm) => {
+          if (String(rm.reservedDate) === dateStr && rm.roomType === type) count++;
+        });
+    });
+    return count;
+  };
+
+  const thStyle = (cal: SchedDay) => {
+    if (!cal.isCurrent) return "background:#f0f0f0;color:#aaa;";
+    if (cal.date.getDay() === 0 || cal.date.getDay() === 6)
+      return "background:#fff5f5;color:#e53e3e;";
+    return "";
+  };
+  const tdBg = (cal: SchedDay) => {
+    if (!cal.isCurrent) return "background:#f8f8f8;";
+    if (cal.date.getDay() === 0 || cal.date.getDay() === 6)
+      return "background:#fff8f8;";
+    return "";
+  };
+
+  const weekHtmls = weeks
+    .map((weekDays) => {
+      const fmt = (d: Date) => `${d.getMonth() + 1}/${d.getDate()}`;
+      const rangeLabel = `${fmt(weekDays[0].date)} ~ ${fmt(weekDays[weekDays.length - 1].date)}`;
+
+      // 강의실 행 (colspan 스패닝 바)
+      const classroomRows = SCHED_CLASSROOM_GROUPS.flatMap((group, gi) =>
+        group.rooms.map((room, ri) => {
+          const isFirst = ri === 0;
+          const divider = isFirst && gi > 0 ? "border-top:2px solid #bebcbc;" : "";
+          const cells: string[] = [];
+          let di = 0;
+          while (di < weekDays.length) {
+            const cal = weekDays[di];
+            const res = getClassroomRes(room.id, cal.dateStr);
+            const bg = tdBg(cal) || `background:${group.bg};`;
+            if (res) {
+              let span = 1;
+              while (di + span < weekDays.length) {
+                const next = weekDays[di + span];
+                const nextRes = getClassroomRes(room.id, next.dateStr);
+                if (nextRes && nextRes.id === res.id) span++;
+                else break;
+              }
+              const colAttr = span > 1 ? ` colspan="${span}"` : "";
+              const bar = `<span style="display:block;background:${res.colorCode};color:#fff;border-radius:2px;padding:1px 4px;font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${res.organization.slice(0, 14)}</span>`;
+              cells.push(`<td${colAttr} style="${bg}${divider}">${bar}</td>`);
+              di += span;
+            } else {
+              cells.push(`<td style="${bg}${divider}"></td>`);
+              di++;
+            }
+          }
+          return (
+            `<tr>` +
+            (isFirst
+              ? `<td rowspan="${group.rooms.length}" style="background:${group.bg};font-weight:700;font-size:10px;${divider}">${group.type}</td>`
+              : "") +
+            `<td style="background:${group.bg};font-size:10px;${divider}">${/^\d+$/.test(room.id) ? `${room.id}호` : room.id}</td>` +
+            `<td style="background:${group.bg};font-size:9px;color:#666;${divider}">${room.cap != null ? `${room.cap}인` : ""}</td>` +
+            cells.join("") +
+            `</tr>`
+          );
+        }),
+      ).join("");
+
+      // 숙박 레인 패킹
+      const weekDateSet = new Set(weekDays.map((d) => d.dateStr));
+      const halfRoomRes = reservations.filter(
+        (r) =>
+          r.status !== "취소" &&
+          r.rooms?.some((rm) => weekDateSet.has(String(rm.reservedDate))),
+      );
+      const lanes: Reservation[][] = [];
+      for (const res of halfRoomRes) {
+        const resDates = new Set(res.rooms?.map((rm) => String(rm.reservedDate)) ?? []);
+        let placed = false;
+        for (const lane of lanes) {
+          const conflict = lane.some((r) =>
+            r.rooms?.some((rm) => resDates.has(String(rm.reservedDate))),
+          );
+          if (!conflict) { lane.push(res); placed = true; break; }
+        }
+        if (!placed) lanes.push([res]);
+      }
+
+      const ACCOM_BG = "#fff0f3";
+      const accumTdBg = (cal: SchedDay) => {
+        if (!cal.isCurrent) return `background:#f4e8ea;`;
+        if (cal.date.getDay() === 0 || cal.date.getDay() === 6) return `background:#fde8ee;`;
+        return `background:${ACCOM_BG};`;
+      };
+
+      const RED = "#e53e3e";
+      const laneRows = lanes
+        .map((lane, idx) => {
+          const isFirst = idx === 0;
+          const cells: string[] = [];
+          let di = 0;
+          while (di < weekDays.length) {
+            const cal = weekDays[di];
+            const res = lane.find((r) =>
+              r.rooms?.some((rm) => String(rm.reservedDate) === cal.dateStr),
+            );
+            if (res) {
+              let span = 1;
+              while (di + span < weekDays.length) {
+                const next = weekDays[di + span];
+                if (res.rooms?.some((rm) => String(rm.reservedDate) === next.dateStr)) span++;
+                else break;
+              }
+              const colAttr = span > 1 ? ` colspan="${span}"` : "";
+              const topB = isFirst ? `border-top:2px solid ${RED};` : "";
+              const rightB = di + span === weekDays.length ? `border-right:2px solid ${RED};` : "";
+              const bar = `<span style="display:block;background:${res.colorCode};color:#fff;border-radius:2px;padding:1px 4px;font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${res.organization.slice(0, 14)}</span>`;
+              cells.push(`<td${colAttr} style="${accumTdBg(cal)}${topB}${rightB}">${bar}</td>`);
+              di += span;
+            } else {
+              const topB = isFirst ? `border-top:2px solid ${RED};` : "";
+              const rightB = di + 1 === weekDays.length ? `border-right:2px solid ${RED};` : "";
+              cells.push(`<td style="${accumTdBg(cal)}${topB}${rightB}"></td>`);
+              di++;
+            }
+          }
+          return (
+            `<tr>` +
+            (isFirst
+              ? `<td rowspan="${lanes.length + 1}" style="background:${ACCOM_BG};font-weight:700;font-size:10px;border-top:2px solid ${RED};border-left:2px solid ${RED};border-bottom:2px solid ${RED};">숙박</td>`
+              : "") +
+            `<td style="background:${ACCOM_BG};${isFirst ? `border-top:2px solid ${RED};` : ""}"></td>` +
+            `<td style="background:${ACCOM_BG};${isFirst ? `border-top:2px solid ${RED};` : ""}"></td>` +
+            cells.join("") +
+            `</tr>`
+          );
+        })
+        .join("");
+
+      const noLanes = lanes.length === 0;
+      const totalCells = weekDays
+        .map((cal, ci) => {
+          const c4 = getRoomCount(cal.dateStr, "4인실");
+          const c2 = getRoomCount(cal.dateStr, "2인실");
+          const c1 = getRoomCount(cal.dateStr, "1인실");
+          const total = c4 + c2 + c1;
+          const topB = noLanes ? `border-top:2px solid ${RED};` : "";
+          const rightB = ci === weekDays.length - 1 ? `border-right:2px solid ${RED};` : "";
+          return `<td style="${accumTdBg(cal)}font-weight:700;font-size:9px;border-bottom:2px solid ${RED};${topB}${rightB}">${total > 0 ? `${c4}/${c2}/${c1}` : ""}</td>`;
+        })
+        .join("");
+
+      const totalRow =
+        `<tr>` +
+        (noLanes
+          ? `<td style="background:${ACCOM_BG};font-weight:700;font-size:10px;border-top:2px solid ${RED};border-left:2px solid ${RED};border-bottom:2px solid ${RED};">숙박</td>`
+          : "") +
+        `<td style="background:${ACCOM_BG};font-size:9px;border-bottom:2px solid ${RED};${noLanes ? `border-top:2px solid ${RED};` : `border-left:2px solid ${RED};`}">계(4/2/1인)</td>` +
+        `<td style="background:${ACCOM_BG};border-bottom:2px solid ${RED};${noLanes ? `border-top:2px solid ${RED};` : ""}"></td>` +
+        totalCells +
+        `</tr>`;
+
+      const thCells = weekDays
+        .map(
+          (cal) =>
+            `<th style="${thStyle(cal)}"><div class="date-num">${cal.date.getDate()}일</div>` +
+            `<div class="day-label">${SCHED_WEEK_DAYS[cal.date.getDay()]}</div></th>`,
+        )
+        .join("");
+
+      return (
+        `<div class="week-block">` +
+        `<table><colgroup><col style="width:48px"><col style="width:38px"><col style="width:24px">` +
+        weekDays.map(() => `<col>`).join("") +
+        `</colgroup><thead><tr>` +
+        `<th class="th-fixed">구분</th><th class="th-fixed">호실</th><th class="th-fixed">정원</th>` +
+        thCells +
+        `</tr></thead><tbody>` +
+        classroomRows +
+        laneRows +
+        totalRow +
+        `</tbody></table></div>`
+      );
+    });
+
+  // 2주씩 묶어 page-block으로 감싸기 (제목은 페이지당 1개)
+  let weekBlocks = "";
+  for (let i = 0; i < weekHtmls.length; i += 2) {
+    const isLast = i + 2 >= weekHtmls.length;
+    weekBlocks += `<div class="page-block${isLast ? " page-last" : ""}">`;
+    weekBlocks += `<h2>${year}년 ${month + 1}월 일정 현황</h2>`;
+    weekBlocks += weekHtmls[i];
+    if (i + 1 < weekHtmls.length) weekBlocks += weekHtmls[i + 1];
+    weekBlocks += `</div>`;
+  }
+
+  const html =
+    `<!DOCTYPE html><html><head>` +
+    `<meta charset="UTF-8">` +
+    `<meta name="viewport" content="width=1400">` +
+    `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/static/pretendard.css">` +
+    `<title>${year}년 ${month + 1}월 일정 현황 (주차별)</title>` +
+    `<style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: 'Pretendard', 'Apple SD Gothic Neo', Arial, sans-serif; font-size: 9px; color: #111; background: #e8e8e8; display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 20px; }
+      .page-block { width: 1000px; background: #fff; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.12); padding: 10px 20px; }
+      .week-block + .week-block { border-top: 2px solid #bbb; }
+      h2 { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+      table { width: 100%; border-collapse: collapse; font-size: 8.5px; table-layout: fixed; }
+      th, td { border: 1px solid #ddd; text-align: center; padding: 3px 1px; vertical-align: middle; height: 23px; }
+      .th-fixed { background: #f5f5f5; font-weight: 700; }
+      .date-num { font-size: 9px; font-weight: 700; }
+      .day-label { font-size: 7.5px; color: #666; }
+      @page { size: A3 landscape; margin: 6mm 8mm; }
+      @media print {
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        html, body { width: 100%; height: auto; background: #fff; padding: 0; gap: 0; display: block; }
+        .page-block { page-break-after: always; break-after: page; page-break-inside: avoid; break-inside: avoid; width: 100%; padding: 3mm 6mm; box-shadow: none; border-radius: 0; background: #fff; }
+        .page-last { page-break-after: avoid; break-after: avoid; }
+        h2 { font-size: 12px; margin-bottom: 2mm; }
+      }
+    </style></head><body>` +
+    weekBlocks +
+    `<script>window.onload=function(){window.print();};window.onafterprint=function(){window.close();}</script>` +
+    `</body></html>`;
+
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, "_blank", "width=1200,height=860");
+  if (!win) {
+    alert("팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.");
+    URL.revokeObjectURL(url);
+  }
+}
