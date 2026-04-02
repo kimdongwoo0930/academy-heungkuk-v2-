@@ -346,31 +346,53 @@ export default function ReservationModal({
       };
       const allDates = buildDateRange(start, end);
       const dates = skipWeekends ? allDates.filter(isWeekday) : allDates;
+      const datesSet = new Set(dates);
       const filled = bulkClassrooms.filter((c) => c !== "");
-      const classrooms: ClassroomReservation[] = dates.flatMap((d) =>
-        filled.length > 0
-          ? filled.map((c) => ({ classroomName: c, reservedDate: d }))
-          : [{ classroomName: "", reservedDate: d }],
+
+      // 기존 데이터 중 새 날짜 범위에 속하는 것 유지, 새 날짜만 빈 값 추가
+      const existingClassrooms = form.classrooms.filter((c) => datesSet.has(c.reservedDate));
+      const existingClassroomDates = new Set(existingClassrooms.map((c) => c.reservedDate));
+      const newClassrooms: ClassroomReservation[] = dates.flatMap((d) =>
+        existingClassroomDates.has(d)
+          ? []
+          : filled.length > 0
+            ? filled.map((c) => ({ classroomName: c, reservedDate: d }))
+            : [{ classroomName: "", reservedDate: d }],
       );
-      const meals: MealReservation[] = dates.map((d) => ({
-        reservedDate: d,
-        breakfast: 0,
-        lunch: 0,
-        dinner: 0,
-        specialBreakfast: false,
-        specialLunch: false,
-        specialDinner: false,
-      }));
+      const classrooms = [...existingClassrooms, ...newClassrooms].sort((a, b) =>
+        a.reservedDate < b.reservedDate ? -1 : 1,
+      );
+
+      const existingMeals = form.meals.filter((m) => datesSet.has(m.reservedDate));
+      const existingMealDates = new Set(existingMeals.map((m) => m.reservedDate));
+      const newMeals: MealReservation[] = dates
+        .filter((d) => !existingMealDates.has(d))
+        .map((d) => ({
+          reservedDate: d,
+          breakfast: 0,
+          lunch: 0,
+          dinner: 0,
+          specialBreakfast: false,
+          specialLunch: false,
+          specialDinner: false,
+        }));
+      const meals = [...existingMeals, ...newMeals].sort((a, b) =>
+        a.reservedDate < b.reservedDate ? -1 : 1,
+      );
+
       const roomRange = skipWeekends
         ? allDates.slice(0, -1).filter(isWeekday)
         : allDates.slice(0, -1);
+      const roomRangeSet = new Set(roomRange);
+      const rooms = form.rooms.filter((r) => roomRangeSet.has(String(r.reservedDate)));
+
       setRoomDates(roomRange);
       setForm((prev) => ({
         ...prev,
         [key]: value,
         classrooms,
         meals,
-        rooms: [],
+        rooms,
       }));
     } else {
       setField(key, value);
