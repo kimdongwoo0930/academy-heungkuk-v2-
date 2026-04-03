@@ -325,7 +325,10 @@ export default function SchedulerPage() {
                             if (res) {
                               let span = 1;
                               while (di + span < halfDays.length) {
-                                const nr = getClassroomRes(room.id, halfDays[di + span].dateStr);
+                                const nr = getClassroomRes(
+                                  room.id,
+                                  halfDays[di + span].dateStr,
+                                );
                                 if (nr && nr.id === res.id) span++;
                                 else break;
                               }
@@ -349,7 +352,9 @@ export default function SchedulerPage() {
                               <td
                                 className={`${styles.tdRoom} ${styles[group.bg]}${ri === 0 && gi > 0 ? ` ${styles.groupDivider}` : ""}`}
                               >
-                                {/^\d+$/.test(room.id) ? `${room.id} 호` : room.id}
+                                {/^\d+$/.test(room.id)
+                                  ? `${room.id} 호`
+                                  : room.id}
                               </td>
                               <td
                                 className={`${styles.tdCap} ${styles[group.bg]}${ri === 0 && gi > 0 ? ` ${styles.groupDivider}` : ""}`}
@@ -362,7 +367,8 @@ export default function SchedulerPage() {
                                   colSpan={span > 1 ? span : undefined}
                                   className={`${tdCls(cal)}${ri === 0 && gi > 0 ? ` ${styles.groupDivider}` : ""}`}
                                   onDoubleClick={() =>
-                                    !res && handleCellDoubleClick(cal.dateStr, room.id)
+                                    !res &&
+                                    handleCellDoubleClick(cal.dateStr, room.id)
                                   }
                                   style={{ cursor: res ? undefined : "cell" }}
                                 >
@@ -376,7 +382,7 @@ export default function SchedulerPage() {
                                         }}
                                         onClick={() => setEditTarget(res)}
                                       >
-                                        {res.organization.slice(0, 6)}
+                                        {res.organization}
                                       </span>
                                     </ReservationTooltip>
                                   )}
@@ -437,21 +443,36 @@ export default function SchedulerPage() {
                               while (di < halfDays.length) {
                                 const cal = halfDays[di];
                                 const res = lane.find((r) =>
-                                  r.rooms?.some((rm) => String(rm.reservedDate) === cal.dateStr),
+                                  r.rooms?.some(
+                                    (rm) =>
+                                      String(rm.reservedDate) === cal.dateStr,
+                                  ),
                                 );
                                 if (res) {
                                   let span = 1;
                                   while (di + span < halfDays.length) {
                                     const hasNext = res.rooms?.some(
-                                      (rm) => String(rm.reservedDate) === halfDays[di + span].dateStr,
+                                      (rm) =>
+                                        String(rm.reservedDate) ===
+                                        halfDays[di + span].dateStr,
                                     );
                                     if (hasNext) span++;
                                     else break;
                                   }
-                                  cells.push({ cal, res, span, isLast: di + span === halfDays.length });
+                                  cells.push({
+                                    cal,
+                                    res,
+                                    span,
+                                    isLast: di + span === halfDays.length,
+                                  });
                                   di += span;
                                 } else {
-                                  cells.push({ cal, res: undefined, span: 1, isLast: di + 1 === halfDays.length });
+                                  cells.push({
+                                    cal,
+                                    res: undefined,
+                                    span: 1,
+                                    isLast: di + 1 === halfDays.length,
+                                  });
                                   di++;
                                 }
                               }
@@ -465,8 +486,12 @@ export default function SchedulerPage() {
                                       숙박
                                     </td>
                                   )}
-                                  <td className={`${styles.tdRoom} ${styles.bgAccom} ${isFirst ? styles.roomTopBorder : styles.roomInnerRow}`} />
-                                  <td className={`${styles.tdCap} ${styles.bgAccom} ${isFirst ? styles.roomTopBorder : styles.roomInnerRow}`} />
+                                  <td
+                                    className={`${styles.tdRoom} ${styles.bgAccom} ${isFirst ? styles.roomTopBorder : styles.roomInnerRow}`}
+                                  />
+                                  <td
+                                    className={`${styles.tdCap} ${styles.bgAccom} ${isFirst ? styles.roomTopBorder : styles.roomInnerRow}`}
+                                  />
                                   {cells.map(({ cal, res, span, isLast }) => {
                                     const endDate = new Date(cal.date);
                                     endDate.setDate(endDate.getDate() + 1);
@@ -477,17 +502,24 @@ export default function SchedulerPage() {
                                         colSpan={span > 1 ? span : undefined}
                                         className={`${tdCls(cal)} ${isFirst ? styles.roomTopBorder : ""} ${isLast ? `${styles.roomRightBorder} ${isFirst ? styles.roomCornerTR : ""}` : ""}`}
                                         onDoubleClick={() =>
-                                          !res && setCreateDefaults({ date: cal.dateStr, endDate: endDateStr })
+                                          !res &&
+                                          setCreateDefaults({
+                                            date: cal.dateStr,
+                                            endDate: endDateStr,
+                                          })
                                         }
                                       >
                                         {res && (
                                           <ReservationTooltip reservation={res}>
                                             <span
                                               className={styles.bar}
-                                              style={{ backgroundColor: res.colorCode, cursor: "pointer" }}
+                                              style={{
+                                                backgroundColor: res.colorCode,
+                                                cursor: "pointer",
+                                              }}
                                               onClick={() => setEditTarget(res)}
                                             >
-                                              {res.organization.slice(0, 6)}
+                                              {res.organization}
                                             </span>
                                           </ReservationTooltip>
                                         )}
