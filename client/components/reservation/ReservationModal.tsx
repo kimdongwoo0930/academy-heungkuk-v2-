@@ -207,6 +207,12 @@ export default function ReservationModal({
     return [];
   });
   const [showLoad, setShowLoad] = useState(false);
+  const [showAddress, setShowAddress] = useState(
+    !!(reservation?.companyAddress),
+  );
+  const [showSiteManager, setShowSiteManager] = useState(
+    !!(reservation?.siteManager || reservation?.siteManagerPhone),
+  );
   const [loadSearch, setLoadSearch] = useState("");
   const [form, setForm] = useState<Omit<Reservation, "id" | "reservationCode">>(
     isEdit
@@ -866,44 +872,67 @@ export default function ReservationModal({
                   {dateError}
                 </p>
               )}
-              <label className={`${styles.label} ${styles.fullWidth}`}>
-                <span />
-                <label className={styles.checkboxLabel}>
+              <div className={`${styles.fullWidth} ${styles.checkboxGroup}`}>
+                <div className={styles.checkboxRow}>
+                  <label className={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      checked={skipWeekends}
+                      onChange={(e) => handleSkipWeekendsChange(e.target.checked)}
+                    />
+                    주말 제외
+                  </label>
+                  <label className={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      checked={showAddress}
+                      onChange={(e) => {
+                        setShowAddress(e.target.checked);
+                        if (!e.target.checked) setField("companyAddress", "");
+                      }}
+                    />
+                    업체 주소
+                  </label>
+                  <label className={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      checked={showSiteManager}
+                      onChange={(e) => {
+                        setShowSiteManager(e.target.checked);
+                        if (!e.target.checked) {
+                          setField("siteManager", "");
+                          setField("siteManagerPhone", "");
+                        }
+                      }}
+                    />
+                    현장 담당자
+                  </label>
+                </div>
+                {showAddress && (
                   <input
-                    type="checkbox"
-                    checked={skipWeekends}
-                    onChange={(e) => handleSkipWeekendsChange(e.target.checked)}
+                    className={styles.input}
+                    value={form.companyAddress ?? ""}
+                    onChange={(e) => setField("companyAddress", e.target.value)}
+                    placeholder="업체 주소 입력"
                   />
-                  주말 제외
-                </label>
-              </label>
-              <label className={`${styles.label} ${styles.fullWidth}`}>
-                업체 주소
-                <input
-                  className={styles.input}
-                  value={form.companyAddress ?? ""}
-                  onChange={(e) => setField("companyAddress", e.target.value)}
-                  placeholder="(선택)"
-                />
-              </label>
-              <label className={styles.label}>
-                현장 담당자
-                <input
-                  className={styles.input}
-                  value={form.siteManager ?? ""}
-                  onChange={(e) => setField("siteManager", e.target.value)}
-                  placeholder="(선택)"
-                />
-              </label>
-              <label className={styles.label}>
-                현장 담당자 연락처
-                <input
-                  className={styles.input}
-                  value={form.siteManagerPhone ?? ""}
-                  onChange={(e) => setField("siteManagerPhone", e.target.value)}
-                  placeholder="(선택)"
-                />
-              </label>
+                )}
+                {showSiteManager && (
+                  <div className={styles.row}>
+                    <input
+                      className={styles.input}
+                      value={form.siteManager ?? ""}
+                      onChange={(e) => setField("siteManager", e.target.value)}
+                      placeholder="담당자 이름"
+                    />
+                    <input
+                      className={styles.input}
+                      value={form.siteManagerPhone ?? ""}
+                      onChange={(e) => setField("siteManagerPhone", e.target.value)}
+                      placeholder="연락처"
+                    />
+                  </div>
+                )}
+              </div>
               <label className={`${styles.label} ${styles.fullWidth}`}>
                 색상
                 <div className={styles.colorRow}>

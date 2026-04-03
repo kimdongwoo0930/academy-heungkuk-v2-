@@ -178,12 +178,12 @@
 /* 구분 셀 */
 .tdType {
   font-weight: 700;
-  font-size: 11px;
+  font-size: 12px;
   text-align: center;
 }
 
 .tdRoom {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: #333;
   text-align: center;
@@ -228,7 +228,7 @@
   display: block;
   border-radius: 3px;
   color: #fff;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   padding: 2px 3px;
   overflow: hidden;
@@ -443,7 +443,7 @@
   }
 
   .bar {
-    font-size: 9px !important;
+    font-size: 10px !important;
     padding: 1px 2px !important;
   }
 

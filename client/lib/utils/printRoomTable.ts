@@ -500,7 +500,8 @@ export function printMealTable(
 ) {
   const calDays = buildCalDays(year, month);
   const halves: CalDay[][] = [];
-  for (let i = 0; i < calDays.length; i += 7) halves.push(calDays.slice(i, i + 7));
+  for (let i = 0; i < calDays.length; i += 7)
+    halves.push(calDays.slice(i, i + 7));
 
   const displayedDates = new Set(calDays.map((c) => c.dateStr));
   const activeRes = reservations.filter((r) => {
@@ -513,7 +514,10 @@ export function printMealTable(
     return res?.meals?.find((m) => String(m.reservedDate) === dateStr) ?? null;
   };
 
-  const getDayMealTotal = (dateStr: string, type: "breakfast" | "lunch" | "dinner") => {
+  const getDayMealTotal = (
+    dateStr: string,
+    type: "breakfast" | "lunch" | "dinner",
+  ) => {
     let total = 0;
     activeRes.forEach((r) => {
       const meal = getOrgMeal(r.id, dateStr);
@@ -527,7 +531,9 @@ export function printMealTable(
       const halfActiveRes = activeRes.filter((res) =>
         halfDays.some((cal) => {
           const meal = getOrgMeal(res.id, cal.dateStr);
-          return meal && (meal.breakfast > 0 || meal.lunch > 0 || meal.dinner > 0);
+          return (
+            meal && (meal.breakfast > 0 || meal.lunch > 0 || meal.dinner > 0)
+          );
         }),
       );
 
@@ -560,7 +566,9 @@ export function printMealTable(
           .map((res) => {
             const halfTotal = halfDays.reduce((sum, cal) => {
               const meal = getOrgMeal(res.id, cal.dateStr);
-              return sum + (meal ? meal.breakfast + meal.lunch + meal.dinner : 0);
+              return (
+                sum + (meal ? meal.breakfast + meal.lunch + meal.dinner : 0)
+              );
             }, 0);
             const isConfirmed = res.status === "확정";
             const cells = halfDays
@@ -627,9 +635,18 @@ export function printMealTable(
     .join("");
 
   const monthDates = calDays.filter((c) => c.isCurrent);
-  const monthB = monthDates.reduce((s, c) => s + getDayMealTotal(c.dateStr, "breakfast"), 0);
-  const monthL = monthDates.reduce((s, c) => s + getDayMealTotal(c.dateStr, "lunch"), 0);
-  const monthD = monthDates.reduce((s, c) => s + getDayMealTotal(c.dateStr, "dinner"), 0);
+  const monthB = monthDates.reduce(
+    (s, c) => s + getDayMealTotal(c.dateStr, "breakfast"),
+    0,
+  );
+  const monthL = monthDates.reduce(
+    (s, c) => s + getDayMealTotal(c.dateStr, "lunch"),
+    0,
+  );
+  const monthD = monthDates.reduce(
+    (s, c) => s + getDayMealTotal(c.dateStr, "dinner"),
+    0,
+  );
   const monthTotal = monthB + monthL + monthD;
 
   const mealHtml =
@@ -662,7 +679,8 @@ export function printAccommodationTable(
 ) {
   const calDays = buildCalDays(year, month);
   const halves: CalDay[][] = [];
-  for (let i = 0; i < calDays.length; i += 7) halves.push(calDays.slice(i, i + 7));
+  for (let i = 0; i < calDays.length; i += 7)
+    halves.push(calDays.slice(i, i + 7));
 
   const displayedDates = new Set(calDays.map((c) => c.dateStr));
   const activeRes = reservations.filter((r) => {
@@ -672,13 +690,17 @@ export function printAccommodationTable(
 
   const getRoomsOnDate = (resId: number, dateStr: string) => {
     const res = reservations.find((r) => r.id === resId);
-    return res?.rooms?.filter((rm) => String(rm.reservedDate) === dateStr) ?? [];
+    return (
+      res?.rooms?.filter((rm) => String(rm.reservedDate) === dateStr) ?? []
+    );
   };
 
   const getDayTypeTotal = (dateStr: string, type: RoomTypePrint) => {
     let total = 0;
     activeRes.forEach((r) => {
-      total += getRoomsOnDate(r.id, dateStr).filter((rm) => rm.roomType === type).length;
+      total += getRoomsOnDate(r.id, dateStr).filter(
+        (rm) => rm.roomType === type,
+      ).length;
     });
     return total;
   };
@@ -731,7 +753,9 @@ export function printAccommodationTable(
                 const c2 = rooms.filter((r) => r.roomType === "2인실").length;
                 const c1 = rooms.filter((r) => r.roomType === "1인실").length;
                 const span = (n: number) =>
-                  n > 0 ? `<span style="font-weight:700;color:${cls}">${n}</span>` : "";
+                  n > 0
+                    ? `<span style="font-weight:700;color:${cls}">${n}</span>`
+                    : "";
                 return [
                   `<td class="room-cell" style="${calTdStyle(cal)}">${span(c4)}</td>`,
                   `<td class="room-cell" style="${calTdStyle(cal)}">${span(c2)}</td>`,
@@ -747,7 +771,10 @@ export function printAccommodationTable(
           })
           .join("");
 
-        const grandTotal = halfDays.reduce((s, cal) => s + getDayRoomTotal(cal.dateStr), 0);
+        const grandTotal = halfDays.reduce(
+          (s, cal) => s + getDayRoomTotal(cal.dateStr),
+          0,
+        );
         const totalCells = halfDays
           .flatMap((cal) => {
             const t4 = getDayTypeTotal(cal.dateStr, "4인실");
@@ -771,9 +798,18 @@ export function printAccommodationTable(
     .join("");
 
   const monthDates = calDays.filter((c) => c.isCurrent);
-  const month4 = monthDates.reduce((s, c) => s + getDayTypeTotal(c.dateStr, "4인실"), 0);
-  const month2 = monthDates.reduce((s, c) => s + getDayTypeTotal(c.dateStr, "2인실"), 0);
-  const month1 = monthDates.reduce((s, c) => s + getDayTypeTotal(c.dateStr, "1인실"), 0);
+  const month4 = monthDates.reduce(
+    (s, c) => s + getDayTypeTotal(c.dateStr, "4인실"),
+    0,
+  );
+  const month2 = monthDates.reduce(
+    (s, c) => s + getDayTypeTotal(c.dateStr, "2인실"),
+    0,
+  );
+  const month1 = monthDates.reduce(
+    (s, c) => s + getDayTypeTotal(c.dateStr, "1인실"),
+    0,
+  );
   const monthTotal = month4 + month2 + month1;
 
   const accomHtml =
@@ -871,14 +907,16 @@ export function printSchedulerWeekly(
 
   // 7일씩 주차 분리 (월요일 시작)
   const weeks: SchedDay[][] = [];
-  for (let i = 0; i < calDays.length; i += 7) weeks.push(calDays.slice(i, i + 7));
+  for (let i = 0; i < calDays.length; i += 7)
+    weeks.push(calDays.slice(i, i + 7));
 
   const getClassroomRes = (roomId: string, dateStr: string) =>
     reservations.find(
       (r) =>
         r.status !== "취소" &&
         r.classrooms?.some(
-          (c) => c.classroomName === roomId && String(c.reservedDate) === dateStr,
+          (c) =>
+            c.classroomName === roomId && String(c.reservedDate) === dateStr,
         ),
     );
 
@@ -887,7 +925,8 @@ export function printSchedulerWeekly(
     reservations.forEach((r) => {
       if (r.status !== "취소")
         r.rooms?.forEach((rm) => {
-          if (String(rm.reservedDate) === dateStr && rm.roomType === type) count++;
+          if (String(rm.reservedDate) === dateStr && rm.roomType === type)
+            count++;
         });
     });
     return count;
@@ -906,167 +945,186 @@ export function printSchedulerWeekly(
     return "";
   };
 
-  const weekHtmls = weeks
-    .map((weekDays) => {
-
-
-      // 강의실 행 (colspan 스패닝 바)
-      const classroomRows = SCHED_CLASSROOM_GROUPS.flatMap((group, gi) =>
-        group.rooms.map((room, ri) => {
-          const isFirst = ri === 0;
-          const divider = isFirst && gi > 0 ? "border-top:2px solid #bebcbc;" : "";
-          const cells: string[] = [];
-          let di = 0;
-          while (di < weekDays.length) {
-            const cal = weekDays[di];
-            const res = getClassroomRes(room.id, cal.dateStr);
-            const bg = tdBg(cal) || `background:${group.bg};`;
-            if (res) {
-              let span = 1;
-              while (di + span < weekDays.length) {
-                const next = weekDays[di + span];
-                const nextRes = getClassroomRes(room.id, next.dateStr);
-                if (nextRes && nextRes.id === res.id) span++;
-                else break;
-              }
-              const colAttr = span > 1 ? ` colspan="${span}"` : "";
-              const bar = `<span style="display:block;background:${res.colorCode};color:#fff;border-radius:2px;padding:1px 4px;font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${res.organization.slice(0, 14)}</span>`;
-              cells.push(`<td${colAttr} style="${bg}${divider}">${bar}</td>`);
-              di += span;
-            } else {
-              cells.push(`<td style="${bg}${divider}"></td>`);
-              di++;
+  const weekHtmls = weeks.map((weekDays) => {
+    // 강의실 행 (colspan 스패닝 바)
+    const classroomRows = SCHED_CLASSROOM_GROUPS.flatMap((group, gi) =>
+      group.rooms.map((room, ri) => {
+        const isFirst = ri === 0;
+        const divider =
+          isFirst && gi > 0 ? "border-top:2px solid #bebcbc;" : "";
+        const cells: string[] = [];
+        let di = 0;
+        while (di < weekDays.length) {
+          const cal = weekDays[di];
+          const res = getClassroomRes(room.id, cal.dateStr);
+          const bg = tdBg(cal) || `background:${group.bg};`;
+          if (res) {
+            let span = 1;
+            while (di + span < weekDays.length) {
+              const next = weekDays[di + span];
+              const nextRes = getClassroomRes(room.id, next.dateStr);
+              if (nextRes && nextRes.id === res.id) span++;
+              else break;
             }
+            const colAttr = span > 1 ? ` colspan="${span}"` : "";
+            const bar = `<span style="display:block;background:${res.colorCode};color:#fff;border-radius:2px;padding:1px 4px;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${res.organization} (${res.people}명)</span>`;
+            cells.push(`<td${colAttr} style="${bg}${divider}">${bar}</td>`);
+            di += span;
+          } else {
+            cells.push(`<td style="${bg}${divider}"></td>`);
+            di++;
           }
-          return (
-            `<tr>` +
-            (isFirst
-              ? `<td rowspan="${group.rooms.length}" style="background:${group.bg};font-weight:700;font-size:10px;${divider}">${group.type}</td>`
-              : "") +
-            `<td style="background:${group.bg};font-size:10px;${divider}">${/^\d+$/.test(room.id) ? `${room.id}호` : room.id}</td>` +
-            `<td style="background:${group.bg};font-size:9px;color:#666;${divider}">${room.cap != null ? `${room.cap}인` : ""}</td>` +
-            cells.join("") +
-            `</tr>`
-          );
-        }),
-      ).join("");
-
-      // 숙박 레인 패킹
-      const weekDateSet = new Set(weekDays.map((d) => d.dateStr));
-      const halfRoomRes = reservations.filter(
-        (r) =>
-          r.status !== "취소" &&
-          r.rooms?.some((rm) => weekDateSet.has(String(rm.reservedDate))),
-      );
-      const lanes: Reservation[][] = [];
-      for (const res of halfRoomRes) {
-        const resDates = new Set(res.rooms?.map((rm) => String(rm.reservedDate)) ?? []);
-        let placed = false;
-        for (const lane of lanes) {
-          const conflict = lane.some((r) =>
-            r.rooms?.some((rm) => resDates.has(String(rm.reservedDate))),
-          );
-          if (!conflict) { lane.push(res); placed = true; break; }
         }
-        if (!placed) lanes.push([res]);
-      }
 
-      const ACCOM_BG = "#fff0f3";
-      const accumTdBg = (cal: SchedDay) => {
-        if (!cal.isCurrent) return `background:#f4e8ea;`;
-        if (cal.date.getDay() === 0 || cal.date.getDay() === 6) return `background:#fde8ee;`;
-        return `background:${ACCOM_BG};`;
-      };
+        return (
+          `<tr>` +
+          (isFirst
+            ? `<td rowspan="${group.rooms.length}" style="background:${group.bg};font-weight:700;font-size:15px;${divider}">${group.type}</td>`
+            : "") +
+          `<td style="background:${group.bg};font-size:15px;${divider}">${/^\d+$/.test(room.id) ? `${room.id}호` : room.id}</td>` +
+          `<td style="background:${group.bg};font-size:13px;color:#666;${divider}">${room.cap != null ? `${room.cap}인` : ""}</td>` +
+          cells.join("") +
+          `</tr>`
+        );
+      }),
+    ).join("");
 
-      const RED = "#e53e3e";
-      const laneRows = lanes
-        .map((lane, idx) => {
-          const isFirst = idx === 0;
-          const cells: string[] = [];
-          let di = 0;
-          while (di < weekDays.length) {
-            const cal = weekDays[di];
-            const res = lane.find((r) =>
-              r.rooms?.some((rm) => String(rm.reservedDate) === cal.dateStr),
-            );
-            if (res) {
-              let span = 1;
-              while (di + span < weekDays.length) {
-                const next = weekDays[di + span];
-                if (res.rooms?.some((rm) => String(rm.reservedDate) === next.dateStr)) span++;
-                else break;
-              }
-              const colAttr = span > 1 ? ` colspan="${span}"` : "";
-              const topB = isFirst ? `border-top:2px solid ${RED};` : "";
-              const rightB = di + span === weekDays.length ? `border-right:2px solid ${RED};` : "";
-              const bar = `<span style="display:block;background:${res.colorCode};color:#fff;border-radius:2px;padding:1px 4px;font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${res.organization.slice(0, 14)}</span>`;
-              cells.push(`<td${colAttr} style="${accumTdBg(cal)}${topB}${rightB}">${bar}</td>`);
-              di += span;
-            } else {
-              const topB = isFirst ? `border-top:2px solid ${RED};` : "";
-              const rightB = di + 1 === weekDays.length ? `border-right:2px solid ${RED};` : "";
-              cells.push(`<td style="${accumTdBg(cal)}${topB}${rightB}"></td>`);
-              di++;
-            }
-          }
-          return (
-            `<tr>` +
-            (isFirst
-              ? `<td rowspan="${lanes.length + 1}" style="background:${ACCOM_BG};font-weight:700;font-size:10px;border-top:2px solid ${RED};border-left:2px solid ${RED};border-bottom:2px solid ${RED};">숙박</td>`
-              : "") +
-            `<td style="background:${ACCOM_BG};${isFirst ? `border-top:2px solid ${RED};` : ""}"></td>` +
-            `<td style="background:${ACCOM_BG};${isFirst ? `border-top:2px solid ${RED};` : ""}"></td>` +
-            cells.join("") +
-            `</tr>`
-          );
-        })
-        .join("");
-
-      const noLanes = lanes.length === 0;
-      const totalCells = weekDays
-        .map((cal, ci) => {
-          const c4 = getRoomCount(cal.dateStr, "4인실");
-          const c2 = getRoomCount(cal.dateStr, "2인실");
-          const c1 = getRoomCount(cal.dateStr, "1인실");
-          const total = c4 + c2 + c1;
-          const topB = noLanes ? `border-top:2px solid ${RED};` : "";
-          const rightB = ci === weekDays.length - 1 ? `border-right:2px solid ${RED};` : "";
-          return `<td style="${accumTdBg(cal)}font-weight:700;font-size:9px;border-bottom:2px solid ${RED};${topB}${rightB}">${total > 0 ? `${c4}/${c2}/${c1}` : ""}</td>`;
-        })
-        .join("");
-
-      const totalRow =
-        `<tr>` +
-        (noLanes
-          ? `<td style="background:${ACCOM_BG};font-weight:700;font-size:10px;border-top:2px solid ${RED};border-left:2px solid ${RED};border-bottom:2px solid ${RED};">숙박</td>`
-          : "") +
-        `<td style="background:${ACCOM_BG};font-size:9px;border-bottom:2px solid ${RED};${noLanes ? `border-top:2px solid ${RED};` : `border-left:2px solid ${RED};`}">계(4/2/1인)</td>` +
-        `<td style="background:${ACCOM_BG};border-bottom:2px solid ${RED};${noLanes ? `border-top:2px solid ${RED};` : ""}"></td>` +
-        totalCells +
-        `</tr>`;
-
-      const thCells = weekDays
-        .map(
-          (cal) =>
-            `<th style="${thStyle(cal)}"><div class="date-num">${cal.date.getDate()}일</div>` +
-            `<div class="day-label">${SCHED_WEEK_DAYS[cal.date.getDay()]}</div></th>`,
-        )
-        .join("");
-
-      return (
-        `<div class="week-block">` +
-        `<table><colgroup><col style="width:48px"><col style="width:38px"><col style="width:24px">` +
-        weekDays.map(() => `<col>`).join("") +
-        `</colgroup><thead><tr>` +
-        `<th class="th-fixed">구분</th><th class="th-fixed">호실</th><th class="th-fixed">정원</th>` +
-        thCells +
-        `</tr></thead><tbody>` +
-        classroomRows +
-        laneRows +
-        totalRow +
-        `</tbody></table></div>`
+    // 숙박 레인 패킹
+    const weekDateSet = new Set(weekDays.map((d) => d.dateStr));
+    const halfRoomRes = reservations.filter(
+      (r) =>
+        r.status !== "취소" &&
+        r.rooms?.some((rm) => weekDateSet.has(String(rm.reservedDate))),
+    );
+    const lanes: Reservation[][] = [];
+    for (const res of halfRoomRes) {
+      const resDates = new Set(
+        res.rooms?.map((rm) => String(rm.reservedDate)) ?? [],
       );
-    });
+      let placed = false;
+      for (const lane of lanes) {
+        const conflict = lane.some((r) =>
+          r.rooms?.some((rm) => resDates.has(String(rm.reservedDate))),
+        );
+        if (!conflict) {
+          lane.push(res);
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) lanes.push([res]);
+    }
+
+    const ACCOM_BG = "#fff0f3";
+    const accumTdBg = (cal: SchedDay) => {
+      if (!cal.isCurrent) return `background:#f4e8ea;`;
+      if (cal.date.getDay() === 0 || cal.date.getDay() === 6)
+        return `background:#fde8ee;`;
+      return `background:${ACCOM_BG};`;
+    };
+
+    const RED = "#e53e3e";
+    const laneRows = lanes
+      .map((lane, idx) => {
+        const isFirst = idx === 0;
+        const cells: string[] = [];
+        let di = 0;
+        while (di < weekDays.length) {
+          const cal = weekDays[di];
+          const res = lane.find((r) =>
+            r.rooms?.some((rm) => String(rm.reservedDate) === cal.dateStr),
+          );
+          if (res) {
+            let span = 1;
+            while (di + span < weekDays.length) {
+              const next = weekDays[di + span];
+              if (
+                res.rooms?.some(
+                  (rm) => String(rm.reservedDate) === next.dateStr,
+                )
+              )
+                span++;
+              else break;
+            }
+            const colAttr = span > 1 ? ` colspan="${span}"` : "";
+            const topB = isFirst ? `border-top:2px solid ${RED};` : "";
+            const rightB =
+              di + span === weekDays.length
+                ? `border-right:2px solid ${RED};`
+                : "";
+            const bar = `<span style="display:block;background:${res.colorCode};color:#fff;border-radius:2px;padding:1px 4px;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${res.organization} (${res.people}명)</span>`;
+            cells.push(
+              `<td${colAttr} style="${accumTdBg(cal)}${topB}${rightB}">${bar}</td>`,
+            );
+            di += span;
+          } else {
+            const topB = isFirst ? `border-top:2px solid ${RED};` : "";
+            const rightB =
+              di + 1 === weekDays.length
+                ? `border-right:2px solid ${RED};`
+                : "";
+            cells.push(`<td style="${accumTdBg(cal)}${topB}${rightB}"></td>`);
+            di++;
+          }
+        }
+        return (
+          `<tr>` +
+          (isFirst
+            ? `<td rowspan="${lanes.length + 1}" style="background:${ACCOM_BG};font-weight:700;font-size:15px;border-top:2px solid ${RED};border-left:2px solid ${RED};border-bottom:2px solid ${RED};">숙박</td>`
+            : "") +
+          `<td style="background:${ACCOM_BG};${isFirst ? `border-top:2px solid ${RED};` : ""}"></td>` +
+          `<td style="background:${ACCOM_BG};${isFirst ? `border-top:2px solid ${RED};` : ""}"></td>` +
+          cells.join("") +
+          `</tr>`
+        );
+      })
+      .join("");
+
+    const noLanes = lanes.length === 0;
+    const totalCells = weekDays
+      .map((cal, ci) => {
+        const c4 = getRoomCount(cal.dateStr, "4인실");
+        const c2 = getRoomCount(cal.dateStr, "2인실");
+        const c1 = getRoomCount(cal.dateStr, "1인실");
+        const total = c4 + c2 + c1;
+        const topB = noLanes ? `border-top:2px solid ${RED};` : "";
+        const rightB =
+          ci === weekDays.length - 1 ? `border-right:2px solid ${RED};` : "";
+        return `<td style="${accumTdBg(cal)}font-weight:700;border-bottom:2px solid ${RED};${topB}${rightB}">${total > 0 ? `${c4}/${c2}/${c1}` : ""}</td>`;
+      })
+      .join("");
+
+    const totalRow =
+      `<tr class="total-row">` +
+      (noLanes
+        ? `<td style="background:${ACCOM_BG};font-weight:700;font-size:13px;border-top:2px solid ${RED};border-left:2px solid ${RED};border-bottom:2px solid ${RED};">숙박</td>`
+        : "") +
+      `<td style="background:${ACCOM_BG};font-size:13px;border-bottom:2px solid ${RED};${noLanes ? `border-top:2px solid ${RED};` : `border-left:2px solid ${RED};`}">계(4/2/1인)</td>` +
+      `<td style="background:${ACCOM_BG};border-bottom:2px solid ${RED};${noLanes ? `border-top:2px solid ${RED};` : ""}"></td>` +
+      totalCells +
+      `</tr>`;
+
+    const thCells = weekDays
+      .map(
+        (cal) =>
+          `<th style="${thStyle(cal)}"><span class="date-num">${cal.date.getDate()}일</span> <span class="day-label">(${SCHED_WEEK_DAYS[cal.date.getDay()]})</span></th>`,
+      )
+      .join("");
+
+    return (
+      `<div class="week-block">` +
+      `<table><colgroup><col style="width:90px"><col style="width:70px"><col style="width:50px">` +
+      weekDays.map(() => `<col>`).join("") +
+      `</colgroup><thead><tr>` +
+      `<th class="th-fixed">구분</th><th class="th-fixed">호실</th><th class="th-fixed">정원</th>` +
+      thCells +
+      `</tr></thead><tbody>` +
+      classroomRows +
+      laneRows +
+      totalRow +
+      `</tbody></table></div>`
+    );
+  });
 
   // 2주씩 묶어 page-block으로 감싸기 (제목은 페이지당 1개)
   let weekBlocks = "";
@@ -1091,11 +1149,13 @@ export function printSchedulerWeekly(
       .page-block { width: 1000px; background: #fff; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.12); padding: 10px 20px; }
       .week-block + .week-block { border-top: 2px solid #bbb; }
       h2 { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
-      table { width: 100%; border-collapse: collapse; font-size: 8.5px; table-layout: fixed; }
-      th, td { border: 1px solid #ddd; text-align: center; padding: 3px 1px; vertical-align: middle; height: 23px; }
+      table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+      th, td { border: 1px solid #ddd; text-align: center; padding: 3px 1px; vertical-align: middle; height: 26px; }
       .th-fixed { background: #f5f5f5; font-weight: 700; }
-      .date-num { font-size: 9px; font-weight: 700; }
-      .day-label { font-size: 7.5px; color: #666; }
+      .total-row td { height: 15px; padding: 1px; font-size: 10px; white-space: nowrap; overflow: hidden; }
+
+      .date-num { font-size: 11px; font-weight: 700; }
+      .day-label { font-size: 11px; }
       @page { size: A3 landscape; margin: 6mm 8mm; }
       @media print {
         * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
