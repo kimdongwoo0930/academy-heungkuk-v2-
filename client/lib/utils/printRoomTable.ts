@@ -920,18 +920,6 @@ export function printSchedulerWeekly(
         ),
     );
 
-  const getRoomCount = (dateStr: string, type: string) => {
-    let count = 0;
-    reservations.forEach((r) => {
-      if (r.status !== "취소")
-        r.rooms?.forEach((rm) => {
-          if (String(rm.reservedDate) === dateStr && rm.roomType === type)
-            count++;
-        });
-    });
-    return count;
-  };
-
   const thStyle = (cal: SchedDay) => {
     if (!cal.isCurrent) return "background:#f0f0f0;color:#aaa;";
     if (cal.date.getDay() === 0 || cal.date.getDay() === 6)
@@ -967,7 +955,7 @@ export function printSchedulerWeekly(
               else break;
             }
             const colAttr = span > 1 ? ` colspan="${span}"` : "";
-            const bar = `<span style="display:block;background:${res.colorCode};color:#fff;border-radius:2px;padding:1px 4px;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${res.organization} (${res.people}명)</span>`;
+            const bar = `<span style="display:block;background:${res.colorCode};color:#fff;border-radius:2px;padding:1px 4px;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;">${res.organization} (${res.people}명)</span>`;
             cells.push(`<td${colAttr} style="${bg}${divider}">${bar}</td>`);
             di += span;
           } else {
@@ -1027,6 +1015,7 @@ export function printSchedulerWeekly(
     const laneRows = lanes
       .map((lane, idx) => {
         const isFirst = idx === 0;
+        const isLast = idx === lanes.length - 1;
         const cells: string[] = [];
         let di = 0;
         while (di < weekDays.length) {
@@ -1048,61 +1037,41 @@ export function printSchedulerWeekly(
             }
             const colAttr = span > 1 ? ` colspan="${span}"` : "";
             const topB = isFirst ? `border-top:2px solid ${RED};` : "";
+            const bottomB = isLast ? `border-bottom:2px solid ${RED};` : "";
             const rightB =
               di + span === weekDays.length
                 ? `border-right:2px solid ${RED};`
                 : "";
-            const bar = `<span style="display:block;background:${res.colorCode};color:#fff;border-radius:2px;padding:1px 4px;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${res.organization} (${res.people}명)</span>`;
+            const bar = `<span style="display:block;background:${res.colorCode};color:#fff;border-radius:2px;padding:1px 4px;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;">${res.organization} (${res.people}명)</span>`;
             cells.push(
-              `<td${colAttr} style="${accumTdBg(cal)}${topB}${rightB}">${bar}</td>`,
+              `<td${colAttr} style="${accumTdBg(cal)}${topB}${bottomB}${rightB}">${bar}</td>`,
             );
             di += span;
           } else {
             const topB = isFirst ? `border-top:2px solid ${RED};` : "";
+            const bottomB = isLast ? `border-bottom:2px solid ${RED};` : "";
             const rightB =
               di + 1 === weekDays.length
                 ? `border-right:2px solid ${RED};`
                 : "";
-            cells.push(`<td style="${accumTdBg(cal)}${topB}${rightB}"></td>`);
+            cells.push(
+              `<td style="${accumTdBg(cal)}${topB}${bottomB}${rightB}"></td>`,
+            );
             di++;
           }
         }
         return (
           `<tr>` +
           (isFirst
-            ? `<td rowspan="${lanes.length + 1}" style="background:${ACCOM_BG};font-weight:700;font-size:15px;border-top:2px solid ${RED};border-left:2px solid ${RED};border-bottom:2px solid ${RED};">숙박</td>`
+            ? `<td rowspan="${lanes.length}" style="background:${ACCOM_BG};font-weight:700;font-size:15px;border-top:2px solid ${RED};border-left:2px solid ${RED};border-bottom:2px solid ${RED};">숙박</td>`
             : "") +
-          `<td style="background:${ACCOM_BG};${isFirst ? `border-top:2px solid ${RED};` : ""}"></td>` +
-          `<td style="background:${ACCOM_BG};${isFirst ? `border-top:2px solid ${RED};` : ""}"></td>` +
+          `<td style="background:${ACCOM_BG};${isFirst ? `border-top:2px solid ${RED};` : ""}${isLast ? `border-bottom:2px solid ${RED};` : ""}"></td>` +
+          `<td style="background:${ACCOM_BG};${isFirst ? `border-top:2px solid ${RED};` : ""}${isLast ? `border-bottom:2px solid ${RED};` : ""}"></td>` +
           cells.join("") +
           `</tr>`
         );
       })
       .join("");
-
-    const noLanes = lanes.length === 0;
-    const totalCells = weekDays
-      .map((cal, ci) => {
-        const c4 = getRoomCount(cal.dateStr, "4인실");
-        const c2 = getRoomCount(cal.dateStr, "2인실");
-        const c1 = getRoomCount(cal.dateStr, "1인실");
-        const total = c4 + c2 + c1;
-        const topB = noLanes ? `border-top:2px solid ${RED};` : "";
-        const rightB =
-          ci === weekDays.length - 1 ? `border-right:2px solid ${RED};` : "";
-        return `<td style="${accumTdBg(cal)}font-weight:700;border-bottom:2px solid ${RED};${topB}${rightB}">${total > 0 ? `${c4}/${c2}/${c1}` : ""}</td>`;
-      })
-      .join("");
-
-    const totalRow =
-      `<tr class="total-row">` +
-      (noLanes
-        ? `<td style="background:${ACCOM_BG};font-weight:700;font-size:13px;border-top:2px solid ${RED};border-left:2px solid ${RED};border-bottom:2px solid ${RED};">숙박</td>`
-        : "") +
-      `<td style="background:${ACCOM_BG};font-size:13px;border-bottom:2px solid ${RED};${noLanes ? `border-top:2px solid ${RED};` : `border-left:2px solid ${RED};`}">계(4/2/1인)</td>` +
-      `<td style="background:${ACCOM_BG};border-bottom:2px solid ${RED};${noLanes ? `border-top:2px solid ${RED};` : ""}"></td>` +
-      totalCells +
-      `</tr>`;
 
     const thCells = weekDays
       .map(
@@ -1120,8 +1089,7 @@ export function printSchedulerWeekly(
       thCells +
       `</tr></thead><tbody>` +
       classroomRows +
-      laneRows +
-      totalRow +
+      (lanes.length > 0 ? laneRows : "") +
       `</tbody></table></div>`
     );
   });
@@ -1147,16 +1115,16 @@ export function printSchedulerWeekly(
       * { box-sizing: border-box; margin: 0; padding: 0; }
       body { font-family: 'Pretendard', 'Apple SD Gothic Neo', Arial, sans-serif; font-size: 9px; color: #111; background: #e8e8e8; display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 20px; }
       .page-block { width: 1000px; background: #fff; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.12); padding: 10px 20px; }
-      .week-block + .week-block { border-top: 2px solid #bbb; }
+      .week-block + .week-block { border-top: 4px solid #000000; margin-top: 10px; padding-top: 10px; }
       h2 { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
       table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
-      th, td { border: 1px solid #ddd; text-align: center; padding: 3px 1px; vertical-align: middle; height: 26px; }
+      th, td { border: 1px solid #ddd; text-align: center; padding: 3px 1px; vertical-align: middle; height: 28px; }
       .th-fixed { background: #f5f5f5; font-weight: 700; }
       .total-row td { height: 15px; padding: 1px; font-size: 10px; white-space: nowrap; overflow: hidden; }
 
-      .date-num { font-size: 11px; font-weight: 700; }
-      .day-label { font-size: 11px; }
-      @page { size: A3 landscape; margin: 6mm 8mm; }
+      .date-num { font-size: 15px; font-weight: 700; }
+      .day-label { font-size: 15px; }
+      @page { size: A3 landscape; margin: 2mm 4mm; }
       @media print {
         * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         html, body { width: 100%; height: auto; background: #fff; padding: 0; gap: 0; display: block; }
