@@ -22,7 +22,7 @@ import com.heungkuk.academy.domain.reservation.service.ExcelService;
 import com.heungkuk.academy.domain.reservation.service.ReservationService;
 import com.heungkuk.academy.global.response.CommonResponse;
 
-@Tag(name = "Excel", description = "견적서 / 거래명세서 / 내보내기 / 가져오기 API")
+@Tag(name = "Excel", description = "견적서 / 거래명세서 / 확인서 / 내보내기 / 가져오기 API")
 @SecurityRequirement(name = "Bearer")
 @RestController
 @RequestMapping("/v1/admin/reservations")
@@ -60,6 +60,15 @@ public class ExcelController {
         byte[] bytes = excelService.generateTrade(id);
         String org = reservationService.getReservation(id).getOrganization();
         return xlsxResponse(bytes, "흥국생명용인연수원_거래명세서_" + org);
+    }
+
+    @Operation(summary = "확인서 다운로드")
+    @GetMapping("/{id}/confirmation")
+    public ResponseEntity<byte[]> downloadConfirmation(
+            @Parameter(description = "예약 ID") @PathVariable Long id) {
+        byte[] bytes = excelService.generateConfirmation(id);
+        String org = reservationService.getReservation(id).getOrganization();
+        return xlsxResponse(bytes, "흥국생명용인연수원_확인서_" + org);
     }
 
     @Operation(summary = "예약 데이터 Excel 내보내기")

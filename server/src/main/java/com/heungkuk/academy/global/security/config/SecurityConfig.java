@@ -42,6 +42,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,
                                 "/v1/admin/reservations/*/estimate",
                                 "/v1/admin/reservations/*/trade",
+                                "/v1/admin/reservations/*/confirmation",
                                 "/v1/admin/reservations/export")
                         .hasAuthority("ROLE_ADMIN")
                         // 그 외 GET 조회는 인증된 사용자라면 누구나 가능

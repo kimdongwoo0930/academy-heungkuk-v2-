@@ -508,7 +508,16 @@ GET /v1/admin/reservations/{id}/trade
 **Response** — 위와 동일 형식
 파일명: `흥국생명용인연수원_거래명세서_{단체명}.xlsx`
 
-### 4-3. 전체 예약 데이터 내보내기
+### 4-3. 확인서 다운로드
+
+```
+GET /v1/admin/reservations/{id}/confirmation
+```
+
+**Response** — 위와 동일 형식
+파일명: `흥국생명용인연수원_확인서_{단체명}.xlsx`
+
+### 4-4. 전체 예약 데이터 내보내기
 
 ```
 GET /v1/admin/reservations/export
@@ -516,7 +525,7 @@ GET /v1/admin/reservations/export
 
 **Response** — Excel 파일 다운로드 (`reservations_export.xlsx`)
 
-### 4-4. 예약 데이터 가져오기
+### 4-5. 예약 데이터 가져오기
 
 ```
 POST /v1/admin/reservations/import

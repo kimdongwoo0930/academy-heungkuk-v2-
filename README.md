@@ -102,6 +102,7 @@
 | ------ | ----------------------------------- | --------------------------- |
 | GET    | `/admin/reservations/{id}/estimate` | 견적서 Excel 다운로드       |
 | GET    | `/admin/reservations/{id}/trade`    | 거래명세서 Excel 다운로드   |
+| GET    | `/admin/reservations/{id}/confirmation` | 확인서 Excel 다운로드   |
 | GET    | `/admin/reservations/export`        | 전체 예약 데이터 내보내기   |
 | POST   | `/admin/reservations/import`        | 예약 데이터 Excel 가져오기  |
 

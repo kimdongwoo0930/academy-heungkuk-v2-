@@ -723,6 +723,21 @@
 .tradeBtn:hover { background: #eef6fc; }
 .tradeBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+.confirmationBtn {
+  height: 30px;
+  padding: 0 12px;
+  background: #fff;
+  color: #d97706;
+  border: 1.5px solid #d97706;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.confirmationBtn:hover { background: #fff7ed; }
+.confirmationBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
 .estimateBtn {
   height: 30px;
   padding: 0 12px;

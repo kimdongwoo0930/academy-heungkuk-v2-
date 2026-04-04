@@ -449,6 +449,152 @@ public class ExcelServiceImpl implements ExcelService {
         }
     }
 
+    /**
+     * 확인서 xlsx 생성 후 byte[] 반환.
+     */
+    @Override
+    public byte[] generateConfirmation(Long reservationId) {
+        Reservation res = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
+        List<RoomReservation> rooms = roomReservationRepository.findByReservation(res);
+        List<ClassroomReservation> classrooms =
+                classroomReservationRepository.findByReservation(res);
+        List<MealReservation> meals = mealReservationRepository.findByReservation(res);
+
+        try (InputStream is = getClass().getResourceAsStream("/templates/confirmation_template.xlsx")) {
+            if (is == null) {
+                throw new RuntimeException(
+                        "확인서 템플릿이 없습니다. /templates/confirmation_template.xlsx 파일을 추가해주세요.");
+            }
+
+            try (XSSFWorkbook wb = new XSSFWorkbook(is)) {
+                XSSFSheet sheet = wb.getSheetAt(0);
+                fillConfirmationSheet(sheet, res, rooms, classrooms, meals);
+
+                wb.setForceFormulaRecalculation(true);
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                wb.write(out);
+                return out.toByteArray();
+            }
+        } catch (IOException e) {
+            log.error("확인서 생성 실패 reservationId={}", reservationId, e);
+            throw new RuntimeException("확인서 생성 중 오류가 발생했습니다.");
+        }
+    }
+
+    private void fillConfirmationSheet(XSSFSheet sheet, Reservation res, List<RoomReservation> rooms,
+            List<ClassroomReservation> classrooms, List<MealReservation> meals) {
+        setStr(sheet, 5, 7, nvl(res.getOrganization())); // H6: 회사명
+        setStr(sheet, 6, 7, nvl(res.getCompanyAddress())); // H7: 주소
+
+        setStr(sheet, 7, 10, nvl(res.getCustomer())); // K8: 신청인 성명
+        setStr(sheet, 7, 19, nvl(res.getCustomerPhone())); // T8: 신청인 연락처
+        setStr(sheet, 7, 37, nvl(res.getCustomerEmail())); // AL8: 신청인 이메일
+
+        setStr(sheet, 8, 10, nvl(res.getSiteManager())); // K9: 현장담당자 성명
+        setStr(sheet, 8, 19, nvl(res.getSiteManagerPhone())); // T9: 현장담당자 연락처
+
+        setStr(sheet, 11, 10, formatDateWithDay(res.getStartDate())); // K12: 입소일(요일)
+        setStr(sheet, 11, 29, formatDateWithDay(res.getEndDate())); // AD12: 퇴소일(요일)
+        setStr(sheet, 20, 13, formatDateWithDay(
+                res.getStartDate() != null ? res.getStartDate().minusDays(4) : null)); // N21~X21
+
+        fillConfirmationMeals(sheet, meals);
+        fillConfirmationFacilities(sheet, rooms, classrooms);
+    }
+
+    private void fillConfirmationMeals(XSSFSheet sheet, List<MealReservation> meals) {
+        // 식수현황: I16/O16/U16 날짜 + I17/O17/U17(조), I18/O18/U18(중), I19/O19/U19(석)
+        List<LocalDate> dates = meals.stream().map(MealReservation::getMealDate).distinct().sorted()
+                .limit(3).toList();
+        int[] dateCols = {8, 14, 20}; // I, O, U
+
+        for (int i = 0; i < dates.size(); i++) {
+            LocalDate d = dates.get(i);
+            int col = dateCols[i];
+            setStr(sheet, 15, col, formatDayWithDay(d)); // row16: 16일(화)
+
+            int breakfast = 0;
+            int lunch = 0;
+            int dinner = 0;
+            for (MealReservation m : meals) {
+                if (!d.equals(m.getMealDate()))
+                    continue;
+                breakfast += nvlInt(m.getBreakfast());
+                lunch += nvlInt(m.getLunch());
+                dinner += nvlInt(m.getDinner());
+            }
+
+            setLongNz(sheet, 16, col, breakfast); // row17 조
+            setLongNz(sheet, 17, col, lunch); // row18 중
+            setLongNz(sheet, 18, col, dinner); // row19 석
+        }
+    }
+
+    private void fillConfirmationFacilities(XSSFSheet sheet, List<RoomReservation> rooms,
+            List<ClassroomReservation> classrooms) {
+        // 숙소: row23 STU(1인실), AC AD(2인실), AO AP(4인실)
+        long onePersonRooms = rooms.stream()
+                .filter(r -> "1인실".equals(ROOM_TYPE.getOrDefault(r.getRoomNumber(), "")))
+                .map(RoomReservation::getRoomNumber).distinct().count();
+        long twoPersonRooms = rooms.stream()
+                .filter(r -> "2인실".equals(ROOM_TYPE.getOrDefault(r.getRoomNumber(), "")))
+                .map(RoomReservation::getRoomNumber).distinct().count();
+        long fourPersonRooms = rooms.stream()
+                .filter(r -> "4인실".equals(ROOM_TYPE.getOrDefault(r.getRoomNumber(), "")))
+                .map(RoomReservation::getRoomNumber).distinct().count();
+
+        setLongNz(sheet, 22, 18, onePersonRooms); // S23
+        setLongNz(sheet, 22, 28, twoPersonRooms); // AC23
+        setLongNz(sheet, 22, 40, fourPersonRooms); // AO23
+
+        // 강의실: row24 N~AS (여러 개면 콤마 구분)
+        String classroomNames = classrooms.stream().map(ClassroomReservation::getClassroom).distinct()
+                .sorted((a, b) -> {
+                    boolean aNum = a.chars().allMatch(Character::isDigit);
+                    boolean bNum = b.chars().allMatch(Character::isDigit);
+                    if (aNum && bNum)
+                        return Integer.compare(Integer.parseInt(a), Integer.parseInt(b));
+                    if (aNum)
+                        return -1;
+                    if (bNum)
+                        return 1;
+                    return a.compareTo(b);
+                })
+                .map(this::formatClassroomLabel)
+                .distinct()
+                .collect(Collectors.joining(", "));
+        setStr(sheet, 23, 13, classroomNames); // N24
+
+        // 다목적실: row27 T~AD (A/B 사용 시 표시)
+        String multipurpose = classrooms.stream().map(ClassroomReservation::getClassroom).distinct()
+                .filter(c -> "A".equals(c) || "B".equals(c)).sorted()
+                .collect(Collectors.joining(", "));
+        setStr(sheet, 26, 19, multipurpose); // T27
+    }
+
+    private String formatDayWithDay(LocalDate date) {
+        if (date == null)
+            return "";
+        String day = DAY_NAMES[date.getDayOfWeek().getValue() % 7];
+        return date.getDayOfMonth() + "일(" + day + ")";
+    }
+
+    private String formatClassroomLabel(String classroom) {
+        String category = CLASSROOM_CATEGORY.getOrDefault(classroom, "");
+        if ("다목적실".equals(category))
+            return "다목적실";
+
+        int start = category.indexOf('(');
+        int end = category.indexOf(')');
+        String capacity = (start >= 0 && end > start) ? category.substring(start + 1, end) : "";
+
+        if (capacity.isBlank()) {
+            return classroom.chars().allMatch(Character::isDigit) ? classroom + "호" : classroom;
+        }
+        return capacity + "용(" + classroom + "호)";
+    }
+
     private List<TradeItem> buildTradeItems(List<RoomReservation> rooms,
             List<ClassroomReservation> classrooms, Map<String, String> settings, long roomPrice) {
 

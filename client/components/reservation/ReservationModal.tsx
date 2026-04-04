@@ -8,7 +8,11 @@ import {
 } from "@/types/reservation";
 import { useRef, useState } from "react";
 // RoomReservation used in handleRoomConfirm type annotation
-import { downloadEstimate, downloadTrade } from "@/lib/api/reservation";
+import {
+  downloadConfirmation,
+  downloadEstimate,
+  downloadTrade,
+} from "@/lib/api/reservation";
 import { CLASSROOM_ROOM_TO_CATEGORY } from "@/lib/constants/classrooms";
 import { ROOM_INFO, RoomType } from "@/lib/constants/rooms";
 import { printRoomTableIntegrated } from "@/lib/utils/printRoomTable";
@@ -110,6 +114,7 @@ export default function ReservationModal({
   const isEdit = reservation !== null;
   const [saving, setSaving] = useState(false);
   const [estimating, setEstimating] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const [trading, setTrading] = useState(false);
 
   // 드래그
@@ -1503,6 +1508,25 @@ export default function ReservationModal({
                   }}
                 >
                   {trading ? "생성 중..." : "거래명세서"}
+                </button>
+                <button
+                  className={styles.confirmationBtn}
+                  disabled={confirming}
+                  onClick={async () => {
+                    setConfirming(true);
+                    try {
+                      await downloadConfirmation(
+                        reservation.id,
+                        reservation.organization,
+                      );
+                    } catch {
+                      alert("확인서 생성에 실패했습니다.");
+                    } finally {
+                      setConfirming(false);
+                    }
+                  }}
+                >
+                  {confirming ? "생성 중..." : "확인서"}
                 </button>
                 <button
                   className={styles.estimateBtn}
