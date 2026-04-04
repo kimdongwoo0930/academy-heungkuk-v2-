@@ -171,6 +171,18 @@ export async function downloadEstimate(id: number, org?: string): Promise<void> 
   URL.revokeObjectURL(url);
 }
 
+export async function downloadConfirmation(id: number, org?: string): Promise<void> {
+  const res = await instance.get(`/v1/admin/reservations/${id}/confirmation`, {
+    responseType: 'blob',
+  });
+  const url = URL.createObjectURL(new Blob([res.data]));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = org ? `확인서_${org}.xlsx` : `확인서_${id}.xlsx`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export async function exportReservations(): Promise<void> {
   const res = await instance.get('/v1/admin/reservations/export', {
     responseType: 'blob',

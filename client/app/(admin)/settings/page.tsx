@@ -1,12 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { AccountInfo, getAccounts, updateAccountRole, deleteAccount, createAccount, updateAccountPassword } from '@/lib/api/account';
-import { getSettings, saveSettings } from '@/lib/api/settings';
+import { AccountInfo, createAccount, deleteAccount, getAccounts, updateAccountPassword, updateAccountRole } from '@/lib/api/account';
 import { exportReservations, importReservations, ImportResult } from '@/lib/api/reservation';
-import { isAdmin, parseJwtPayload } from '@/lib/utils/auth';
+import { getSettings, saveSettings } from '@/lib/api/settings';
 import { CLASSROOM_CATEGORIES } from '@/lib/constants/classrooms';
+import { isAdmin, parseJwtPayload } from '@/lib/utils/auth';
 import {
   AppSettings,
   getDefaultAppSettings,
@@ -14,6 +12,8 @@ import {
   serializeSettings,
   setCachedSettings,
 } from '@/lib/utils/priceSettings';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import styles from './page.module.css';
 
 function getCurrentUserId(): string | null {
@@ -60,7 +60,7 @@ export default function SettingsPage() {
         setAppSettings(parsed);
         setCachedSettings(parsed);
       })
-      .catch(() => {/* 서버 미설정 시 기본값 사용 */});
+      .catch(() => {/* 서버 미설정 시 기본값 사용 */ });
   }, []);
 
   const handleSettingsSave = async () => {

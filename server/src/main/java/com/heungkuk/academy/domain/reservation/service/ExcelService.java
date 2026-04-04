@@ -17,4 +17,7 @@ public interface ExcelService {
 
     /** 거래명세서 xlsx 생성 (템플릿 기반, 예약 ID 기준) */
     byte[] generateTrade(Long reservationId);
+
+    /** 확인서 xlsx 생성 (예약 ID 기준) */
+    byte[] generateConfirmation(Long reservationId);
 }

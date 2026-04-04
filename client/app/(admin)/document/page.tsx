@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { searchReservations, downloadEstimate, downloadTrade } from '@/lib/api/reservation';
+import { searchReservations, downloadEstimate, downloadTrade, downloadConfirmation } from '@/lib/api/reservation';
 import { Reservation } from '@/types/reservation';
 import styles from './page.module.css';
 
@@ -24,6 +24,7 @@ export default function DocumentPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
+  const [confirmingId, setConfirmingId] = useState<number | null>(null);
   const [tradingId, setTradingId] = useState<number | null>(null);
 
   const fetchList = useCallback(async (
@@ -77,6 +78,15 @@ export default function DocumentPage() {
       await downloadTrade(id, org);
     } finally {
       setTradingId(null);
+    }
+  };
+
+  const handleConfirmation = async (id: number, org: string) => {
+    setConfirmingId(id);
+    try {
+      await downloadConfirmation(id, org);
+    } finally {
+      setConfirmingId(null);
     }
   };
 
@@ -176,8 +186,12 @@ export default function DocumentPage() {
                   >
                     {downloadingId === r.id ? '생성 중...' : '견적서'}
                   </button>
-                  <button className={`${styles.docBtn} ${styles.soonBtn}`} disabled>
-                    확인서
+                  <button
+                    className={styles.docBtn}
+                    disabled={confirmingId === r.id}
+                    onClick={() => handleConfirmation(r.id, r.organization)}
+                  >
+                    {confirmingId === r.id ? '생성 중...' : '확인서'}
                   </button>
                   <button
                     className={styles.docBtn}
