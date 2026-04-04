@@ -311,6 +311,7 @@ export default function ReservationModal({
   const otherRooms = otherReservations.flatMap((r) => r.rooms ?? []);
 
   const isClassroomConflict = (c: ClassroomReservation) =>
+    !!c.classroomName &&
     otherClassrooms.some(
       (oc) =>
         oc.classroomName === c.classroomName &&
@@ -331,6 +332,7 @@ export default function ReservationModal({
   const getClassroomInternalConflicts = () => {
     const seen = new Set<string>();
     return (form.classrooms ?? []).map((c) => {
+      if (!c.classroomName) return false;
       const key = `${c.classroomName}_${c.reservedDate}`;
       const dup = seen.has(key);
       seen.add(key);
