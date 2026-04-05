@@ -15,8 +15,8 @@ import {
 } from "@/lib/api/reservation";
 import { CLASSROOM_ROOM_TO_CATEGORY } from "@/lib/constants/classrooms";
 import { ROOM_INFO, RoomType } from "@/lib/constants/rooms";
-import { printRoomTableIntegrated } from "@/lib/utils/printRoomTable";
 import { isAdmin } from "@/lib/utils/auth";
+import { printRoomTableIntegrated } from "@/lib/utils/printRoomTable";
 import { useToastStore } from "@/store/toast";
 import { isAxiosError } from "axios";
 import { ko } from "date-fns/locale";
@@ -1029,52 +1029,52 @@ export default function ReservationModal({
                 )}
                 {/* 정산 담당자 + 정산 방법 행 */}
                 {showBillingManager && (
-                <div className={`${styles.fullWidth} ${styles.grid4billing}`}>
-                  <label className={styles.label}>
-                    정산 방법
-                    <select
-                      className={styles.select}
-                      value={form.paymentMethod ?? "미정"}
-                      onChange={(e) => setField("paymentMethod", e.target.value)}
-                    >
-                      <option value="미정">미정</option>
-                      <option value="카드">카드</option>
-                      <option value="세금계산서">세금계산서</option>
-                      <option value="계산서">계산서</option>
-                    </select>
-                  </label>
-                  {showBillingManager && (
-                    <>
-                      <label className={styles.label}>
-                        정산 담당자
-                        <input
-                          className={styles.input}
-                          value={form.billingManager ?? ""}
-                          onChange={(e) => setField("billingManager", e.target.value)}
-                          placeholder="담당자 이름"
-                        />
-                      </label>
-                      <label className={styles.label}>
-                        연락처
-                        <input
-                          className={styles.input}
-                          value={form.billingManagerPhone ?? ""}
-                          onChange={(e) => setField("billingManagerPhone", e.target.value)}
-                          placeholder="010-0000-0000"
-                        />
-                      </label>
-                      <label className={styles.label}>
-                        이메일
-                        <input
-                          className={styles.input}
-                          value={form.billingManagerEmail ?? ""}
-                          onChange={(e) => setField("billingManagerEmail", e.target.value)}
-                          placeholder="이메일"
-                        />
-                      </label>
-                    </>
-                  )}
-                </div>
+                  <div className={`${styles.fullWidth} ${styles.grid4billing}`}>
+                    <label className={styles.label}>
+                      정산 방법
+                      <select
+                        className={styles.select}
+                        value={form.paymentMethod ?? "미정"}
+                        onChange={(e) => setField("paymentMethod", e.target.value)}
+                      >
+                        <option value="미정">미정</option>
+                        <option value="카드">카드</option>
+                        <option value="세금계산서">세금계산서</option>
+                        <option value="계산서">계산서</option>
+                      </select>
+                    </label>
+                    {showBillingManager && (
+                      <>
+                        <label className={styles.label}>
+                          정산 담당자
+                          <input
+                            className={styles.input}
+                            value={form.billingManager ?? ""}
+                            onChange={(e) => setField("billingManager", e.target.value)}
+                            placeholder="담당자 이름"
+                          />
+                        </label>
+                        <label className={styles.label}>
+                          연락처
+                          <input
+                            className={styles.input}
+                            value={form.billingManagerPhone ?? ""}
+                            onChange={(e) => setField("billingManagerPhone", e.target.value)}
+                            placeholder="010-0000-0000"
+                          />
+                        </label>
+                        <label className={styles.label}>
+                          이메일
+                          <input
+                            className={styles.input}
+                            value={form.billingManagerEmail ?? ""}
+                            onChange={(e) => setField("billingManagerEmail", e.target.value)}
+                            placeholder="이메일"
+                          />
+                        </label>
+                      </>
+                    )}
+                  </div>
                 )}
                 {/* 단체 추가 정보 */}
                 {showAddress && (
