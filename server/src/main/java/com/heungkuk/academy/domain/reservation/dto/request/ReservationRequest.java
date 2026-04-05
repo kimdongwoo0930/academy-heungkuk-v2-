@@ -37,12 +37,35 @@ public class ReservationRequest {
     private String colorCode;
     @Schema(description = "예약 상태", example = "확정", allowableValues = {"확정", "대기", "취소"})
     private String status;
-    @Schema(description = "업체 주소 (선택)", example = "서울시 강남구 테헤란로 123")
+
+    @Schema(description = "업체 우편번호 (선택)", example = "06234")
+    private String companyZipCode;
+    @Schema(description = "업체 도로명 주소 (선택)", example = "서울시 강남구 테헤란로 123")
     private String companyAddress;
-    @Schema(description = "현장 담당자 (선택)", example = "김현장")
+    @Schema(description = "사업자등록번호 (선택)", example = "123-45-67890")
+    private String businessNumber;
+    @Schema(description = "대표이사명 (선택)", example = "홍대표")
+    private String ceoName;
+
+    @Schema(description = "현장 담당자 이름 (선택)", example = "김현장")
     private String siteManager;
     @Schema(description = "현장 담당자 연락처 (선택)", example = "010-9999-8888")
     private String siteManagerPhone;
+    @Schema(description = "현장 담당자 연락처2 (선택)", example = "02-1234-5678")
+    private String siteManagerPhone2;
+    @Schema(description = "현장 담당자 이메일 (선택)", example = "site@example.com")
+    private String siteManagerEmail;
+
+    @Schema(description = "정산 담당자 이름 (선택)", example = "이정산")
+    private String billingManager;
+    @Schema(description = "정산 담당자 연락처 (선택)", example = "010-1111-2222")
+    private String billingManagerPhone;
+    @Schema(description = "정산 담당자 이메일 (선택)", example = "billing@example.com")
+    private String billingManagerEmail;
+
+    @Schema(description = "정산 방법 (선택)", example = "카드", allowableValues = {"미정", "카드", "세금계산서", "계산서"})
+    private String paymentMethod;
+
     @Schema(description = "특이사항 (선택)", example = "채식 메뉴 요청")
     private String memo;
 

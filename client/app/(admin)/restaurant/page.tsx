@@ -8,6 +8,7 @@ import {
 } from "@/lib/api/reservation";
 import { printMealTable } from "@/lib/utils/printRoomTable";
 import { Reservation } from "@/types/reservation";
+import MonthNavigator from "@/components/ui/MonthNavigator";
 import { isHoliday } from "@hyunbinseo/holidays-kr";
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
@@ -117,17 +118,9 @@ export default function RestaurantPage() {
   };
 
   const handleSave = async (data: Reservation) => {
-    try {
-      const body = toRequestBody(data);
-      const updated = await updateReservation(data.id, body);
-      setReservations((prev) =>
-        prev.map((r) => (r.id === updated.id ? updated : r)),
-      );
-      setEditTarget(null);
-    } catch (err: unknown) {
-      const status = (err as { response?: { status?: number } })?.response?.status;
-      alert(status === 403 ? "수정 권한이 없습니다." : "저장 중 오류가 발생했습니다.");
-    }
+    const body = toRequestBody(data);
+    const updated = await updateReservation(data.id, body);
+    setReservations((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
   };
 
   const displayedDates = new Set(calDays.map((c) => c.dateStr));
@@ -163,17 +156,13 @@ export default function RestaurantPage() {
         >
           🖨 인쇄 / PDF
         </button>
-        <div className={styles.nav}>
-          <button className={styles.navBtn} onClick={prevMonth}>
-            ‹
-          </button>
-          <span className={styles.monthLabel}>
-            {year}년 {month + 1}월
-          </span>
-          <button className={styles.navBtn} onClick={nextMonth}>
-            ›
-          </button>
-        </div>
+        <MonthNavigator
+          year={year}
+          month={month}
+          onPrev={prevMonth}
+          onNext={nextMonth}
+          onJump={(y, m) => { setYear(y); setMonth(m); }}
+        />
       </div>
 
       {isLoading ? (

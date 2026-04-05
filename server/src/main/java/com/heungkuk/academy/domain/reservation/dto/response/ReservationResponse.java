@@ -43,12 +43,35 @@ public class ReservationResponse {
     private String colorCode;
     @Schema(description = "예약 상태", example = "확정")
     private String status;
-    @Schema(description = "업체 주소")
+
+    @Schema(description = "업체 우편번호")
+    private String companyZipCode;
+    @Schema(description = "업체 도로명 주소")
     private String companyAddress;
-    @Schema(description = "현장 담당자")
+    @Schema(description = "사업자등록번호")
+    private String businessNumber;
+    @Schema(description = "대표이사명")
+    private String ceoName;
+
+    @Schema(description = "현장 담당자 이름")
     private String siteManager;
     @Schema(description = "현장 담당자 연락처")
     private String siteManagerPhone;
+    @Schema(description = "현장 담당자 연락처2")
+    private String siteManagerPhone2;
+    @Schema(description = "현장 담당자 이메일")
+    private String siteManagerEmail;
+
+    @Schema(description = "정산 담당자 이름")
+    private String billingManager;
+    @Schema(description = "정산 담당자 연락처")
+    private String billingManagerPhone;
+    @Schema(description = "정산 담당자 이메일")
+    private String billingManagerEmail;
+
+    @Schema(description = "정산 방법")
+    private String paymentMethod;
+
     @Schema(description = "특이사항", example = "채식 메뉴 요청")
     private String memo;
 
@@ -80,9 +103,18 @@ public class ReservationResponse {
                 .endDate(reservation.getEndDate())
                 .colorCode(reservation.getColorCode())
                 .status(reservation.getStatus())
+                .companyZipCode(reservation.getCompanyZipCode())
                 .companyAddress(reservation.getCompanyAddress())
+                .businessNumber(reservation.getBusinessNumber())
+                .ceoName(reservation.getCeoName())
                 .siteManager(reservation.getSiteManager())
                 .siteManagerPhone(reservation.getSiteManagerPhone())
+                .siteManagerPhone2(reservation.getSiteManagerPhone2())
+                .siteManagerEmail(reservation.getSiteManagerEmail())
+                .billingManager(reservation.getBillingManager())
+                .billingManagerPhone(reservation.getBillingManagerPhone())
+                .billingManagerEmail(reservation.getBillingManagerEmail())
+                .paymentMethod(reservation.getPaymentMethod())
                 .memo(reservation.getMemo())
                 .rooms(rooms)
                 .classrooms(classrooms)

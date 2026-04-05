@@ -13,9 +13,18 @@ interface ReservationRequestBody {
   endDate: string;
   colorCode: string;
   status: string;
+  companyZipCode?: string;
   companyAddress?: string;
+  businessNumber?: string;
+  ceoName?: string;
   siteManager?: string;
   siteManagerPhone?: string;
+  siteManagerPhone2?: string;
+  siteManagerEmail?: string;
+  billingManager?: string;
+  billingManagerPhone?: string;
+  billingManagerEmail?: string;
+  paymentMethod?: string;
   memo?: string;
   classrooms: { classroomName: string; reservedDate: string }[];
   rooms: { roomNumber: string; reservedDate: string }[];
@@ -35,9 +44,18 @@ export function toRequestBody(data: Omit<Reservation, 'id' | 'reservationCode'>)
     endDate: data.endDate,
     colorCode: data.colorCode,
     status: data.status,
+    companyZipCode: data.companyZipCode,
     companyAddress: data.companyAddress,
+    businessNumber: data.businessNumber,
+    ceoName: data.ceoName,
     siteManager: data.siteManager,
     siteManagerPhone: data.siteManagerPhone,
+    siteManagerPhone2: data.siteManagerPhone2,
+    siteManagerEmail: data.siteManagerEmail,
+    billingManager: data.billingManager,
+    billingManagerPhone: data.billingManagerPhone,
+    billingManagerEmail: data.billingManagerEmail,
+    paymentMethod: data.paymentMethod,
     memo: data.memo,
     classrooms: (data.classrooms ?? []).map((c) => ({
       classroomName: c.classroomName,

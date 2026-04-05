@@ -33,52 +33,111 @@ public class Reservation extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** 예약 고유 코드 (자동 생성, 예: RES-20240101-001) */
     @Column(name = "reservation_code", length = 20, unique = true, nullable = false)
     private String reservationCode;
 
+    /** 단체명 */
     @Column(length = 100, nullable = false)
     private String organization;
 
+    /** 교육명 / 사용 목적 */
     @Column(length = 255, nullable = false)
     private String purpose;
 
+    /** 교육 인원수 */
     @Column(name = "인원수")
     private Integer people;
 
+    /** 신청인 이름 */
     @Column(length = 50, nullable = false)
     private String customer;
 
+    /** 신청인 연락처 */
     @Column(name = "customer_phone", length = 20, nullable = false)
     private String customerPhone;
 
+    /** 신청인 연락처2 (선택) */
     @Column(name = "customer_phone2", length = 20)
     private String customerPhone2;
 
+    /** 신청인 이메일 */
     @Column(name = "customer_email", length = 100, nullable = false)
     private String customerEmail;
 
+    /** 입실일 */
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
+    /** 퇴실일 */
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
+    /** 일정표 표시 색상 코드 (예: #4A90E2) */
     @Column(name = "color_code", length = 10, nullable = false)
     private String colorCode;
 
-    // 확정 / 대기 / 취소
-    @Column(length = 20, nullable = false)
-    private String status;
+    // ── 단체 추가 정보 (선택) ──────────────────────────────────────────
 
+    /** 업체 우편번호 */
+    @Column(name = "company_zip_code", length = 10)
+    private String companyZipCode;
+
+    /** 업체 도로명 주소 */
     @Column(name = "company_address", length = 255)
     private String companyAddress;
 
+    /** 사업자등록번호 */
+    @Column(name = "business_number", length = 20)
+    private String businessNumber;
+
+    /** 대표이사명 */
+    @Column(name = "ceo_name", length = 50)
+    private String ceoName;
+
+    // ── 현장 담당자 (선택) ────────────────────────────────────────────
+
+    /** 현장 담당자 이름 */
     @Column(name = "site_manager", length = 50)
     private String siteManager;
 
+    /** 현장 담당자 연락처 */
     @Column(name = "site_manager_phone", length = 20)
     private String siteManagerPhone;
 
+    /** 현장 담당자 연락처2 */
+    @Column(name = "site_manager_phone2", length = 20)
+    private String siteManagerPhone2;
+
+    /** 현장 담당자 이메일 */
+    @Column(name = "site_manager_email", length = 100)
+    private String siteManagerEmail;
+
+    // ── 정산 담당자 (선택) ────────────────────────────────────────────
+
+    /** 정산 담당자 이름 */
+    @Column(name = "billing_manager", length = 50)
+    private String billingManager;
+
+    /** 정산 담당자 연락처 */
+    @Column(name = "billing_manager_phone", length = 20)
+    private String billingManagerPhone;
+
+    /** 정산 담당자 이메일 */
+    @Column(name = "billing_manager_email", length = 100)
+    private String billingManagerEmail;
+
+    // ─────────────────────────────────────────────────────────────────
+
+    /** 예약 상태 (확정 / 예약 / 문의 / 취소) */
+    @Column(length = 20, nullable = false)
+    private String status;
+
+    /** 정산 방법 (미정 / 카드 / 세금계산서 / 계산서) */
+    @Column(name = "payment_method", length = 20)
+    private String paymentMethod;
+
+    /** 메모 */
     @Column(columnDefinition = "TEXT")
     private String memo;
 
@@ -90,12 +149,22 @@ public class Reservation extends BaseTimeEntity {
                 .customerPhone2(request.getCustomerPhone2())
                 .customerEmail(request.getCustomerEmail()).startDate(request.getStartDate())
                 .endDate(request.getEndDate()).colorCode(request.getColorCode())
-                .status(request.getStatus()).companyAddress(request.getCompanyAddress())
+                .status(request.getStatus())
+                .companyZipCode(request.getCompanyZipCode())
+                .companyAddress(request.getCompanyAddress())
+                .businessNumber(request.getBusinessNumber())
+                .ceoName(request.getCeoName())
                 .siteManager(request.getSiteManager())
-                .siteManagerPhone(request.getSiteManagerPhone()).memo(request.getMemo()).build();
+                .siteManagerPhone(request.getSiteManagerPhone())
+                .siteManagerPhone2(request.getSiteManagerPhone2())
+                .siteManagerEmail(request.getSiteManagerEmail())
+                .billingManager(request.getBillingManager())
+                .billingManagerPhone(request.getBillingManagerPhone())
+                .billingManagerEmail(request.getBillingManagerEmail())
+                .paymentMethod(request.getPaymentMethod())
+                .memo(request.getMemo()).build();
     }
 
-    // Reservation
     public void update(ReservationRequest request) {
         this.organization = request.getOrganization();
         this.purpose = request.getPurpose();
@@ -108,9 +177,18 @@ public class Reservation extends BaseTimeEntity {
         this.endDate = request.getEndDate();
         this.colorCode = request.getColorCode();
         this.status = request.getStatus();
+        this.companyZipCode = request.getCompanyZipCode();
         this.companyAddress = request.getCompanyAddress();
+        this.businessNumber = request.getBusinessNumber();
+        this.ceoName = request.getCeoName();
         this.siteManager = request.getSiteManager();
         this.siteManagerPhone = request.getSiteManagerPhone();
+        this.siteManagerPhone2 = request.getSiteManagerPhone2();
+        this.siteManagerEmail = request.getSiteManagerEmail();
+        this.billingManager = request.getBillingManager();
+        this.billingManagerPhone = request.getBillingManagerPhone();
+        this.billingManagerEmail = request.getBillingManagerEmail();
+        this.paymentMethod = request.getPaymentMethod();
         this.memo = request.getMemo();
     }
 

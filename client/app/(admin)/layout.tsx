@@ -2,6 +2,7 @@
 
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
+import Toast from "@/components/ui/Toast";
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import styles from "./layout.module.css";
@@ -28,6 +29,7 @@ export default function AdminLayout({
       <main className={`${styles.main} ${collapsed ? styles.mainCollapsed : ''}`}>
         <div className={styles.content}>{children}</div>
       </main>
+      <Toast />
     </>
   );
 }
