@@ -12,9 +12,18 @@ export interface Reservation {
   endDate: string;
   colorCode: string;
   status: string;
+  companyZipCode?: string;
   companyAddress?: string;
+  businessNumber?: string;
+  ceoName?: string;
   siteManager?: string;
   siteManagerPhone?: string;
+  siteManagerPhone2?: string;
+  siteManagerEmail?: string;
+  billingManager?: string;
+  billingManagerPhone?: string;
+  billingManagerEmail?: string;
+  paymentMethod?: string;
   memo?: string;
   rooms?: RoomReservation[];
   classrooms?: ClassroomReservation[];

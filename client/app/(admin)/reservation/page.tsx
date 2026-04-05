@@ -109,19 +109,13 @@ export default function ReservationPage() {
   };
 
   const handleSave = async (data: Reservation) => {
-    try {
-      const body = toRequestBody(data);
-      if (selected !== null) {
-        await updateReservation(selected.id, body);
-      } else {
-        await createReservation(body);
-      }
-      setIsModalOpen(false);
-      refetch();
-    } catch (err: unknown) {
-      const errStatus = (err as { response?: { status?: number } })?.response?.status;
-      alert(errStatus === 403 ? '수정 권한이 없습니다.' : '저장 중 오류가 발생했습니다.');
+    const body = toRequestBody(data);
+    if (selected !== null) {
+      await updateReservation(selected.id, body);
+    } else {
+      await createReservation(body);
     }
+    refetch();
   };
 
   return (

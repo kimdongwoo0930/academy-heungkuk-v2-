@@ -11,6 +11,7 @@ import {
 import { printSchedulerWeekly } from "@/lib/utils/printRoomTable";
 import { Reservation } from "@/types/reservation";
 import { isHoliday } from "@hyunbinseo/holidays-kr";
+import MonthNavigator from "@/components/ui/MonthNavigator";
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 
@@ -172,37 +173,15 @@ export default function SchedulerPage() {
   };
 
   const handleSave = async (data: Reservation) => {
-    try {
-      const body = toRequestBody(data);
-      await updateReservation(data.id, body);
-      setEditTarget(null);
-      fetchReservations(year, month);
-    } catch (err: unknown) {
-      const status = (err as { response?: { status?: number } })?.response
-        ?.status;
-      alert(
-        status === 403
-          ? "수정 권한이 없습니다."
-          : "저장 중 오류가 발생했습니다.",
-      );
-    }
+    const body = toRequestBody(data);
+    await updateReservation(data.id, body);
+    fetchReservations(year, month);
   };
 
   const handleCreate = async (data: Reservation) => {
-    try {
-      const body = toRequestBody(data);
-      await createReservation(body);
-      setCreateDefaults(null);
-      fetchReservations(year, month);
-    } catch (err: unknown) {
-      const status = (err as { response?: { status?: number } })?.response
-        ?.status;
-      alert(
-        status === 403
-          ? "수정 권한이 없습니다."
-          : "저장 중 오류가 발생했습니다.",
-      );
-    }
+    const body = toRequestBody(data);
+    await createReservation(body);
+    fetchReservations(year, month);
   };
 
   const handleCellDoubleClick = (dateStr: string, roomId: string) => {
@@ -246,17 +225,13 @@ export default function SchedulerPage() {
             🖨 주차별 인쇄
           </button>
         </div>
-        <div className={styles.nav}>
-          <button className={styles.navBtn} onClick={prevMonth}>
-            ‹
-          </button>
-          <span className={styles.monthLabel}>
-            {year}년 {month + 1}월
-          </span>
-          <button className={styles.navBtn} onClick={nextMonth}>
-            ›
-          </button>
-        </div>
+        <MonthNavigator
+          year={year}
+          month={month}
+          onPrev={prevMonth}
+          onNext={nextMonth}
+          onJump={(y, m) => { setYear(y); setMonth(m); }}
+        />
       </div>
 
       <div className={styles.printTitle}>

@@ -6,7 +6,7 @@ import {
   Reservation,
   RoomReservation,
 } from "@/types/reservation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 // RoomReservation used in handleRoomConfirm type annotation
 import {
   downloadConfirmation,
@@ -15,9 +15,36 @@ import {
 } from "@/lib/api/reservation";
 import { CLASSROOM_ROOM_TO_CATEGORY } from "@/lib/constants/classrooms";
 import { ROOM_INFO, RoomType } from "@/lib/constants/rooms";
+import { isAdmin } from "@/lib/utils/auth";
 import { printRoomTableIntegrated } from "@/lib/utils/printRoomTable";
+import { useToastStore } from "@/store/toast";
+import { isAxiosError } from "axios";
+import { ko } from "date-fns/locale";
+import Script from "next/script";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import styles from "./ReservationModal.module.css";
 import RoomPickerModal from "./RoomPickerModal";
+
+declare global {
+  interface Window {
+    daum: {
+      Postcode: new (options: {
+        oncomplete: (data: { zonecode: string; roadAddress: string; jibunAddress: string }) => void;
+      }) => { open: () => void };
+    };
+  }
+}
+
+function toDate(str: string): Date | null {
+  if (!str) return null;
+  const d = new Date(str);
+  return isNaN(d.getTime()) ? null : d;
+}
+function toDateStr(d: Date | null): string {
+  if (!d) return "";
+  return d.toISOString().slice(0, 10);
+}
 
 const TABS = ["기본정보", "강의실", "숙박", "식수"] as const;
 type Tab = (typeof TABS)[number];
@@ -65,6 +92,7 @@ const CLASSROOM_OPTIONS = [
   "B",
 ];
 
+
 function classroomLabel(id: string) {
   const displayId = /^\d+$/.test(id) ? `${id}호` : id;
   const cat = CLASSROOM_ROOM_TO_CATEGORY[id];
@@ -94,9 +122,18 @@ function emptyForm(): Omit<Reservation, "id" | "reservationCode"> {
     endDate: "",
     colorCode: "#4A90E2",
     status: "문의",
+    companyZipCode: "",
     companyAddress: "",
+    businessNumber: "",
+    ceoName: "",
     siteManager: "",
     siteManagerPhone: "",
+    siteManagerPhone2: "",
+    siteManagerEmail: "",
+    billingManager: "",
+    billingManagerPhone: "",
+    billingManagerEmail: "",
+    paymentMethod: "미정",
     memo: "",
     classrooms: [],
     rooms: [],
@@ -112,10 +149,22 @@ export default function ReservationModal({
   defaultValues,
 }: Props) {
   const isEdit = reservation !== null;
+  const globalToast = useToastStore((s) => s.show);
   const [saving, setSaving] = useState(false);
   const [estimating, setEstimating] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [trading, setTrading] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showToast = (message: string, type: "success" | "error" = "error") => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ message, type });
+    toastTimerRef.current = setTimeout(() => setToast(null), 3000);
+  };
+  useEffect(() => () => { if (toastTimerRef.current) clearTimeout(toastTimerRef.current); }, []);
+
+  const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
+  const showConfirm = (message: string, onConfirm: () => void) => setConfirmDialog({ message, onConfirm });
 
   // 드래그
   const [pos, setPos] = useState({ dx: 0, dy: 0 });
@@ -213,36 +262,59 @@ export default function ReservationModal({
   });
   const [showLoad, setShowLoad] = useState(false);
   const [showAddress, setShowAddress] = useState(
-    !!(reservation?.companyAddress),
+    !!(reservation?.companyZipCode || reservation?.companyAddress || reservation?.businessNumber || reservation?.ceoName),
   );
   const [showSiteManager, setShowSiteManager] = useState(
     !!(reservation?.siteManager || reservation?.siteManagerPhone),
+  );
+  const [showBillingManager, setShowBillingManager] = useState(
+    !!(reservation?.billingManager || reservation?.billingManagerPhone),
   );
   const [loadSearch, setLoadSearch] = useState("");
   const [form, setForm] = useState<Omit<Reservation, "id" | "reservationCode">>(
     isEdit
       ? {
-          organization: reservation.organization,
-          purpose: reservation.purpose,
-          people: reservation.people,
-          customer: reservation.customer,
-          customerPhone: reservation.customerPhone,
-          customerPhone2: reservation.customerPhone2 ?? "",
-          customerEmail: reservation.customerEmail ?? "",
-          startDate: reservation.startDate,
-          endDate: reservation.endDate,
-          colorCode: reservation.colorCode,
-          status: reservation.status,
-          companyAddress: reservation.companyAddress ?? "",
-          siteManager: reservation.siteManager ?? "",
-          siteManagerPhone: reservation.siteManagerPhone ?? "",
-          memo: reservation.memo ?? "",
-          classrooms: reservation.classrooms ? [...reservation.classrooms] : [],
-          rooms: reservation.rooms ? [...reservation.rooms] : [],
-          meals: reservation.meals ? [...reservation.meals] : [],
-        }
+        organization: reservation.organization,
+        purpose: reservation.purpose,
+        people: reservation.people,
+        customer: reservation.customer,
+        customerPhone: reservation.customerPhone,
+        customerPhone2: reservation.customerPhone2 ?? "",
+        customerEmail: reservation.customerEmail ?? "",
+        startDate: reservation.startDate,
+        endDate: reservation.endDate,
+        colorCode: reservation.colorCode,
+        status: reservation.status,
+        companyZipCode: reservation.companyZipCode ?? "",
+        companyAddress: reservation.companyAddress ?? "",
+        businessNumber: reservation.businessNumber ?? "",
+        ceoName: reservation.ceoName ?? "",
+        siteManager: reservation.siteManager ?? "",
+        siteManagerPhone: reservation.siteManagerPhone ?? "",
+        siteManagerPhone2: reservation.siteManagerPhone2 ?? "",
+        siteManagerEmail: reservation.siteManagerEmail ?? "",
+        billingManager: reservation.billingManager ?? "",
+        billingManagerPhone: reservation.billingManagerPhone ?? "",
+        billingManagerEmail: reservation.billingManagerEmail ?? "",
+        paymentMethod: reservation.paymentMethod ?? "미정",
+        memo: reservation.memo ?? "",
+        classrooms: reservation.classrooms ? [...reservation.classrooms] : [],
+        rooms: reservation.rooms ? [...reservation.rooms] : [],
+        meals: reservation.meals ? [...reservation.meals] : [],
+      }
       : { ...emptyForm(), ...defaultValues },
   );
+
+  const initialFormRef = useRef(JSON.stringify(form));
+  const isDirty = JSON.stringify(form) !== initialFormRef.current;
+
+  const handleClose = () => {
+    if (isDirty && isAdmin()) {
+      showConfirm("변경사항이 저장되지 않습니다. 닫으시겠습니까?", onClose);
+      return;
+    }
+    onClose();
+  };
 
   const setField = <K extends keyof typeof form>(
     key: K,
@@ -451,13 +523,13 @@ export default function ReservationModal({
       "classrooms",
       (form.classrooms ?? []).filter((_, idx) => idx !== i),
     );
-  const updateClassroom = (i: number, patch: Partial<ClassroomReservation>) =>
-    setField(
-      "classrooms",
-      (form.classrooms ?? []).map((c, idx) =>
-        idx === i ? { ...c, ...patch } : c,
-      ),
+  const updateClassroom = (i: number, patch: Partial<ClassroomReservation>) => {
+    const updated = (form.classrooms ?? []).map((c, idx) =>
+      idx === i ? { ...c, ...patch } : c,
     );
+    if (patch.reservedDate) updated.sort((a, b) => a.reservedDate < b.reservedDate ? -1 : 1);
+    setField("classrooms", updated);
+  };
 
   const applyBulkClassroom = () => {
     const dates = getDateRange();
@@ -482,7 +554,10 @@ export default function ReservationModal({
     );
   };
   const updateRoomDate = (oldDate: string, idx: number, newDate: string) => {
-    setRoomDates((prev) => prev.map((d, i) => (i === idx ? newDate : d)));
+    setRoomDates((prev) => {
+      const updated = prev.map((d, i) => (i === idx ? newDate : d));
+      return [...updated].sort();
+    });
     setField(
       "rooms",
       (form.rooms ?? []).map((r) =>
@@ -551,11 +626,11 @@ export default function ReservationModal({
       "meals",
       (form.meals ?? []).filter((_, idx) => idx !== i),
     );
-  const updateMeal = (i: number, patch: Partial<MealReservation>) =>
-    setField(
-      "meals",
-      (form.meals ?? []).map((m, idx) => (idx === i ? { ...m, ...patch } : m)),
-    );
+  const updateMeal = (i: number, patch: Partial<MealReservation>) => {
+    const updated = (form.meals ?? []).map((m, idx) => (idx === i ? { ...m, ...patch } : m));
+    if (patch.reservedDate) updated.sort((a, b) => a.reservedDate < b.reservedDate ? -1 : 1);
+    setField("meals", updated);
+  };
 
   const applyBulkMeal = () => {
     const dates = getDateRange();
@@ -568,32 +643,32 @@ export default function ReservationModal({
   const handleSave = async () => {
     if (saving) return;
     if (!form.organization.trim()) {
-      alert("단체명을 입력해주세요.");
+      showToast("단체명을 입력해주세요.");
       setTab("기본정보");
       return;
     }
     if (!form.customer.trim()) {
-      alert("담당자를 입력해주세요.");
+      showToast("담당자를 입력해주세요.");
       setTab("기본정보");
       return;
     }
     if (!form.customerPhone.trim()) {
-      alert("연락처를 입력해주세요.");
+      showToast("연락처를 입력해주세요.");
       setTab("기본정보");
       return;
     }
     if (!form.customerEmail?.trim()) {
-      alert("이메일을 입력해주세요.");
+      showToast("이메일을 입력해주세요.");
       setTab("기본정보");
       return;
     }
     if (!form.startDate || !form.endDate) {
-      alert("날짜를 입력해주세요.");
+      showToast("날짜를 입력해주세요.");
       setTab("기본정보");
       return;
     }
     if (dateError) {
-      alert(dateError);
+      showToast(dateError);
       setTab("기본정보");
       return;
     }
@@ -605,10 +680,8 @@ export default function ReservationModal({
     if (conflictedClassrooms.length > 0) {
       const list = conflictedClassrooms
         .map((c) => `${c.reservedDate} ${c.classroomName}호`)
-        .join("\n");
-      alert(
-        `다음 강의실이 이미 예약되어 있습니다:\n${list}\n\n강의실 탭에서 확인해주세요.`,
-      );
+        .join(", ");
+      showToast(`강의실 중복: ${list}`);
       setTab("강의실");
       return;
     }
@@ -621,8 +694,8 @@ export default function ReservationModal({
       );
       const list = dupItems
         .map((c) => `${c.reservedDate} ${c.classroomName}호`)
-        .join("\n");
-      alert(`같은 날짜에 동일한 강의실이 중복 입력되어 있습니다:\n${list}`);
+        .join(", ");
+      showToast(`강의실 중복 입력: ${list}`);
       setTab("강의실");
       return;
     }
@@ -632,10 +705,8 @@ export default function ReservationModal({
     if (conflictedRooms.length > 0) {
       const list = conflictedRooms
         .map((r) => `${r.reservedDate} ${r.roomNumber}호`)
-        .join("\n");
-      alert(
-        `다음 호실이 이미 예약되어 있습니다:\n${list}\n\n숙박 탭에서 확인해주세요.`,
-      );
+        .join(", ");
+      showToast(`호실 중복: ${list}`);
       setTab("숙박");
       return;
     }
@@ -649,257 +720,178 @@ export default function ReservationModal({
           : `HK-${Date.now()}`,
         ...form,
       });
+      globalToast("저장되었습니다.", "success");
+      onClose();
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      showToast(status === 403 ? "권한이 없습니다." : "저장 중 오류가 발생했습니다.");
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className={styles.overlay}>
-      <div
-        className={styles.modal}
-        style={{ transform: `translate(${pos.dx}px, ${pos.dy}px)` }}
-      >
+    <>
+      <Script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" strategy="lazyOnload" />
+      <div className={styles.overlay}>
         <div
-          className={styles.modalHeader}
-          onMouseDown={handleDragStart}
-          onTouchStart={handleTouchStart}
+          className={styles.modal}
+          style={{ transform: `translate(${pos.dx}px, ${pos.dy}px)` }}
         >
-          <div>
-            <h3 className={styles.modalTitle}>
-              {isEdit ? "예약 상세 / 수정" : "예약 등록"}
-            </h3>
-            <p className={styles.reqNote}>
-              <span className={styles.req}>*</span> 필수 입력 항목
-            </p>
-          </div>
-          <button className={styles.closeBtn} onClick={onClose}>
-            ✕
-          </button>
-        </div>
-
-        {/* 탭 */}
-        <div className={styles.tabs}>
-          {TABS.map((t) => (
-            <button
-              key={t}
-              className={`${styles.tab} ${tab === t ? styles.activeTab : ""}`}
-              onClick={() => setTab(t)}
-            >
-              {t}
-            </button>
-          ))}
-          {isEdit && reservation.createdAt && (
-            <span className={styles.createdAt}>
-              등록일 {reservation.createdAt.slice(0, 10)}
-            </span>
-          )}
-        </div>
-
-        <div className={styles.body}>
-          {/* 기본정보 */}
-          {tab === "기본정보" && (
-            <div className={styles.grid}>
-              {!isEdit && (
-                <div className={`${styles.fullWidth} ${styles.loadWrap}`}>
-                  {!showLoad ? (
-                    <button
-                      className={styles.loadBtn}
-                      onClick={() => setShowLoad(true)}
-                    >
-                      이전 예약에서 불러오기
-                    </button>
-                  ) : (
-                    <div className={styles.loadPanel}>
-                      <div className={styles.loadSearchRow}>
-                        <input
-                          className={styles.loadInput}
-                          autoFocus
-                          placeholder="단체명 또는 담당자 검색"
-                          value={loadSearch}
-                          onChange={(e) => setLoadSearch(e.target.value)}
-                        />
-                        <button
-                          className={styles.loadCancelBtn}
-                          onClick={() => {
-                            setShowLoad(false);
-                            setLoadSearch("");
-                          }}
-                        >
-                          취소
-                        </button>
-                      </div>
-                      {loadCandidates.length === 0 ? (
-                        <p className={styles.loadEmpty}>
-                          검색 결과가 없습니다.
-                        </p>
-                      ) : (
-                        <ul className={styles.loadList}>
-                          {loadCandidates.map((r) => (
-                            <li
-                              key={r.id}
-                              className={styles.loadItem}
-                              onClick={() => applyLoad(r)}
-                            >
-                              <span
-                                className={styles.loadDot}
-                                style={{ backgroundColor: r.colorCode }}
-                              />
-                              <span className={styles.loadOrg}>
-                                {r.organization}
-                              </span>
-                              <span className={styles.loadCustomer}>
-                                {r.customer} · {r.customerPhone}
-                              </span>
-                              <span className={styles.loadDate}>
-                                {String(r.startDate)}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-              <label className={styles.label}>
-                <span>
-                  단체명 <span className={styles.req}>*</span>
-                </span>
-                <input
-                  className={styles.input}
-                  value={form.organization}
-                  onChange={(e) => setField("organization", e.target.value)}
-                  placeholder="단체명"
-                />
-              </label>
-              <label className={styles.label}>
-                교육명
-                <input
-                  className={styles.input}
-                  value={form.purpose}
-                  onChange={(e) => setField("purpose", e.target.value)}
-                  placeholder="교육명"
-                />
-              </label>
-              <label className={styles.label}>
-                <span>
-                  인원 <span className={styles.req}>*</span>
-                </span>
-                <input
-                  className={styles.input}
-                  type="number"
-                  value={form.people || ""}
-                  onChange={(e) => setField("people", Number(e.target.value))}
-                  placeholder="0"
-                />
-              </label>
-              <label className={styles.label}>
-                상태
+          <div
+            className={styles.modalHeader}
+            onMouseDown={handleDragStart}
+            onTouchStart={handleTouchStart}
+          >
+            <div>
+              <div className={styles.modalTitleRow}>
+                <h3 className={styles.modalTitle}>
+                  {isEdit ? "예약 상세 / 수정" : "예약 등록"}
+                </h3>
                 <select
-                  className={styles.select}
+                  className={`${styles.statusBadge} ${styles[`status_${form.status}`]}`}
                   value={form.status}
                   onChange={(e) => setField("status", e.target.value)}
                 >
                   {STATUS_OPTIONS.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
+                    <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
-              </label>
-              <label className={styles.label}>
-                <span>
-                  담당자 <span className={styles.req}>*</span>
-                </span>
-                <input
-                  className={styles.input}
-                  value={form.customer}
-                  onChange={(e) => setField("customer", e.target.value)}
-                  placeholder="담당자명"
-                />
-              </label>
-              <label className={styles.label}>
-                <span>
-                  연락처 <span className={styles.req}>*</span>
-                </span>
-                <input
-                  className={styles.input}
-                  value={form.customerPhone}
-                  onChange={(e) => setField("customerPhone", e.target.value)}
-                  placeholder="010-0000-0000"
-                />
-              </label>
-              <label className={styles.label}>
-                연락처2
-                <input
-                  className={styles.input}
-                  value={form.customerPhone2 ?? ""}
-                  onChange={(e) => setField("customerPhone2", e.target.value)}
-                  placeholder="(선택)"
-                />
-              </label>
-              <label className={styles.label}>
-                <span>
-                  이메일 <span className={styles.req}>*</span>
-                </span>
-                <input
-                  className={styles.input}
-                  value={form.customerEmail ?? ""}
-                  onChange={(e) => setField("customerEmail", e.target.value)}
-                  placeholder="이메일"
-                />
-              </label>
-              <label className={styles.label}>
-                <span>
-                  입실일 <span className={styles.req}>*</span>
-                </span>
-                <input
-                  className={styles.input}
-                  type="date"
-                  value={form.startDate}
-                  onChange={(e) =>
-                    handleDateChange("startDate", e.target.value)
-                  }
-                />
-              </label>
-              <label className={styles.label}>
-                <span>
-                  퇴실일 <span className={styles.req}>*</span>
-                </span>
-                <input
-                  className={`${styles.input} ${dateError ? styles.inputError : ""}`}
-                  type="date"
-                  value={form.endDate}
-                  onChange={(e) => handleDateChange("endDate", e.target.value)}
-                />
-              </label>
-              {dateError && (
-                <p className={`${styles.dateError} ${styles.fullWidth}`}>
-                  {dateError}
-                </p>
-              )}
-              <div className={`${styles.fullWidth} ${styles.checkboxGroup}`}>
-                <div className={styles.checkboxRow}>
-                  <label className={styles.checkboxLabel}>
+              </div>
+              <p className={styles.reqNote}>
+                <span className={styles.req}>*</span> 필수 입력 항목
+              </p>
+            </div>
+            <button className={styles.closeBtn} onClick={handleClose}>
+              ✕
+            </button>
+          </div>
+
+          {/* 탭 */}
+          <div className={styles.tabs}>
+            {TABS.map((t) => (
+              <button
+                key={t}
+                className={`${styles.tab} ${tab === t ? styles.activeTab : ""}`}
+                onClick={() => setTab(t)}
+              >
+                {t}
+              </button>
+            ))}
+            {isEdit && reservation.createdAt && (
+              <span className={styles.createdAt}>
+                등록일 {reservation.createdAt.slice(0, 10)}
+              </span>
+            )}
+          </div>
+
+          <div className={styles.body}>
+            {/* 기본정보 */}
+            {tab === "기본정보" && (
+              <div className={styles.grid}>
+                {!isEdit && (
+                  <div className={`${styles.fullWidth} ${styles.loadWrap}`}>
+                    {!showLoad ? (
+                      <button
+                        className={styles.loadBtn}
+                        onClick={() => setShowLoad(true)}
+                      >
+                        이전 예약에서 불러오기
+                      </button>
+                    ) : (
+                      <div className={styles.loadPanel}>
+                        <div className={styles.loadSearchRow}>
+                          <input
+                            className={styles.loadInput}
+                            autoFocus
+                            placeholder="단체명 또는 담당자 검색"
+                            value={loadSearch}
+                            onChange={(e) => setLoadSearch(e.target.value)}
+                          />
+                          <button
+                            className={styles.loadCancelBtn}
+                            onClick={() => {
+                              setShowLoad(false);
+                              setLoadSearch("");
+                            }}
+                          >
+                            취소
+                          </button>
+                        </div>
+                        {loadCandidates.length === 0 ? (
+                          <p className={styles.loadEmpty}>
+                            검색 결과가 없습니다.
+                          </p>
+                        ) : (
+                          <ul className={styles.loadList}>
+                            {loadCandidates.map((r) => (
+                              <li
+                                key={r.id}
+                                className={styles.loadItem}
+                                onClick={() => applyLoad(r)}
+                              >
+                                <span
+                                  className={styles.loadDot}
+                                  style={{ backgroundColor: r.colorCode }}
+                                />
+                                <span className={styles.loadOrg}>
+                                  {r.organization}
+                                </span>
+                                <span className={styles.loadCustomer}>
+                                  {r.customer} · {r.customerPhone}
+                                </span>
+                                <span className={styles.loadDate}>
+                                  {String(r.startDate)}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+                {/* 섹션: 기본 정보 */}
+                <div className={`${styles.sectionLabel} ${styles.fullWidth}`}>기본 정보</div>
+                <div className={`${styles.fullWidth} ${styles.grid3}`}>
+                  <label className={styles.label}>
+                    <span>
+                      단체명 <span className={styles.req}>*</span>
+                    </span>
                     <input
-                      type="checkbox"
-                      checked={skipWeekends}
-                      onChange={(e) => handleSkipWeekendsChange(e.target.checked)}
+                      className={styles.input}
+                      value={form.organization}
+                      onChange={(e) => setField("organization", e.target.value)}
+                      placeholder="단체명"
                     />
-                    주말 제외
                   </label>
-                  <label className={styles.checkboxLabel}>
+                  <label className={styles.label}>
+                    교육명
                     <input
-                      type="checkbox"
-                      checked={showAddress}
-                      onChange={(e) => {
-                        setShowAddress(e.target.checked);
-                        if (!e.target.checked) setField("companyAddress", "");
-                      }}
+                      className={styles.input}
+                      value={form.purpose}
+                      onChange={(e) => setField("purpose", e.target.value)}
+                      placeholder="교육명"
                     />
-                    업체 주소
                   </label>
+                  <label className={styles.label}>
+                    <span>
+                      인원 <span className={styles.req}>*</span>
+                    </span>
+                    <input
+                      className={styles.input}
+                      type="number"
+                      min={0}
+                      value={form.people}
+                      onChange={(e) => setField("people", e.target.value === "" ? 0 : Number(e.target.value))}
+                    />
+                  </label>
+                </div>
+
+                {/* 섹션: 연락처 */}
+                <div className={`${styles.sectionDivider} ${styles.fullWidth}`} />
+                <div className={`${styles.sectionLabelRow} ${styles.fullWidth}`}>
+                  <span className={styles.sectionLabel}>담당자 정보</span>
                   <label className={styles.checkboxLabel}>
                     <input
                       type="checkbox"
@@ -909,687 +901,993 @@ export default function ReservationModal({
                         if (!e.target.checked) {
                           setField("siteManager", "");
                           setField("siteManagerPhone", "");
+                          setField("siteManagerPhone2", "");
+                          setField("siteManagerEmail", "");
                         }
                       }}
                     />
                     현장 담당자
                   </label>
+                  <label className={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      checked={showBillingManager}
+                      onChange={(e) => {
+                        setShowBillingManager(e.target.checked);
+                        if (!e.target.checked) {
+                          setField("billingManager", "");
+                          setField("billingManagerPhone", "");
+                          setField("billingManagerEmail", "");
+                          setField("paymentMethod", "미정");
+                        }
+                      }}
+                    />
+                    정산 담당자
+                  </label>
+                  <label className={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      checked={showAddress}
+                      onChange={(e) => {
+                        setShowAddress(e.target.checked);
+                        if (!e.target.checked) {
+                          setField("companyZipCode", "");
+                          setField("companyAddress", "");
+                          setField("businessNumber", "");
+                          setField("ceoName", "");
+                        }
+                      }}
+                    />
+                    단체 추가 정보
+                  </label>
                 </div>
-                {showAddress && (
-                  <input
-                    className={styles.input}
-                    value={form.companyAddress ?? ""}
-                    onChange={(e) => setField("companyAddress", e.target.value)}
-                    placeholder="업체 주소 입력"
-                  />
-                )}
+                {/* 신청인 행 */}
+                <div className={`${styles.fullWidth} ${styles.grid4contact}`}>
+                  <label className={styles.label}>
+                    <span>
+                      신청인 <span className={styles.req}>*</span>
+                    </span>
+                    <input
+                      className={styles.input}
+                      value={form.customer}
+                      onChange={(e) => setField("customer", e.target.value)}
+                      placeholder="담당자명"
+                    />
+                  </label>
+                  <label className={styles.label}>
+                    <span>
+                      연락처 <span className={styles.req}>*</span>
+                    </span>
+                    <input
+                      className={styles.input}
+                      value={form.customerPhone}
+                      onChange={(e) => setField("customerPhone", e.target.value)}
+                      placeholder="010-0000-0000"
+                    />
+                  </label>
+                  <label className={styles.label}>
+                    연락처2
+                    <input
+                      className={styles.input}
+                      value={form.customerPhone2 ?? ""}
+                      onChange={(e) => setField("customerPhone2", e.target.value)}
+                      placeholder="(선택)"
+                    />
+                  </label>
+                  <label className={styles.label}>
+                    <span>
+                      이메일 <span className={styles.req}>*</span>
+                    </span>
+                    <input
+                      className={styles.input}
+                      value={form.customerEmail ?? ""}
+                      onChange={(e) => setField("customerEmail", e.target.value)}
+                      placeholder="이메일"
+                    />
+                  </label>
+                </div>
+                {/* 현장 담당자 행 */}
                 {showSiteManager && (
-                  <div className={styles.row}>
-                    <input
-                      className={styles.input}
-                      value={form.siteManager ?? ""}
-                      onChange={(e) => setField("siteManager", e.target.value)}
-                      placeholder="담당자 이름"
-                    />
-                    <input
-                      className={styles.input}
-                      value={form.siteManagerPhone ?? ""}
-                      onChange={(e) => setField("siteManagerPhone", e.target.value)}
-                      placeholder="연락처"
-                    />
+                  <div className={`${styles.fullWidth} ${styles.grid4contact}`}>
+                    <label className={styles.label}>
+                      현장 담당자
+                      <input
+                        className={styles.input}
+                        value={form.siteManager ?? ""}
+                        onChange={(e) => setField("siteManager", e.target.value)}
+                        placeholder="담당자 이름"
+                      />
+                    </label>
+                    <label className={styles.label}>
+                      연락처
+                      <input
+                        className={styles.input}
+                        value={form.siteManagerPhone ?? ""}
+                        onChange={(e) => setField("siteManagerPhone", e.target.value)}
+                        placeholder="010-0000-0000"
+                      />
+                    </label>
+                    <label className={styles.label}>
+                      연락처2
+                      <input
+                        className={styles.input}
+                        value={form.siteManagerPhone2 ?? ""}
+                        onChange={(e) => setField("siteManagerPhone2", e.target.value)}
+                        placeholder="(선택)"
+                      />
+                    </label>
+                    <label className={styles.label}>
+                      이메일
+                      <input
+                        className={styles.input}
+                        value={form.siteManagerEmail ?? ""}
+                        onChange={(e) => setField("siteManagerEmail", e.target.value)}
+                        placeholder="이메일"
+                      />
+                    </label>
                   </div>
                 )}
-              </div>
-              <label className={`${styles.label} ${styles.fullWidth}`}>
-                색상
-                <div className={styles.colorRow}>
-                  {COLOR_PRESETS.map((c) => (
-                    <button
-                      key={c}
-                      className={`${styles.colorSwatch} ${form.colorCode === c ? styles.colorSelected : ""}`}
-                      style={{ backgroundColor: c }}
-                      onClick={() => setField("colorCode", c)}
-                    />
-                  ))}
-                </div>
-              </label>
-              <label className={`${styles.label} ${styles.fullWidth}`}>
-                메모
-                <textarea
-                  className={styles.textarea}
-                  value={form.memo ?? ""}
-                  onChange={(e) => setField("memo", e.target.value)}
-                  rows={3}
-                  placeholder="특이사항 메모"
-                />
-              </label>
-            </div>
-          )}
-
-          {/* 강의실 */}
-          {tab === "강의실" && (
-            <div>
-              <div className={styles.classroomStickyTop}>
-                {/* 전체 설정 */}
-                <div className={styles.bulkRow}>
-                  <span className={styles.bulkLabel}>전체 날짜 일괄 적용</span>
-                  <div className={styles.bulkClassroomList}>
-                    {bulkClassrooms.map((bc, bi) => (
-                      <div key={bi} className={styles.bulkClassroomItem}>
-                        <select
-                          className={styles.cellSelect}
-                          value={bc}
-                          onChange={(e) =>
-                            setBulkClassrooms((prev) =>
-                              prev.map((v, idx) =>
-                                idx === bi ? e.target.value : v,
-                              ),
-                            )
-                          }
-                        >
-                          <option value="">강의실 선택</option>
-                          {CLASSROOM_OPTIONS.map((o) => (
-                            <option key={o} value={o}>
-                              {classroomLabel(o)}
-                            </option>
-                          ))}
-                        </select>
-                        {bulkClassrooms.length > 1 && (
+                {/* 정산 담당자 + 정산 방법 행 */}
+                {showBillingManager && (
+                  <div className={`${styles.fullWidth} ${styles.grid4billing}`}>
+                    <label className={styles.label}>
+                      정산 방법
+                      <select
+                        className={styles.select}
+                        value={form.paymentMethod ?? "미정"}
+                        onChange={(e) => setField("paymentMethod", e.target.value)}
+                      >
+                        <option value="미정">미정</option>
+                        <option value="카드">카드</option>
+                        <option value="세금계산서">세금계산서</option>
+                        <option value="계산서">계산서</option>
+                      </select>
+                    </label>
+                    {showBillingManager && (
+                      <>
+                        <label className={styles.label}>
+                          정산 담당자
+                          <input
+                            className={styles.input}
+                            value={form.billingManager ?? ""}
+                            onChange={(e) => setField("billingManager", e.target.value)}
+                            placeholder="담당자 이름"
+                          />
+                        </label>
+                        <label className={styles.label}>
+                          연락처
+                          <input
+                            className={styles.input}
+                            value={form.billingManagerPhone ?? ""}
+                            onChange={(e) => setField("billingManagerPhone", e.target.value)}
+                            placeholder="010-0000-0000"
+                          />
+                        </label>
+                        <label className={styles.label}>
+                          이메일
+                          <input
+                            className={styles.input}
+                            value={form.billingManagerEmail ?? ""}
+                            onChange={(e) => setField("billingManagerEmail", e.target.value)}
+                            placeholder="이메일"
+                          />
+                        </label>
+                      </>
+                    )}
+                  </div>
+                )}
+                {/* 단체 추가 정보 */}
+                {showAddress && (
+                  <>
+                    <div className={`${styles.fullWidth} ${styles.addressRow}`}>
+                      <label className={styles.label}>
+                        우편번호
+                        <div className={styles.zipRow}>
+                          <input
+                            className={styles.input}
+                            value={form.companyZipCode ?? ""}
+                            onChange={(e) => setField("companyZipCode", e.target.value)}
+                            placeholder="우편번호"
+                            readOnly
+                          />
                           <button
-                            className={styles.removeBulkBtn}
-                            onClick={() =>
+                            type="button"
+                            className={styles.zipSearchBtn}
+                            onClick={() => {
+                              new window.daum.Postcode({
+                                oncomplete: (data: { zonecode: string; roadAddress: string; jibunAddress: string }) => {
+                                  setField("companyZipCode", data.zonecode);
+                                  setField("companyAddress", data.roadAddress || data.jibunAddress);
+                                },
+                              }).open();
+                            }}
+                          >
+                            주소 검색
+                          </button>
+                        </div>
+                      </label>
+                      <label className={`${styles.label} ${styles.addressField}`}>
+                        주소
+                        <input
+                          className={styles.input}
+                          value={form.companyAddress ?? ""}
+                          onChange={(e) => setField("companyAddress", e.target.value)}
+                          placeholder="도로명 주소"
+                        />
+                      </label>
+                    </div>
+                    <div className={`${styles.fullWidth} ${styles.grid2}`}>
+                      <label className={styles.label}>
+                        사업자번호
+                        <input
+                          className={styles.input}
+                          value={form.businessNumber ?? ""}
+                          onChange={(e) => setField("businessNumber", e.target.value)}
+                          placeholder="000-00-00000"
+                        />
+                      </label>
+                      <label className={styles.label}>
+                        대표이사명
+                        <input
+                          className={styles.input}
+                          value={form.ceoName ?? ""}
+                          onChange={(e) => setField("ceoName", e.target.value)}
+                          placeholder="대표이사명"
+                        />
+                      </label>
+                    </div>
+                  </>
+                )}
+
+                {/* 섹션: 일정 */}
+                <div className={`${styles.sectionDivider} ${styles.fullWidth}`} />
+                <div className={`${styles.sectionLabel} ${styles.fullWidth}`}>교육일정</div>
+                <div className={`${styles.fullWidth} ${styles.dateRow}`}>
+                  <div className={styles.dateField}>
+                    <span className={styles.labelText}>입실일 <span className={styles.req}>*</span></span>
+                    <DatePicker
+                      selected={toDate(form.startDate)}
+                      onChange={(d: Date | null) => handleDateChange("startDate", toDateStr(d))}
+                      locale={ko}
+                      dateFormat="yyyy-MM-dd (eee)"
+                      className={styles.input}
+                      placeholderText="날짜 선택"
+                      popperProps={{ strategy: "fixed" }}
+                      popperPlacement="bottom-start"
+                    />
+                  </div>
+                  <div className={styles.dateField}>
+                    <span className={styles.labelText}>퇴실일 <span className={styles.req}>*</span></span>
+                    <DatePicker
+                      selected={toDate(form.endDate)}
+                      onChange={(d: Date | null) => handleDateChange("endDate", toDateStr(d))}
+                      minDate={toDate(form.startDate) ?? undefined}
+                      locale={ko}
+                      dateFormat="yyyy-MM-dd (eee)"
+                      className={`${styles.input} ${dateError ? styles.inputError : ""}`}
+                      placeholderText="날짜 선택"
+                      popperProps={{ strategy: "fixed" }}
+                      popperPlacement="bottom-start"
+                    />
+                  </div>
+                  <div className={styles.dateOptions}>
+                    <label className={styles.checkboxLabel}>
+                      <input
+                        type="checkbox"
+                        checked={skipWeekends}
+                        onChange={(e) => handleSkipWeekendsChange(e.target.checked)}
+                      />
+                      주말 제외
+                    </label>
+                  </div>
+                </div>
+                {dateError && (
+                  <p className={`${styles.dateError} ${styles.fullWidth}`}>{dateError}</p>
+                )}
+                <div className={`${styles.fullWidth} ${styles.memoColorRow}`}>
+                  <label className={`${styles.label} ${styles.memoFlex}`}>
+                    메모
+                    <textarea
+                      className={styles.textarea}
+                      value={form.memo ?? ""}
+                      onChange={(e) => setField("memo", e.target.value)}
+                      placeholder="특이사항 메모"
+                    />
+                  </label>
+                  <label className={styles.label}>
+                    색상
+                    <div className={styles.colorGrid}>
+                      {COLOR_PRESETS.map((c) => (
+                        <button
+                          key={c}
+                          className={`${styles.colorSwatch} ${form.colorCode === c ? styles.colorSelected : ""}`}
+                          style={{ backgroundColor: c }}
+                          onClick={() => setField("colorCode", c)}
+                        />
+                      ))}
+                    </div>
+                  </label>
+                </div>
+              </div>
+            )}
+
+            {/* 강의실 */}
+            {tab === "강의실" && (
+              <div>
+                <div className={styles.classroomStickyTop}>
+                  {/* 전체 설정 */}
+                  <div className={styles.bulkRow}>
+                    <span className={styles.bulkLabel}>전체 날짜 일괄 적용</span>
+                    <div className={styles.bulkClassroomList}>
+                      {bulkClassrooms.map((bc, bi) => (
+                        <div key={bi} className={styles.bulkClassroomItem}>
+                          <select
+                            className={styles.cellSelect}
+                            value={bc}
+                            onChange={(e) =>
                               setBulkClassrooms((prev) =>
-                                prev.filter((_, idx) => idx !== bi),
+                                prev.map((v, idx) =>
+                                  idx === bi ? e.target.value : v,
+                                ),
                               )
                             }
                           >
-                            ×
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                  <button
-                    className={styles.addBulkBtn}
-                    onClick={() => setBulkClassrooms((prev) => [...prev, ""])}
-                  >
-                    + 강의실
-                  </button>
-                  <button
-                    className={styles.applyBtn}
-                    onClick={applyBulkClassroom}
-                  >
-                    전체 적용
-                  </button>
-                </div>
-                <div className={styles.listHeader}>
-                  <span className={styles.listCount}>
-                    총 {(form.classrooms ?? []).length}건
-                  </span>
-                  <div style={{ display: "flex", gap: 6 }}>
-                    {(form.classrooms ?? []).length > 0 && (
-                      <button
-                        className={styles.removeAllBtn}
-                        onClick={() => {
-                          if (confirm("강의실 배정 전체를 삭제하시겠습니까?")) {
-                            const uniqueDates = [
-                              ...new Set(
-                                (form.classrooms ?? []).map(
-                                  (c) => c.reservedDate,
-                                ),
-                              ),
-                            ];
-                            setField(
-                              "classrooms",
-                              uniqueDates.map((date) => ({
-                                classroomName: "",
-                                reservedDate: date,
-                              })),
-                            );
-                          }
-                        }}
-                      >
-                        전체 제거
-                      </button>
-                    )}
-                    <button className={styles.addRowBtn} onClick={addClassroom}>
-                      + 추가
+                            <option value="">강의실 선택</option>
+                            {CLASSROOM_OPTIONS.map((o) => (
+                              <option key={o} value={o}>
+                                {classroomLabel(o)}
+                              </option>
+                            ))}
+                          </select>
+                          {bulkClassrooms.length > 1 && (
+                            <button
+                              className={styles.removeBulkBtn}
+                              onClick={() =>
+                                setBulkClassrooms((prev) =>
+                                  prev.filter((_, idx) => idx !== bi),
+                                )
+                              }
+                            >
+                              ×
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      className={styles.addBulkBtn}
+                      onClick={() => setBulkClassrooms((prev) => [...prev, ""])}
+                    >
+                      + 강의실
+                    </button>
+                    <button
+                      className={styles.applyBtn}
+                      onClick={applyBulkClassroom}
+                    >
+                      전체 적용
                     </button>
                   </div>
-                </div>
-              </div>
-              {(form.classrooms ?? []).length === 0 ? (
-                <p className={styles.empty}>강의실 배정 내역이 없습니다.</p>
-              ) : (
-                <table className={styles.listTable}>
-                  <thead>
-                    <tr>
-                      <th>강의실</th>
-                      <th>날짜</th>
-                      <th>상태</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(() => {
-                      const internalDups = getClassroomInternalConflicts();
-                      return (form.classrooms ?? []).map((c, i) => {
-                        const extConflict = isClassroomConflict(c);
-                        const intConflict = internalDups[i];
-                        const hasConflict = extConflict || intConflict;
-                        return (
-                          <tr
-                            key={i}
-                            className={hasConflict ? styles.conflictRow : ""}
-                          >
-                            <td>
-                              <select
-                                className={styles.cellSelect}
-                                value={c.classroomName}
-                                onChange={(e) =>
-                                  updateClassroom(i, {
-                                    classroomName: e.target.value,
-                                  })
-                                }
-                              >
-                                <option value="">강의실 선택</option>
-                                {CLASSROOM_OPTIONS.map((o) => (
-                                  <option key={o} value={o}>
-                                    {classroomLabel(o)}
-                                  </option>
-                                ))}
-                              </select>
-                            </td>
-                            <td>
-                              <input
-                                className={styles.cellInput}
-                                type="date"
-                                value={c.reservedDate}
-                                onChange={(e) =>
-                                  updateClassroom(i, {
-                                    reservedDate: e.target.value,
-                                  })
-                                }
-                              />
-                            </td>
-                            <td>
-                              {hasConflict && (
-                                <span
-                                  className={styles.conflictBadge}
-                                  title={
-                                    extConflict
-                                      ? "다른 예약과 중복"
-                                      : "내부 중복"
-                                  }
-                                >
-                                  ⚠ {extConflict ? "중복" : "내부중복"}
-                                </span>
-                              )}
-                            </td>
-                            <td>
-                              <button
-                                className={styles.removeBtn}
-                                onClick={() => removeClassroom(i)}
-                              >
-                                ✕
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      });
-                    })()}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          )}
-
-          {/* 숙박 */}
-          {tab === "숙박" && (
-            <div>
-              {!form.startDate || !form.endDate ? (
-                <p className={styles.empty}>
-                  기본정보 탭에서 입실일·퇴실일을 먼저 입력해주세요.
-                </p>
-              ) : (
-                <>
-                  <div className={styles.classroomStickyTop}>
-                    <div className={styles.bulkRow}>
-                      <span className={styles.bulkLabel}>
-                        전체 날짜 일괄 적용
-                      </span>
-                      <div style={{ display: "flex", gap: 6 }}>
+                  <div className={styles.listHeader}>
+                    <span className={styles.listCount}>
+                      총 {(form.classrooms ?? []).length}건
+                    </span>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {(form.classrooms ?? []).length > 0 && (
                         <button
-                          className={styles.applyBtn}
-                          onClick={() => setBulkRoomPickerOpen(true)}
+                          className={styles.removeAllBtn}
+                          onClick={() => {
+                            if (confirm("강의실 배정 전체를 삭제하시겠습니까?")) {
+                              const uniqueDates = [
+                                ...new Set(
+                                  (form.classrooms ?? []).map(
+                                    (c) => c.reservedDate,
+                                  ),
+                                ),
+                              ];
+                              setField(
+                                "classrooms",
+                                uniqueDates.map((date) => ({
+                                  classroomName: "",
+                                  reservedDate: date,
+                                })),
+                              );
+                            }
+                          }}
                         >
-                          호실 일괄 지정
+                          전체 제거
                         </button>
-                      </div>
-                    </div>
-                    <div className={styles.listHeader}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span className={styles.listCount}>
-                          총 {roomDates.length}일
-                        </span>
-                        <button
-                          className={styles.roomPrintBtn}
-                          onClick={() =>
-                            printRoomTableIntegrated(
-                              roomDates,
-                              form.rooms ?? [],
-                              form.organization ?? "",
-                            )
-                          }
-                        >
-                          🖨 통합 숙소표
-                        </button>
-                      </div>
-                      <div style={{ display: "flex", gap: 6 }}>
-                        {(form.rooms ?? []).length > 0 && (
-                          <button
-                            className={styles.removeAllBtn}
-                            onClick={() => {
-                              if (
-                                confirm(
-                                  "숙박 날짜 및 호실 배정 전체를 삭제하시겠습니까?",
-                                )
-                              ) {
-                                setRoomDates([]);
-                                setField("rooms", []);
-                              }
-                            }}
-                          >
-                            전체 제거
-                          </button>
-                        )}
-                        <button
-                          className={styles.addRowBtn}
-                          onClick={addRoomDate}
-                        >
-                          + 추가
-                        </button>
-                      </div>
+                      )}
+                      <button className={styles.addRowBtn} onClick={addClassroom}>
+                        + 추가
+                      </button>
                     </div>
                   </div>
+                </div>
+                {(form.classrooms ?? []).length === 0 ? (
+                  <p className={styles.empty}>강의실 배정 내역이 없습니다.</p>
+                ) : (
                   <table className={styles.listTable}>
                     <thead>
                       <tr>
+                        <th>강의실</th>
                         <th>날짜</th>
-                        <th>1인실</th>
-                        <th>2인실</th>
-                        <th>4인실</th>
-                        <th>합계</th>
-                        <th>호실 지정</th>
+                        <th>상태</th>
                         <th></th>
                       </tr>
                     </thead>
                     <tbody>
-                      {roomDates.map((date, idx) => {
-                        const total = (form.rooms ?? []).filter(
-                          (r) => r.reservedDate === date,
-                        ).length;
-                        const roomsForDate = (form.rooms ?? []).filter(
-                          (r) => r.reservedDate === date,
-                        );
-                        const conflictCount =
-                          roomsForDate.filter(isRoomConflict).length;
-                        return (
-                          <tr
-                            key={idx}
-                            className={
-                              conflictCount > 0 ? styles.conflictRow : ""
-                            }
-                          >
-                            <td>
-                              <input
-                                className={styles.cellInput}
-                                type="date"
-                                value={date}
-                                onChange={(e) =>
-                                  updateRoomDate(date, idx, e.target.value)
-                                }
-                              />
-                            </td>
-                            {ROOM_TYPES.map((type) => (
-                              <td key={type} className={styles.countCell}>
-                                {countRoomsForDate(date, type) > 0 ? (
+                      {(() => {
+                        const internalDups = getClassroomInternalConflicts();
+                        return (form.classrooms ?? []).map((c, i) => {
+                          const extConflict = isClassroomConflict(c);
+                          const intConflict = internalDups[i];
+                          const hasConflict = extConflict || intConflict;
+                          return (
+                            <tr
+                              key={i}
+                              className={hasConflict ? styles.conflictRow : ""}
+                            >
+                              <td>
+                                <select
+                                  className={styles.cellSelect}
+                                  value={c.classroomName}
+                                  onChange={(e) =>
+                                    updateClassroom(i, {
+                                      classroomName: e.target.value,
+                                    })
+                                  }
+                                >
+                                  <option value="">강의실 선택</option>
+                                  {CLASSROOM_OPTIONS.map((o) => (
+                                    <option key={o} value={o}>
+                                      {classroomLabel(o)}
+                                    </option>
+                                  ))}
+                                </select>
+                              </td>
+                              <td>
+                                <DatePicker
+                                  selected={toDate(c.reservedDate)}
+                                  onChange={(d: Date | null) =>
+                                    updateClassroom(i, { reservedDate: toDateStr(d) })
+                                  }
+                                  locale={ko}
+                                  dateFormat="yyyy-MM-dd (eee)"
+                                  className={styles.cellInput}
+                                  popperProps={{ strategy: "fixed" }}
+                                  popperPlacement="bottom-start"
+                                />
+                              </td>
+                              <td>
+                                {hasConflict && (
                                   <span
-                                    className={`${styles.roomCountBadge} ${styles[`roomCountBadge${type.charAt(0)}`]}`}
+                                    className={styles.conflictBadge}
+                                    title={
+                                      extConflict
+                                        ? "다른 예약과 중복"
+                                        : "내부 중복"
+                                    }
                                   >
-                                    {countRoomsForDate(date, type)}
+                                    ⚠ {extConflict ? "중복" : "내부중복"}
                                   </span>
-                                ) : (
-                                  <span className={styles.zeroCount}>-</span>
                                 )}
                               </td>
-                            ))}
-                            <td className={styles.countCell}>
-                              {total > 0 ? <strong>{total}</strong> : "-"}
-                              {conflictCount > 0 && (
-                                <span
-                                  className={styles.conflictBadge}
-                                  title="중복 호실 있음"
+                              <td>
+                                <button
+                                  className={styles.removeBtn}
+                                  onClick={() => removeClassroom(i)}
                                 >
-                                  {" "}
-                                  ⚠ {conflictCount}개 중복
-                                </span>
-                              )}
-                            </td>
-                            <td>
-                              <button
-                                className={styles.pickBtn}
-                                onClick={() => setPickerDate(date)}
-                                disabled={!date}
-                              >
-                                호실 지정
-                              </button>
-                            </td>
-                            <td>
-                              <button
-                                className={styles.removeBtn}
-                                onClick={() => removeRoomDate(date, idx)}
-                              >
-                                ✕
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
+                                  ✕
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        });
+                      })()}
                     </tbody>
                   </table>
+                )}
+              </div>
+            )}
+
+            {/* 숙박 */}
+            {tab === "숙박" && (
+              <div>
+                {!form.startDate || !form.endDate ? (
+                  <p className={styles.empty}>
+                    기본정보 탭에서 입실일·퇴실일을 먼저 입력해주세요.
+                  </p>
+                ) : (
+                  <>
+                    <div className={styles.classroomStickyTop}>
+                      <div className={styles.bulkRow}>
+                        <span className={styles.bulkLabel}>
+                          전체 날짜 일괄 적용
+                        </span>
+                        <div style={{ display: "flex", gap: 6 }}>
+                          <button
+                            className={styles.applyBtn}
+                            onClick={() => setBulkRoomPickerOpen(true)}
+                          >
+                            호실 일괄 지정
+                          </button>
+                        </div>
+                      </div>
+                      <div className={styles.listHeader}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span className={styles.listCount}>
+                            총 {roomDates.length}일
+                          </span>
+                          <button
+                            className={styles.roomPrintBtn}
+                            onClick={() =>
+                              printRoomTableIntegrated(
+                                roomDates,
+                                form.rooms ?? [],
+                                form.organization ?? "",
+                              )
+                            }
+                          >
+                            🖨 통합 숙소표
+                          </button>
+                        </div>
+                        <div style={{ display: "flex", gap: 6 }}>
+                          {(form.rooms ?? []).length > 0 && (
+                            <button
+                              className={styles.removeAllBtn}
+                              onClick={() => {
+                                if (
+                                  confirm(
+                                    "숙박 날짜 및 호실 배정 전체를 삭제하시겠습니까?",
+                                  )
+                                ) {
+                                  setRoomDates([]);
+                                  setField("rooms", []);
+                                }
+                              }}
+                            >
+                              전체 제거
+                            </button>
+                          )}
+                          <button
+                            className={styles.addRowBtn}
+                            onClick={addRoomDate}
+                          >
+                            + 추가
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <table className={styles.listTable}>
+                      <thead>
+                        <tr>
+                          <th>날짜</th>
+                          <th>1인실</th>
+                          <th>2인실</th>
+                          <th>4인실</th>
+                          <th>합계</th>
+                          <th>호실 지정</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {roomDates.map((date, idx) => {
+                          const total = (form.rooms ?? []).filter(
+                            (r) => r.reservedDate === date,
+                          ).length;
+                          const roomsForDate = (form.rooms ?? []).filter(
+                            (r) => r.reservedDate === date,
+                          );
+                          const conflictCount =
+                            roomsForDate.filter(isRoomConflict).length;
+                          return (
+                            <tr
+                              key={idx}
+                              className={
+                                conflictCount > 0 ? styles.conflictRow : ""
+                              }
+                            >
+                              <td>
+                                <DatePicker
+                                  selected={toDate(date)}
+                                  onChange={(d: Date | null) =>
+                                    updateRoomDate(date, idx, toDateStr(d))
+                                  }
+                                  locale={ko}
+                                  dateFormat="yyyy-MM-dd (eee)"
+                                  className={styles.cellInput}
+                                  popperProps={{ strategy: "fixed" }}
+                                  popperPlacement="bottom-start"
+                                />
+                              </td>
+                              {ROOM_TYPES.map((type) => (
+                                <td key={type} className={styles.countCell}>
+                                  {countRoomsForDate(date, type) > 0 ? (
+                                    <span
+                                      className={`${styles.roomCountBadge} ${styles[`roomCountBadge${type.charAt(0)}`]}`}
+                                    >
+                                      {countRoomsForDate(date, type)}
+                                    </span>
+                                  ) : (
+                                    <span className={styles.zeroCount}>-</span>
+                                  )}
+                                </td>
+                              ))}
+                              <td className={styles.countCell}>
+                                {total > 0 ? <strong>{total}</strong> : "-"}
+                                {conflictCount > 0 && (
+                                  <span
+                                    className={styles.conflictBadge}
+                                    title="중복 호실 있음"
+                                  >
+                                    {" "}
+                                    ⚠ {conflictCount}개 중복
+                                  </span>
+                                )}
+                              </td>
+                              <td>
+                                <button
+                                  className={styles.pickBtn}
+                                  onClick={() => setPickerDate(date)}
+                                  disabled={!date}
+                                >
+                                  호실 지정
+                                </button>
+                              </td>
+                              <td>
+                                <button
+                                  className={styles.removeBtn}
+                                  onClick={() => removeRoomDate(date, idx)}
+                                >
+                                  ✕
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* 식수 */}
+            {tab === "식수" && (
+              <div>
+                <div className={styles.classroomStickyTop}>
+                  {/* 전체 설정 */}
+                  <div className={styles.bulkRow}>
+                    <span className={styles.bulkLabel}>전체 날짜 일괄 적용</span>
+                    <label className={styles.bulkMealLabel}>
+                      조식
+                      <input
+                        className={styles.bulkInputSm}
+                        type="number"
+                        min={0}
+                        value={bulkMeal.breakfast || ""}
+                        onChange={(e) =>
+                          setBulkMeal((p) => ({
+                            ...p,
+                            breakfast: Number(e.target.value),
+                          }))
+                        }
+                        placeholder="0"
+                      />
+                    </label>
+                    <label className={styles.bulkMealLabel}>
+                      중식
+                      <input
+                        className={styles.bulkInputSm}
+                        type="number"
+                        min={0}
+                        value={bulkMeal.lunch || ""}
+                        onChange={(e) =>
+                          setBulkMeal((p) => ({
+                            ...p,
+                            lunch: Number(e.target.value),
+                          }))
+                        }
+                        placeholder="0"
+                      />
+                    </label>
+                    <label className={styles.bulkMealLabel}>
+                      석식
+                      <input
+                        className={styles.bulkInputSm}
+                        type="number"
+                        min={0}
+                        value={bulkMeal.dinner || ""}
+                        onChange={(e) =>
+                          setBulkMeal((p) => ({
+                            ...p,
+                            dinner: Number(e.target.value),
+                          }))
+                        }
+                        placeholder="0"
+                      />
+                    </label>
+                    <button className={styles.applyBtn} onClick={applyBulkMeal}>
+                      전체 적용
+                    </button>
+                  </div>
+                  <div className={styles.listHeader}>
+                    <span className={styles.listCount}>
+                      총 {(form.meals ?? []).length}건
+                    </span>
+                    <button className={styles.addRowBtn} onClick={addMeal}>
+                      + 추가
+                    </button>
+                  </div>
+                </div>
+                {(form.meals ?? []).length === 0 ? (
+                  <p className={styles.empty}>식수 내역이 없습니다.</p>
+                ) : (
+                  <table className={styles.listTable}>
+                    <thead>
+                      <tr>
+                        <th>날짜</th>
+                        <th>조식</th>
+                        <th>중식</th>
+                        <th>석식</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(form.meals ?? []).map((m, i) => (
+                        <tr key={i}>
+                          <td>
+                            <DatePicker
+                              selected={toDate(m.reservedDate)}
+                              onChange={(d: Date | null) =>
+                                updateMeal(i, { reservedDate: toDateStr(d) })
+                              }
+                              locale={ko}
+                              dateFormat="yyyy-MM-dd (eee)"
+                              className={styles.cellInput}
+                              popperProps={{ strategy: "fixed" }}
+                              popperPlacement="bottom-start"
+                            />
+                          </td>
+                          <td>
+                            <div className={styles.mealCellWrap}>
+                              <input
+                                className={styles.cellInputSm}
+                                type="number"
+                                value={m.breakfast || ""}
+                                onChange={(e) =>
+                                  updateMeal(i, {
+                                    breakfast: Number(e.target.value),
+                                  })
+                                }
+                                placeholder="0"
+                              />
+                              <button
+                                type="button"
+                                className={`${styles.specialToggle} ${m.specialBreakfast ? styles.specialToggleOn : ""}`}
+                                onClick={() =>
+                                  updateMeal(i, {
+                                    specialBreakfast: !m.specialBreakfast,
+                                  })
+                                }
+                              >
+                                특식
+                              </button>
+                            </div>
+                          </td>
+                          <td>
+                            <div className={styles.mealCellWrap}>
+                              <input
+                                className={styles.cellInputSm}
+                                type="number"
+                                value={m.lunch || ""}
+                                onChange={(e) =>
+                                  updateMeal(i, { lunch: Number(e.target.value) })
+                                }
+                                placeholder="0"
+                              />
+                              <button
+                                type="button"
+                                className={`${styles.specialToggle} ${m.specialLunch ? styles.specialToggleOn : ""}`}
+                                onClick={() =>
+                                  updateMeal(i, { specialLunch: !m.specialLunch })
+                                }
+                              >
+                                특식
+                              </button>
+                            </div>
+                          </td>
+                          <td>
+                            <div className={styles.mealCellWrap}>
+                              <input
+                                className={styles.cellInputSm}
+                                type="number"
+                                value={m.dinner || ""}
+                                onChange={(e) =>
+                                  updateMeal(i, {
+                                    dinner: Number(e.target.value),
+                                  })
+                                }
+                                placeholder="0"
+                              />
+                              <button
+                                type="button"
+                                className={`${styles.specialToggle} ${m.specialDinner ? styles.specialToggleOn : ""}`}
+                                onClick={() =>
+                                  updateMeal(i, {
+                                    specialDinner: !m.specialDinner,
+                                  })
+                                }
+                              >
+                                특식
+                              </button>
+                            </div>
+                          </td>
+                          <td>
+                            <button
+                              className={styles.removeBtn}
+                              onClick={() => removeMeal(i)}
+                            >
+                              ✕
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className={styles.footer}>
+            <div className={styles.footerLeft}>
+              {isEdit && reservation.id && isAdmin() && (
+                <>
+                  <button
+                    className={styles.tradeBtn}
+                    disabled={trading}
+                    onClick={async () => {
+                      setTrading(true);
+                      try {
+                        await downloadTrade(
+                          reservation.id,
+                          reservation.organization,
+                        );
+                      } catch (err) {
+                        showToast(
+                          isAxiosError(err) && err.response?.status === 403
+                            ? "권한이 없습니다."
+                            : "거래명세서 생성에 실패했습니다.",
+                        );
+                      } finally {
+                        setTrading(false);
+                      }
+                    }}
+                  >
+                    {trading ? "생성 중..." : "거래명세서"}
+                  </button>
+                  <button
+                    className={styles.confirmationBtn}
+                    disabled={confirming}
+                    onClick={async () => {
+                      setConfirming(true);
+                      try {
+                        await downloadConfirmation(
+                          reservation.id,
+                          reservation.organization,
+                        );
+                      } catch (err) {
+                        showToast(
+                          isAxiosError(err) && err.response?.status === 403
+                            ? "권한이 없습니다."
+                            : "확인서 생성에 실패했습니다.",
+                        );
+                      } finally {
+                        setConfirming(false);
+                      }
+                    }}
+                  >
+                    {confirming ? "생성 중..." : "확인서"}
+                  </button>
+                  <button
+                    className={styles.estimateBtn}
+                    disabled={estimating}
+                    onClick={async () => {
+                      setEstimating(true);
+                      try {
+                        await downloadEstimate(
+                          reservation.id,
+                          reservation.organization,
+                        );
+                      } catch (err) {
+                        showToast(
+                          isAxiosError(err) && err.response?.status === 403
+                            ? "권한이 없습니다."
+                            : "견적서 생성에 실패했습니다.",
+                        );
+                      } finally {
+                        setEstimating(false);
+                      }
+                    }}
+                  >
+                    {estimating ? "생성 중..." : "견적서"}
+                  </button>
                 </>
               )}
             </div>
-          )}
-
-          {/* 식수 */}
-          {tab === "식수" && (
-            <div>
-              <div className={styles.classroomStickyTop}>
-                {/* 전체 설정 */}
-                <div className={styles.bulkRow}>
-                  <span className={styles.bulkLabel}>전체 날짜 일괄 적용</span>
-                  <label className={styles.bulkMealLabel}>
-                    조식
-                    <input
-                      className={styles.bulkInputSm}
-                      type="number"
-                      min={0}
-                      value={bulkMeal.breakfast || ""}
-                      onChange={(e) =>
-                        setBulkMeal((p) => ({
-                          ...p,
-                          breakfast: Number(e.target.value),
-                        }))
-                      }
-                      placeholder="0"
-                    />
-                  </label>
-                  <label className={styles.bulkMealLabel}>
-                    중식
-                    <input
-                      className={styles.bulkInputSm}
-                      type="number"
-                      min={0}
-                      value={bulkMeal.lunch || ""}
-                      onChange={(e) =>
-                        setBulkMeal((p) => ({
-                          ...p,
-                          lunch: Number(e.target.value),
-                        }))
-                      }
-                      placeholder="0"
-                    />
-                  </label>
-                  <label className={styles.bulkMealLabel}>
-                    석식
-                    <input
-                      className={styles.bulkInputSm}
-                      type="number"
-                      min={0}
-                      value={bulkMeal.dinner || ""}
-                      onChange={(e) =>
-                        setBulkMeal((p) => ({
-                          ...p,
-                          dinner: Number(e.target.value),
-                        }))
-                      }
-                      placeholder="0"
-                    />
-                  </label>
-                  <button className={styles.applyBtn} onClick={applyBulkMeal}>
-                    전체 적용
-                  </button>
-                </div>
-                <div className={styles.listHeader}>
-                  <span className={styles.listCount}>
-                    총 {(form.meals ?? []).length}건
-                  </span>
-                  <button className={styles.addRowBtn} onClick={addMeal}>
-                    + 추가
-                  </button>
-                </div>
-              </div>
-              {(form.meals ?? []).length === 0 ? (
-                <p className={styles.empty}>식수 내역이 없습니다.</p>
-              ) : (
-                <table className={styles.listTable}>
-                  <thead>
-                    <tr>
-                      <th>날짜</th>
-                      <th>조식</th>
-                      <th>중식</th>
-                      <th>석식</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(form.meals ?? []).map((m, i) => (
-                      <tr key={i}>
-                        <td>
-                          <input
-                            className={styles.cellInput}
-                            type="date"
-                            value={m.reservedDate}
-                            onChange={(e) =>
-                              updateMeal(i, { reservedDate: e.target.value })
-                            }
-                          />
-                        </td>
-                        <td>
-                          <div className={styles.mealCellWrap}>
-                            <input
-                              className={styles.cellInputSm}
-                              type="number"
-                              value={m.breakfast || ""}
-                              onChange={(e) =>
-                                updateMeal(i, {
-                                  breakfast: Number(e.target.value),
-                                })
-                              }
-                              placeholder="0"
-                            />
-                            <button
-                              type="button"
-                              className={`${styles.specialToggle} ${m.specialBreakfast ? styles.specialToggleOn : ""}`}
-                              onClick={() =>
-                                updateMeal(i, {
-                                  specialBreakfast: !m.specialBreakfast,
-                                })
-                              }
-                            >
-                              특식
-                            </button>
-                          </div>
-                        </td>
-                        <td>
-                          <div className={styles.mealCellWrap}>
-                            <input
-                              className={styles.cellInputSm}
-                              type="number"
-                              value={m.lunch || ""}
-                              onChange={(e) =>
-                                updateMeal(i, { lunch: Number(e.target.value) })
-                              }
-                              placeholder="0"
-                            />
-                            <button
-                              type="button"
-                              className={`${styles.specialToggle} ${m.specialLunch ? styles.specialToggleOn : ""}`}
-                              onClick={() =>
-                                updateMeal(i, { specialLunch: !m.specialLunch })
-                              }
-                            >
-                              특식
-                            </button>
-                          </div>
-                        </td>
-                        <td>
-                          <div className={styles.mealCellWrap}>
-                            <input
-                              className={styles.cellInputSm}
-                              type="number"
-                              value={m.dinner || ""}
-                              onChange={(e) =>
-                                updateMeal(i, {
-                                  dinner: Number(e.target.value),
-                                })
-                              }
-                              placeholder="0"
-                            />
-                            <button
-                              type="button"
-                              className={`${styles.specialToggle} ${m.specialDinner ? styles.specialToggleOn : ""}`}
-                              onClick={() =>
-                                updateMeal(i, {
-                                  specialDinner: !m.specialDinner,
-                                })
-                              }
-                            >
-                              특식
-                            </button>
-                          </div>
-                        </td>
-                        <td>
-                          <button
-                            className={styles.removeBtn}
-                            onClick={() => removeMeal(i)}
-                          >
-                            ✕
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+            <div className={styles.footerRight}>
+              <button className={styles.cancelBtn} onClick={handleClose}>
+                닫기
+              </button>
+              <button
+                className={styles.saveBtn}
+                onClick={handleSave}
+                disabled={saving || (!isDirty && isEdit)}
+              >
+                {saving ? "저장 중..." : "저장"}
+              </button>
             </div>
-          )}
+          </div>
         </div>
 
-        <div className={styles.footer}>
-          <div className={styles.footerLeft}>
-            {isEdit && reservation.id && (
-              <>
+        {/* 토스트 알림 */}
+        {toast && (
+          <div className={`${styles.toast} ${styles[`toast_${toast.type}`]}`}>
+            {toast.message}
+          </div>
+        )}
+
+        {/* 확인 다이얼로그 */}
+        {confirmDialog && (
+          <div className={styles.confirmOverlay}>
+            <div className={styles.confirmBox}>
+              <p className={styles.confirmMsg}>{confirmDialog.message}</p>
+              <div className={styles.confirmBtns}>
                 <button
-                  className={styles.tradeBtn}
-                  disabled={trading}
-                  onClick={async () => {
-                    setTrading(true);
-                    try {
-                      await downloadTrade(
-                        reservation.id,
-                        reservation.organization,
-                      );
-                    } catch {
-                      alert("거래명세서 생성에 실패했습니다.");
-                    } finally {
-                      setTrading(false);
-                    }
-                  }}
+                  className={styles.confirmCancelBtn}
+                  onClick={() => setConfirmDialog(null)}
                 >
-                  {trading ? "생성 중..." : "거래명세서"}
+                  취소
                 </button>
                 <button
-                  className={styles.confirmationBtn}
-                  disabled={confirming}
-                  onClick={async () => {
-                    setConfirming(true);
-                    try {
-                      await downloadConfirmation(
-                        reservation.id,
-                        reservation.organization,
-                      );
-                    } catch {
-                      alert("확인서 생성에 실패했습니다.");
-                    } finally {
-                      setConfirming(false);
-                    }
+                  className={styles.confirmOkBtn}
+                  onClick={() => {
+                    setConfirmDialog(null);
+                    confirmDialog.onConfirm();
                   }}
                 >
-                  {confirming ? "생성 중..." : "확인서"}
+                  확인
                 </button>
-                <button
-                  className={styles.estimateBtn}
-                  disabled={estimating}
-                  onClick={async () => {
-                    setEstimating(true);
-                    try {
-                      await downloadEstimate(
-                        reservation.id,
-                        reservation.organization,
-                      );
-                    } catch {
-                      alert("견적서 생성에 실패했습니다.");
-                    } finally {
-                      setEstimating(false);
-                    }
-                  }}
-                >
-                  {estimating ? "생성 중..." : "견적서"}
-                </button>
-              </>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 호실 선택 도면 모달 */}
+        {pickerDate && (
+          <RoomPickerModal
+            date={pickerDate}
+            selected={getRoomsForDate(pickerDate).filter(
+              (r) => !getOccupiedRoomsForDate(pickerDate).includes(r),
             )}
-          </div>
-          <div className={styles.footerRight}>
-            <button className={styles.cancelBtn} onClick={onClose}>
-              닫기
-            </button>
-            <button
-              className={styles.saveBtn}
-              onClick={handleSave}
-              disabled={saving}
-            >
-              {saving ? "저장 중..." : "저장"}
-            </button>
-          </div>
-        </div>
+            occupiedRooms={getOccupiedRoomsForDate(pickerDate)}
+            onConfirm={(rooms) => handleRoomConfirm(pickerDate, rooms)}
+            onClose={() => setPickerDate(null)}
+          />
+        )}
+
+        {/* 일괄 호실 지정 모달 */}
+        {bulkRoomPickerOpen && (
+          <RoomPickerModal
+            date="전체 날짜"
+            selected={getRoomsForDate(getRoomDateRange()[0] ?? "")}
+            occupiedRooms={[]}
+            onConfirm={applyBulkRooms}
+            onClose={() => setBulkRoomPickerOpen(false)}
+          />
+        )}
       </div>
-
-      {/* 호실 선택 도면 모달 */}
-      {pickerDate && (
-        <RoomPickerModal
-          date={pickerDate}
-          selected={getRoomsForDate(pickerDate).filter(
-            (r) => !getOccupiedRoomsForDate(pickerDate).includes(r),
-          )}
-          occupiedRooms={getOccupiedRoomsForDate(pickerDate)}
-          onConfirm={(rooms) => handleRoomConfirm(pickerDate, rooms)}
-          onClose={() => setPickerDate(null)}
-        />
-      )}
-
-      {/* 일괄 호실 지정 모달 */}
-      {bulkRoomPickerOpen && (
-        <RoomPickerModal
-          date="전체 날짜"
-          selected={getRoomsForDate(getRoomDateRange()[0] ?? "")}
-          occupiedRooms={[]}
-          onConfirm={applyBulkRooms}
-          onClose={() => setBulkRoomPickerOpen(false)}
-        />
-      )}
-    </div>
+    </>
   );
 }

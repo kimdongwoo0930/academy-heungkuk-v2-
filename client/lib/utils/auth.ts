@@ -21,3 +21,15 @@ export function getCurrentUserRole(): string | null {
 export function isAdmin(): boolean {
   return getCurrentUserRole() === 'ROLE_ADMIN';
 }
+
+export function getCurrentUserId(): string | null {
+  if (typeof window === 'undefined') return null;
+  const token = localStorage.getItem('accessToken');
+  if (!token) return null;
+  try {
+    const payload = parseJwtPayload(token);
+    return (payload.sub as string) ?? null;
+  } catch {
+    return null;
+  }
+}

@@ -3,17 +3,30 @@
 import HeungkukLogo from "@/components/ui/HeungkukLogo";
 import { isAdmin } from "@/lib/utils/auth";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import {
+  BsCalendar3,
+  BsClipboardCheck,
+  BsBuildingCheck,
+  BsFileEarmarkText,
+  BsBarChart,
+  BsGear,
+  BsLayoutSidebarReverse,
+  BsLayoutSidebar,
+} from "react-icons/bs";
+import { MdRestaurant } from "react-icons/md";
+import { IconType } from "react-icons";
+import ProfileDropdown from "./ProfileDropdown";
 import styles from "./Sidebar.module.css";
 
-const NAV_ITEMS = [
-  { label: "일정 현황", href: "/scheduler", icon: "📅", adminOnly: false, disabled: false },
-  { label: "예약 관리", href: "/reservation", icon: "📋", adminOnly: false, disabled: false },
-  { label: "식수 관리", href: "/restaurant", icon: "🍽️", adminOnly: false, disabled: false },
-  { label: "숙박 현황", href: "/accommodation", icon: "🛏️", adminOnly: false, disabled: false },
-  { label: "문서 관리", href: "/document", icon: "📄", adminOnly: true, disabled: false },
-  { label: "설문 관리", href: "/load", icon: "📝", adminOnly: false, disabled: false },
-  { label: "설정", href: "/settings", icon: "⚙️", adminOnly: true, disabled: false },
+const NAV_ITEMS: { label: string; href: string; Icon: IconType; adminOnly: boolean; disabled: boolean }[] = [
+  { label: "일정 현황", href: "/scheduler", Icon: BsCalendar3, adminOnly: false, disabled: false },
+  { label: "예약 관리", href: "/reservation", Icon: BsClipboardCheck, adminOnly: false, disabled: false },
+  { label: "식수 관리", href: "/restaurant", Icon: MdRestaurant, adminOnly: false, disabled: false },
+  { label: "숙박 현황", href: "/accommodation", Icon: BsBuildingCheck, adminOnly: false, disabled: false },
+  { label: "문서 관리", href: "/document", Icon: BsFileEarmarkText, adminOnly: true, disabled: false },
+  { label: "설문 관리", href: "/load", Icon: BsBarChart, adminOnly: false, disabled: false },
+  { label: "설정", href: "/settings", Icon: BsGear, adminOnly: true, disabled: false },
 ];
 
 interface Props {
@@ -23,13 +36,7 @@ interface Props {
 
 export default function Sidebar({ collapsed, onToggle }: Props) {
   const pathname = usePathname();
-  const router = useRouter();
   const admin = isAdmin();
-
-  const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    router.push("/auth/login");
-  };
 
   return (
     <aside className={`${styles.sidebar} ${collapsed ? styles.collapsed : ""}`}>
@@ -47,7 +54,7 @@ export default function Sidebar({ collapsed, onToggle }: Props) {
           onClick={onToggle}
           title={collapsed ? "메뉴 펼치기" : "메뉴 접기"}
         >
-          {collapsed ? "▶" : "◀"}
+          {collapsed ? <BsLayoutSidebar /> : <BsLayoutSidebarReverse />}
         </button>
       </div>
 
@@ -59,7 +66,7 @@ export default function Sidebar({ collapsed, onToggle }: Props) {
               className={`${styles.navItem} ${styles.navItemDisabled} ${collapsed ? styles.navItemCollapsed : ""}`}
               title={collapsed ? `${item.label} (준비중)` : undefined}
             >
-              <span className={styles.navIcon}>{item.icon}</span>
+              <item.Icon className={styles.navIcon} />
               {!collapsed && (
                 <>
                   {item.label}
@@ -74,23 +81,14 @@ export default function Sidebar({ collapsed, onToggle }: Props) {
               className={`${styles.navItem} ${pathname.startsWith(item.href) ? styles.active : ""} ${collapsed ? styles.navItemCollapsed : ""}`}
               title={collapsed ? item.label : undefined}
             >
-              <span className={styles.navIcon}>{item.icon}</span>
+              <item.Icon className={styles.navIcon} />
               {!collapsed && item.label}
             </Link>
           )
         )}
       </nav>
 
-      <div className={styles.bottom}>
-        <button
-          className={`${styles.logoutBtn} ${collapsed ? styles.logoutBtnCollapsed : ""}`}
-          onClick={handleLogout}
-          title={collapsed ? "로그아웃" : undefined}
-        >
-          <span>🚪</span>
-          {!collapsed && "로그아웃"}
-        </button>
-      </div>
+      <ProfileDropdown collapsed={collapsed} />
     </aside>
   );
 }

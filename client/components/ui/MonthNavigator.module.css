@@ -1,0 +1,51 @@
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navBtn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.navBtn:hover {
+  background: #f0f0f0;
+}
+
+.monthLabel {
+  font-size: 16px;
+  font-weight: 700;
+  min-width: 100px;
+  text-align: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.monthLabel:hover {
+  background: #f0f0f0;
+}
+
+.monthInput {
+  font-size: 14px;
+  font-weight: 700;
+  min-width: 130px;
+  text-align: center;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 3px 6px;
+  outline: none;
+  color: var(--text);
+}

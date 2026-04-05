@@ -1,0 +1,224 @@
+.wrapper {
+  position: relative;
+  padding: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.profileBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.85);
+  transition: background 0.15s;
+  text-align: left;
+  cursor: pointer;
+}
+
+.profileBtn.collapsed {
+  justify-content: center;
+  padding: 8px 0;
+}
+
+.profileBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.userId {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.role {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.roleIcon {
+  font-size: 11px;
+}
+
+/* 드롭다운 */
+.dropdown {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 12px;
+  right: 12px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  z-index: 200;
+}
+
+.dropdownCollapsed {
+  left: 56px;
+  right: auto;
+  width: 160px;
+  bottom: 12px;
+}
+
+.dropdownItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #333;
+  transition: background 0.12s;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dropdownItem:hover {
+  background: #f5f5f5;
+}
+
+.itemIcon {
+  font-size: 15px;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.divider {
+  height: 1px;
+  background: #eee;
+}
+
+.logout {
+  color: #e53e3e;
+}
+
+.logout .itemIcon {
+  color: #e53e3e;
+}
+
+/* 비밀번호 변경 모달 */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px;
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modalTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111;
+}
+
+.modalField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modalField label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #444;
+}
+
+.input {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input:focus {
+  border-color: var(--primary);
+}
+
+.errorMsg {
+  font-size: 12px;
+  color: #e53e3e;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.cancelBtn {
+  padding: 9px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #555;
+  background: #f0f0f0;
+  transition: background 0.12s;
+  cursor: pointer;
+}
+
+.cancelBtn:hover {
+  background: #e5e5e5;
+}
+
+.confirmBtn {
+  padding: 9px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--primary);
+  transition: opacity 0.12s;
+  cursor: pointer;
+}
+
+.confirmBtn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.confirmBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
