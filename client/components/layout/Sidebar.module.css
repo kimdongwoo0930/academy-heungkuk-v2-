@@ -26,6 +26,19 @@
   flex-shrink: 0;
 }
 
+.logoIconWrap {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoIconWrap svg {
+  display: block;
+  transform: translateY(1px);
+}
+
 .toggleBtn {
   margin-left: auto;
   width: 24px;
@@ -46,10 +59,13 @@
 }
 
 .logoText {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   color: #ffffff;
   font-size: 13px;
   font-weight: 700;
-  line-height: 1.4;
+  line-height: 1.25;
 }
 
 .nav {

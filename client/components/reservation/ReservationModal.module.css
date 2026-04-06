@@ -1,1152 +1,1168 @@
 .overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
 }
 
 .modal {
-  position: relative;
-  background: var(--surface);
-  border-radius: 12px;
-  width: 600px;
-  max-width: 95vw;
-  max-height: 82vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+    position: relative;
+    background: var(--surface);
+    border-radius: 12px;
+    width: 600px;
+    max-width: 95vw;
+    max-height: 82vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 }
 
 .modalHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 14px 20px 0;
-  cursor: grab;
-  user-select: none;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 14px 20px 0;
+    cursor: grab;
+    user-select: none;
 }
 
 .modalHeader:active {
-  cursor: grabbing;
+    cursor: grabbing;
 }
 
 .modalTitleRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .modalTitle {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
 }
 
 .statusBadge {
-  appearance: none;
-  -webkit-appearance: none;
-  border: none;
-  border-radius: 20px;
-  padding: 3px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
 }
 
 .status_확정 {
-  background: #d1fae5;
-  color: #065f46;
+    background: #d1fae5;
+    color: #065f46;
 }
 
 .status_예약 {
-  background: #dbeafe;
-  color: #1e40af;
+    background: #dbeafe;
+    color: #1e40af;
 }
 
 .status_문의 {
-  background: #fef3c7;
-  color: #92400e;
+    background: #fef3c7;
+    color: #92400e;
 }
 
 .status_취소 {
-  background: #fee2e2;
-  color: #991b1b;
+    background: #fee2e2;
+    color: #991b1b;
 }
 
 .reqNote {
-  font-size: 11px;
-  color: var(--text-sub);
-  margin-top: 3px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+    font-size: 11px;
+    color: var(--text-sub);
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .createdAt {
-  font-size: 11px;
-  color: var(--text-sub);
-  opacity: 0.7;
-  margin-left: auto;
-  padding-bottom: 4px;
+    font-size: 11px;
+    color: var(--text-sub);
+    opacity: 0.7;
+    margin-left: auto;
+    padding-bottom: 4px;
 }
 
 .closeBtn {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  font-size: 14px;
-  color: var(--text-sub);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: var(--text-sub);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
 }
 
 .closeBtn:hover {
-  background: #f0f0f0;
+    background: #f0f0f0;
 }
 
 /* 탭 */
 .tabs {
-  display: flex;
-  gap: 0;
-  padding: 8px 20px 0;
-  border-bottom: 1px solid var(--border);
-  align-items: center;
+    display: flex;
+    gap: 0;
+    padding: 8px 20px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
 }
 
 .tab {
-  padding: 6px 14px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-sub);
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  transition:
-    color 0.15s,
-    border-color 0.15s;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-sub);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition:
+        color 0.15s,
+        border-color 0.15s;
 }
 
 .tab:hover {
-  color: var(--text);
+    color: var(--text);
 }
 
 .activeTab {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
-  font-weight: 700;
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 700;
 }
 
 /* 본문 */
 .body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 14px 20px;
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 20px;
 }
 
 /* 기본정보 그리드 */
 .grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 16px;
 }
 
 .fullWidth {
-  grid-column: 1 / -1;
+    grid-column: 1 / -1;
 }
 
 .grid3 {
-  display: grid;
-  grid-template-columns: 1fr 2fr 80px;
-  gap: 10px 16px;
+    display: grid;
+    grid-template-columns: 1fr 2fr 80px;
+    gap: 10px 16px;
 }
 
 .grid3equal {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px 16px;
 }
 
 .grid4contact {
-  display: grid;
-  grid-template-columns: 100px 0.9fr 0.9fr 1.6fr;
-  gap: 10px 16px;
+    display: grid;
+    grid-template-columns: 100px 110px 110px 1.6fr;
+    gap: 10px 16px;
 }
 
 .grid4billing {
-  display: grid;
-  grid-template-columns: 90px 90px 1fr 1.4fr;
-  gap: 10px 16px;
-  align-items: end;
+    display: grid;
+    grid-template-columns: 90px 110px 0.8fr 1.4fr;
+    gap: 10px 16px;
+    align-items: end;
 }
 
 .grid2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 16px;
 }
 
 .paymentMethodRow {
-  display: flex;
-  align-items: flex-end;
+    display: flex;
+    align-items: flex-end;
+}
+
+.billingSameCheckbox {
+    font-weight: 500;
+}
+
+.billingSameRow {
+    margin-top: 6px;
 }
 
 .addressRow {
-  display: grid;
-  grid-template-columns: 160px 1fr;
-  gap: 10px 16px;
-  align-items: end;
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 10px 16px;
+    align-items: end;
 }
 
 .addressField {
-  width: 100%;
+    width: 100%;
 }
 
 .zipRow {
-  display: flex;
-  gap: 6px;
+    display: flex;
+    gap: 6px;
 }
 
 .zipSearchBtn {
-  flex-shrink: 0;
-  padding: 0 10px;
-  height: 28px;
-  background: var(--primary);
-  color: #fff;
-  border-radius: 5px;
-  font-size: 10px;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: opacity 0.12s;
+    flex-shrink: 0;
+    padding: 0 10px;
+    height: 28px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.12s;
 }
 
 .zipSearchBtn:hover {
-  opacity: 0.85;
+    opacity: 0.85;
 }
 
 .dateRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  align-items: end;
-  gap: 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    align-items: end;
+    gap: 12px;
 }
 
 .dateField {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .labelText {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-sub);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-sub);
 }
 
 .dateInputWrap {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .dateInputWrap .input {
-  width: 140px;
+    width: 140px;
 }
 
 .dayBadge {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--primary);
-  white-space: nowrap;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--primary);
+    white-space: nowrap;
 }
 
 .dateOptions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  height: 30px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 30px;
 }
 
 .sectionLabelRow {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .sectionLabel {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--primary);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding-bottom: 2px;
-  margin-top: 4px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding-bottom: 2px;
+    margin-top: 4px;
 }
 
 .sectionDivider {
-  height: 1px;
-  background: var(--border);
-  margin: 6px 0 2px;
+    height: 1px;
+    background: var(--border);
+    margin: 6px 0 2px;
 }
 
 .row {
-  display: flex;
-  gap: 8px;
-  margin-top: 4px;
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
 }
 
 .checkboxGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    grid-column: 1 / -1;
 }
 
 .checkboxRow {
-  display: flex;
-  gap: 16px;
+    display: flex;
+    gap: 16px;
 }
 
 .label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-sub);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-sub);
 }
 
 .req {
-  color: var(--accent);
+    color: var(--accent);
 }
 
 .checkboxLabel {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    cursor: pointer;
 }
 
 .dateError {
-  font-size: 11px;
-  color: #e74c3c;
-  margin-top: -8px;
+    font-size: 11px;
+    color: #e74c3c;
+    margin-top: -8px;
 }
 
 .inputError {
-  border-color: #e74c3c !important;
+    border-color: #e74c3c !important;
 }
 
 /* 강의실 탭 상단 고정 영역 */
 .classroomStickyTop {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  background: var(--surface);
-  padding-bottom: 2px;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--surface);
+    padding-bottom: 2px;
 }
 
 /* 일괄 적용 행 */
 .bulkRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 10px 14px;
-  background: #f8f9fb;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    background: #f8f9fb;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
 }
 
 .bulkLabel {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-sub);
-  white-space: nowrap;
-  margin-right: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-sub);
+    white-space: nowrap;
+    margin-right: 4px;
 }
 
 .bulkClassroomList {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
 .bulkClassroomItem {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .removeBulkBtn {
-  width: 22px;
-  height: 22px;
-  border-radius: 4px;
-  font-size: 14px;
-  color: var(--text-sub);
-  background: #fff;
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  cursor: pointer;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    font-size: 14px;
+    color: var(--text-sub);
+    background: #fff;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
 }
 
 .removeBulkBtn:hover {
-  background: #fee2e2;
-  border-color: #f87171;
-  color: #dc2626;
+    background: #fee2e2;
+    border-color: #f87171;
+    color: #dc2626;
 }
 
 .addBulkBtn {
-  height: 28px;
-  padding: 0 10px;
-  border: 1px dashed var(--border);
-  border-radius: 6px;
-  font-size: 12px;
-  color: var(--text-sub);
-  background: #fff;
-  cursor: pointer;
-  white-space: nowrap;
-  align-self: flex-end;
+    height: 28px;
+    padding: 0 10px;
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text-sub);
+    background: #fff;
+    cursor: pointer;
+    white-space: nowrap;
+    align-self: flex-end;
 }
 
 .addBulkBtn:hover {
-  background: #f0f7ff;
-  border-color: var(--primary);
-  color: var(--primary);
+    background: #f0f7ff;
+    border-color: var(--primary);
+    color: var(--primary);
 }
 
 .bulkMealLabel {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  color: var(--text-sub);
-  font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--text-sub);
+    font-weight: 600;
 }
 
 .bulkInputSm {
-  width: 60px;
-  height: 30px;
-  padding: 0 6px;
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  font-size: 12px;
-  text-align: center;
-  outline: none;
-  font-family: inherit;
+    width: 60px;
+    height: 30px;
+    padding: 0 6px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 12px;
+    text-align: center;
+    outline: none;
+    font-family: inherit;
 }
 
 .bulkInputSm:focus {
-  border-color: var(--accent);
+    border-color: var(--accent);
 }
 
 .roomPrintBtn {
-  height: 30px;
-  padding: 0 12px;
-  background: var(--surface);
-  color: var(--text-sub);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
+    height: 30px;
+    padding: 0 12px;
+    background: var(--surface);
+    color: var(--text-sub);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
 }
 
 .roomPrintBtn:hover {
-  background: #f0f0f0;
+    background: #f0f0f0;
 }
 
 .roomPrintIconBtn {
-  width: 26px;
-  height: 26px;
-  border-radius: 5px;
-  background: #f5f5f5;
-  border: 1px solid var(--border);
-  font-size: 12px;
-  cursor: pointer;
-  transition: background 0.15s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 5px;
+    background: #f5f5f5;
+    border: 1px solid var(--border);
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .roomPrintIconBtn:hover {
-  background: #e8eaf6;
+    background: #e8eaf6;
 }
 
 .roomPrintIconBtn:disabled {
-  opacity: 0.4;
-  cursor: default;
+    opacity: 0.4;
+    cursor: default;
 }
 
 .applyBtn {
-  height: 30px;
-  padding: 0 14px;
-  background: var(--accent);
-  color: #fff;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 700;
-  transition: background 0.15s;
+    height: 30px;
+    padding: 0 14px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    transition: background 0.15s;
+    margin-left: auto;
 }
 
 .applyBtn:hover {
-  background: var(--accent-hover);
+    background: var(--accent-hover);
 }
 
 .input,
 .select,
 .textarea {
-  height: 30px;
-  padding: 0 8px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 12px;
-  color: var(--text);
-  background: var(--surface);
-  outline: none;
-  transition: border-color 0.15s;
-  width: 100%;
-  font-family: inherit;
+    height: 30px;
+    padding: 0 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text);
+    background: var(--surface);
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+    font-family: inherit;
 }
 
 .input:focus,
 .select:focus,
 .textarea:focus {
-  border-color: var(--accent);
+    border-color: var(--accent);
 }
 
 .textarea {
-  height: auto;
-  padding: 8px 10px;
-  resize: vertical;
+    height: auto;
+    padding: 8px 10px;
+    resize: vertical;
 }
 
 /* 색상 */
 .colorRow {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 6px;
-  padding-top: 2px;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    padding-top: 2px;
 }
 
 .memoColorRow {
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
 }
 
 .memoFlex {
-  flex: 1;
+    flex: 1;
 }
 
 .memoFlex .textarea {
-  height: 178px;
-  resize: none;
+    height: 178px;
+    resize: none;
 }
 
 .colorGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 20px);
-  gap: 6px;
-  padding-top: 2px;
+    display: grid;
+    grid-template-columns: repeat(3, 20px);
+    gap: 6px;
+    padding-top: 2px;
 }
 
 .colorSwatch {
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  border: 2px solid transparent;
-  transition:
-    transform 0.1s,
-    border-color 0.1s;
-  flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 2px solid transparent;
+    transition:
+        transform 0.1s,
+        border-color 0.1s;
+    flex-shrink: 0;
 }
 
 .colorSwatch:hover {
-  transform: scale(1.15);
+    transform: scale(1.15);
 }
 
 .colorSelected {
-  border-color: #333 !important;
-  transform: scale(1.15);
+    border-color: #333 !important;
+    transform: scale(1.15);
 }
 
 /* 리스트 탭 공통 */
 .listHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
 }
 
 .listCount {
-  font-size: 12px;
-  color: var(--text-sub);
+    font-size: 12px;
+    color: var(--text-sub);
 }
 
 .removeAllBtn {
-  height: 30px;
-  padding: 0 12px;
-  background: #fff;
-  color: #dc2626;
-  border: 1px solid #dc2626;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  transition: background 0.15s;
+    height: 30px;
+    padding: 0 12px;
+    background: #fff;
+    color: #dc2626;
+    border: 1px solid #dc2626;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background 0.15s;
 }
 
 .removeAllBtn:hover {
-  background: #fef2f2;
+    background: #fef2f2;
 }
 
 .addRowBtn {
-  height: 30px;
-  padding: 0 14px;
-  background: var(--primary);
-  color: #fff;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  transition: background 0.15s;
+    height: 30px;
+    padding: 0 14px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background 0.15s;
 }
 
 .addRowBtn:hover {
-  background: var(--primary-hover);
+    background: var(--primary-hover);
 }
 
 .empty {
-  text-align: center;
-  color: var(--text-sub);
-  font-size: 13px;
-  padding: 24px 0;
+    text-align: center;
+    color: var(--text-sub);
+    font-size: 13px;
+    padding: 24px 0;
 }
 
 .listTable {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
 }
 
 .listTable th {
-  background: #f8f9fb;
-  padding: 8px 10px;
-  text-align: left;
-  font-weight: 600;
-  color: var(--text-sub);
-  border-bottom: 1px solid var(--border);
-  font-size: 12px;
+    background: #f8f9fb;
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-sub);
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
 }
 
 .listTable td {
-  padding: 6px 6px;
-  border-bottom: 1px solid #f0f0f0;
-  vertical-align: middle;
+    padding: 6px 6px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
 }
 
 .cellInput {
-  width: 100%;
-  height: 32px;
-  padding: 0 8px;
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  font-size: 12px;
-  outline: none;
-  font-family: inherit;
+    width: 100%;
+    height: 32px;
+    padding: 0 8px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 12px;
+    outline: none;
+    font-family: inherit;
 }
 
 .cellInput:focus {
-  border-color: var(--accent);
+    border-color: var(--accent);
 }
 
 .cellInputSm {
-  width: 64px;
-  height: 32px;
-  padding: 0 6px;
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  font-size: 12px;
-  text-align: center;
-  outline: none;
-  font-family: inherit;
+    width: 64px;
+    height: 32px;
+    padding: 0 6px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 12px;
+    text-align: center;
+    outline: none;
+    font-family: inherit;
 }
 
 .cellInputSm:focus {
-  border-color: var(--accent);
+    border-color: var(--accent);
 }
 
 .cellSelect {
-  height: 32px;
-  padding: 0 6px;
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  font-size: 12px;
-  background: var(--surface);
-  outline: none;
-  font-family: inherit;
-  min-width: 80px;
+    height: 32px;
+    padding: 0 6px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 12px;
+    background: var(--surface);
+    outline: none;
+    font-family: inherit;
+    min-width: 80px;
 }
 
 .cellSelect:focus {
-  border-color: var(--accent);
+    border-color: var(--accent);
 }
 
 /* 중복 충돌 */
 .conflictRow {
-  background: #fff5f5;
+    background: #fff5f5;
 }
 
 .conflictBadge {
-  font-size: 10px;
-  color: #e74c3c;
-  font-weight: 700;
-  white-space: nowrap;
+    font-size: 10px;
+    color: #e74c3c;
+    font-weight: 700;
+    white-space: nowrap;
 }
 
 /* 숙박 탭 */
 .countCell {
-  text-align: center;
+    text-align: center;
 }
 
 .roomCountBadge {
-  font-size: 13px;
-  font-weight: 700;
+    font-size: 13px;
+    font-weight: 700;
 }
 
 .roomCountBadge1 {
-  color: #EC008C;
+    color: #ec008c;
 }
 
 .roomCountBadge2 {
-  color: #0087D4;
+    color: #0087d4;
 }
 
 .roomCountBadge4 {
-  color: #F5A623;
+    color: #f5a623;
 }
 
 .zeroCount {
-  color: #ccc;
-  font-size: 13px;
+    color: #ccc;
+    font-size: 13px;
 }
 
 .pickBtn {
-  height: 28px;
-  padding: 0 12px;
-  background: #f0f0f0;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--primary);
-  transition: background 0.15s;
+    height: 28px;
+    padding: 0 12px;
+    background: #f0f0f0;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--primary);
+    transition: background 0.15s;
 }
 
 .pickBtn:hover {
-  background: #e0e6f8;
+    background: #e0e6f8;
 }
 
 .removeBtn {
-  width: 26px;
-  height: 26px;
-  border-radius: 5px;
-  font-size: 11px;
-  color: #999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition:
-    background 0.15s,
-    color 0.15s;
+    width: 26px;
+    height: 26px;
+    border-radius: 5px;
+    font-size: 11px;
+    color: #999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+        background 0.15s,
+        color 0.15s;
 }
 
 .removeBtn:hover {
-  background: #fde8e8;
-  color: #c0392b;
+    background: #fde8e8;
+    color: #c0392b;
 }
 
 /* 불러오기 */
 .loadWrap {
-  margin-bottom: 4px;
+    margin-bottom: 4px;
 }
 
 .loadBtn {
-  height: 32px;
-  padding: 0 14px;
-  background: #f0f4ff;
-  color: #3b6ef0;
-  border: 1px solid #c5d3f7;
-  border-radius: 7px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
+    height: 32px;
+    padding: 0 14px;
+    background: #f0f4ff;
+    color: #3b6ef0;
+    border: 1px solid #c5d3f7;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
 }
 
 .loadBtn:hover {
-  background: #dce8ff;
+    background: #dce8ff;
 }
 
 .loadPanel {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-  background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--surface);
 }
 
 .loadSearchRow {
-  display: flex;
-  gap: 8px;
-  padding: 10px;
-  border-bottom: 1px solid var(--border);
-  background: #f8f9fb;
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+    background: #f8f9fb;
 }
 
 .loadInput {
-  flex: 1;
-  height: 32px;
-  padding: 0 10px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 13px;
-  outline: none;
-  font-family: inherit;
+    flex: 1;
+    height: 32px;
+    padding: 0 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+    font-family: inherit;
 }
 
 .loadInput:focus {
-  border-color: var(--accent);
+    border-color: var(--accent);
 }
 
 .loadCancelBtn {
-  height: 32px;
-  padding: 0 12px;
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 12px;
-  color: var(--text-sub);
-  cursor: pointer;
+    height: 32px;
+    padding: 0 12px;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text-sub);
+    cursor: pointer;
 }
 
 .loadEmpty {
-  padding: 16px;
-  text-align: center;
-  font-size: 13px;
-  color: var(--text-sub);
+    padding: 16px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-sub);
 }
 
 .loadList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
 .loadItem {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  cursor: pointer;
-  border-bottom: 1px solid #f0f0f0;
-  transition: background 0.1s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.1s;
 }
 
 .loadItem:last-child {
-  border-bottom: none;
+    border-bottom: none;
 }
 
 .loadItem:hover {
-  background: #f5f7ff;
+    background: #f5f7ff;
 }
 
 .loadDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
 }
 
 .loadOrg {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text);
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .loadCustomer {
-  font-size: 12px;
-  color: var(--text-sub);
-  white-space: nowrap;
+    font-size: 12px;
+    color: var(--text-sub);
+    white-space: nowrap;
 }
 
 .loadDate {
-  font-size: 11px;
-  color: #aaa;
-  white-space: nowrap;
+    font-size: 11px;
+    color: #aaa;
+    white-space: nowrap;
 }
 
 /* 푸터 */
 .footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-top: 1px solid var(--border);
 }
 
 .footerLeft {
-  display: flex;
-  gap: 6px;
+    display: flex;
+    gap: 6px;
 }
 
 .footerRight {
-  display: flex;
-  gap: 6px;
+    display: flex;
+    gap: 6px;
 }
 
 .cancelBtn {
-  height: 30px;
-  padding: 0 14px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 12px;
-  color: var(--text-sub);
-  background: var(--surface);
-  transition: background 0.15s;
+    height: 30px;
+    padding: 0 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text-sub);
+    background: var(--surface);
+    transition: background 0.15s;
 }
 
 .cancelBtn:hover {
-  background: #f5f5f5;
+    background: #f5f5f5;
 }
 
 .tradeBtn {
-  height: 30px;
-  padding: 0 12px;
-  background: #fff;
-  color: #2980b9;
-  border: 1.5px solid #2980b9;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
+    height: 30px;
+    padding: 0 12px;
+    background: #fff;
+    color: #2980b9;
+    border: 1.5px solid #2980b9;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
 }
 
 .tradeBtn:hover {
-  background: #eef6fc;
+    background: #eef6fc;
 }
 
 .tradeBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .confirmationBtn {
-  height: 30px;
-  padding: 0 12px;
-  background: #fff;
-  color: #d97706;
-  border: 1.5px solid #d97706;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
+    height: 30px;
+    padding: 0 12px;
+    background: #fff;
+    color: #d97706;
+    border: 1.5px solid #d97706;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
 }
 
 .confirmationBtn:hover {
-  background: #fff7ed;
+    background: #fff7ed;
 }
 
 .confirmationBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .estimateBtn {
-  height: 30px;
-  padding: 0 12px;
-  background: #fff;
-  color: #27ae60;
-  border: 1.5px solid #27ae60;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
+    height: 30px;
+    padding: 0 12px;
+    background: #fff;
+    color: #27ae60;
+    border: 1.5px solid #27ae60;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
 }
 
 .estimateBtn:hover {
-  background: #f0faf4;
+    background: #f0faf4;
 }
 
 .estimateBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .saveBtn {
-  height: 30px;
-  padding: 0 18px;
-  background: var(--accent);
-  color: #fff;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 700;
-  transition: background 0.15s;
+    height: 30px;
+    padding: 0 18px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    transition: background 0.15s;
 }
 
 .saveBtn:hover {
-  background: var(--accent-hover);
+    background: var(--accent-hover);
 }
 
 .mealCellWrap {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .specialToggle {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 20px;
-  border: 1px solid #d0d0d0;
-  background: transparent;
-  color: #aaa;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.15s;
-  line-height: 1.4;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 20px;
+    border: 1px solid #d0d0d0;
+    background: transparent;
+    color: #aaa;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    line-height: 1.4;
 }
 
 .specialToggle:hover {
-  border-color: #e67e22;
-  color: #e67e22;
+    border-color: #e67e22;
+    color: #e67e22;
 }
 
 .specialToggleOn {
-  background: #e67e22;
-  border-color: #e67e22;
-  color: #fff;
+    background: #e67e22;
+    border-color: #e67e22;
+    color: #fff;
 }
 
 /* 토스트 알림 */
 .toast {
-  position: absolute;
-  bottom: 56px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 8px 18px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-  z-index: 10;
-  pointer-events: none;
-  animation: toastIn 0.2s ease;
+    position: absolute;
+    bottom: 56px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+    animation: toastIn 0.2s ease;
 }
 
 .toast_error {
-  background: #e53935;
-  color: #fff;
+    background: #e53935;
+    color: #fff;
 }
 
 .toast_success {
-  background: #27ae60;
-  color: #fff;
+    background: #27ae60;
+    color: #fff;
 }
 
 @keyframes toastIn {
-  from { opacity: 0; transform: translateX(-50%) translateY(6px); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
 }
 
 /* 저장 버튼 비활성화 */
 .saveBtn:disabled {
-  background: #bdbdbd;
-  cursor: not-allowed;
+    background: #bdbdbd;
+    cursor: not-allowed;
 }
 
 /* 커스텀 확인 다이얼로그 */
 .confirmOverlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 20;
-  border-radius: 12px;
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    border-radius: 12px;
 }
 
 .confirmBox {
-  background: var(--surface);
-  border-radius: 10px;
-  padding: 20px 24px 16px;
-  min-width: 240px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 20px 24px 16px;
+    min-width: 240px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
 .confirmMsg {
-  font-size: 13px;
-  color: var(--text);
-  line-height: 1.5;
-  text-align: center;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+    text-align: center;
 }
 
 .confirmBtns {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
 }
 
 .confirmCancelBtn {
-  height: 30px;
-  padding: 0 14px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 12px;
-  color: var(--text-sub);
-  background: transparent;
-  cursor: pointer;
+    height: 30px;
+    padding: 0 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text-sub);
+    background: transparent;
+    cursor: pointer;
 }
 
 .confirmCancelBtn:hover {
-  background: var(--hover);
+    background: var(--hover);
 }
 
 .confirmOkBtn {
-  height: 30px;
-  padding: 0 14px;
-  background: var(--accent);
-  color: #fff;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
+    height: 30px;
+    padding: 0 14px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
 }
 
 .confirmOkBtn:hover {
-  background: var(--accent-hover);
+    background: var(--accent-hover);
 }
