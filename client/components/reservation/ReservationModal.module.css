@@ -177,6 +177,11 @@
     gap: 10px 16px;
 }
 
+.siteManagerRow {
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
 .grid4billing {
     display: grid;
     grid-template-columns: 90px 110px 0.8fr 1.4fr;
@@ -199,8 +204,39 @@
     font-weight: 500;
 }
 
+.billingSection {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fafbfc;
+    padding: 8px 10px 10px;
+    margin-bottom: 2px;
+}
+
+.billingSectionTitle {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-sub);
+    margin-bottom: 4px;
+}
+
+.extraInfoSection {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fafbfc;
+    padding: 8px 10px 10px;
+    margin-top: 4px;
+    margin-bottom: 2px;
+}
+
+.extraInfoSectionTitle {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-sub);
+    margin-bottom: 6px;
+}
+
 .billingSameRow {
-    margin-top: 6px;
+    margin-bottom: 8px;
 }
 
 .addressRow {
@@ -286,6 +322,19 @@
     gap: 12px;
 }
 
+.contactControlBar {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #f8f9fb;
+    padding: 7px 10px;
+    margin-top: 2px;
+    margin-bottom: 8px;
+}
+
+.scheduleWeekendToggle {
+    font-weight: 500;
+}
+
 .sectionLabel {
     font-size: 13px;
     font-weight: 700;
@@ -334,7 +383,7 @@
 }
 
 .checkboxLabel {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 4px;
     font-size: 11px;
@@ -933,33 +982,37 @@
 .cancelBtn {
     height: 30px;
     padding: 0 14px;
-    border: 1px solid var(--border);
+    border: 1px solid #d9dee6;
     border-radius: 6px;
     font-size: 12px;
-    color: var(--text-sub);
-    background: var(--surface);
-    transition: background 0.15s;
+    color: #7b8593;
+    background: #f5f7fa;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 
 .cancelBtn:hover {
-    background: #f5f5f5;
+    background: #eef2f7;
+    border-color: #cfd6e0;
+    color: #626d7e;
 }
 
 .tradeBtn {
     height: 30px;
     padding: 0 12px;
     background: #fff;
-    color: #2980b9;
-    border: 1.5px solid #2980b9;
+    color: #5f6f84;
+    border: 1px solid #cfd6e0;
     border-radius: 6px;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.15s;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 
 .tradeBtn:hover {
-    background: #eef6fc;
+    background: #f5f8fc;
+    border-color: #b9c5d6;
+    color: #4f6077;
 }
 
 .tradeBtn:disabled {
@@ -971,17 +1024,19 @@
     height: 30px;
     padding: 0 12px;
     background: #fff;
-    color: #d97706;
-    border: 1.5px solid #d97706;
+    color: #5f6f84;
+    border: 1px solid #cfd6e0;
     border-radius: 6px;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.15s;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 
 .confirmationBtn:hover {
-    background: #fff7ed;
+    background: #f5f8fc;
+    border-color: #b9c5d6;
+    color: #4f6077;
 }
 
 .confirmationBtn:disabled {
@@ -993,17 +1048,19 @@
     height: 30px;
     padding: 0 12px;
     background: #fff;
-    color: #27ae60;
-    border: 1.5px solid #27ae60;
+    color: #5f6f84;
+    border: 1px solid #cfd6e0;
     border-radius: 6px;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.15s;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 
 .estimateBtn:hover {
-    background: #f0faf4;
+    background: #f5f8fc;
+    border-color: #b9c5d6;
+    color: #4f6077;
 }
 
 .estimateBtn:disabled {
@@ -1012,18 +1069,20 @@
 }
 
 .saveBtn {
-    height: 30px;
-    padding: 0 18px;
+    height: 32px;
+    padding: 0 20px;
     background: var(--accent);
     color: #fff;
     border-radius: 6px;
     font-size: 12px;
     font-weight: 700;
-    transition: background 0.15s;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+    transition: background 0.15s, box-shadow 0.15s;
 }
 
 .saveBtn:hover {
     background: var(--accent-hover);
+    box-shadow: 0 2px 6px rgba(32, 57, 100, 0.18);
 }
 
 .mealCellWrap {

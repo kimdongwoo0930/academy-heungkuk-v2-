@@ -860,7 +860,7 @@ export default function ReservationModal({ reservation, allReservations, onClose
 
                                 {/* 섹션: 연락처 */}
                                 <div className={`${styles.sectionDivider} ${styles.fullWidth}`} />
-                                <div className={`${styles.sectionLabelRow} ${styles.fullWidth}`}>
+                                <div className={`${styles.sectionLabelRow} ${styles.contactControlBar} ${styles.fullWidth}`}>
                                     <span className={styles.sectionLabel}>담당자 정보</span>
                                     <label className={styles.checkboxLabel}>
                                         <input
@@ -958,7 +958,7 @@ export default function ReservationModal({ reservation, allReservations, onClose
                                 </div>
                                 {/* 현장 담당자 행 */}
                                 {showSiteManager && (
-                                    <div className={`${styles.fullWidth} ${styles.grid4contact}`}>
+                                    <div className={`${styles.fullWidth} ${styles.grid4contact} ${styles.siteManagerRow}`}>
                                         <label className={styles.label}>
                                             현장 담당자
                                             <input
@@ -999,8 +999,37 @@ export default function ReservationModal({ reservation, allReservations, onClose
                                 )}
                                 {/* 정산 담당자 + 정산 방법 행 */}
                                 {showBillingManager && (
-                                    <>
-                                        <div className={`${styles.fullWidth} ${styles.grid4billing}`}>
+                                    <div className={`${styles.fullWidth} ${styles.billingSection}`}>
+                                        <div className={styles.billingSectionTitle}>정산 정보</div>
+                                        <div className={styles.billingSameRow}>
+                                            <label className={`${styles.checkboxLabel} ${styles.billingSameCheckbox}`}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={isBillingSameAsCustomer}
+                                                    onChange={(e) => {
+                                                        const checked = e.target.checked;
+                                                        setIsBillingSameAsCustomer(checked);
+                                                        if (!checked) {
+                                                            setForm((prev) => ({
+                                                                ...prev,
+                                                                billingManager: '',
+                                                                billingManagerPhone: '',
+                                                                billingManagerEmail: '',
+                                                            }));
+                                                            return;
+                                                        }
+                                                        setForm((prev) => ({
+                                                            ...prev,
+                                                            billingManager: prev.customer ?? '',
+                                                            billingManagerPhone: prev.customerPhone ?? '',
+                                                            billingManagerEmail: prev.customerEmail ?? '',
+                                                        }));
+                                                    }}
+                                                />
+                                                신청인 정보와 동일
+                                            </label>
+                                        </div>
+                                        <div className={styles.grid4billing}>
                                             <label className={styles.label}>
                                                 정산 방법
                                                 <select
@@ -1045,40 +1074,13 @@ export default function ReservationModal({ reservation, allReservations, onClose
                                                 />
                                             </label>
                                         </div>
-                                        <div className={`${styles.fullWidth} ${styles.billingSameRow}`}>
-                                            <label className={`${styles.checkboxLabel} ${styles.billingSameCheckbox}`}>
-                                                <input
-                                                    type="checkbox"
-                                                    checked={isBillingSameAsCustomer}
-                                                    onChange={(e) => {
-                                                        const checked = e.target.checked;
-                                                        setIsBillingSameAsCustomer(checked);
-                                                        if (!checked) {
-                                                            setForm((prev) => ({
-                                                                ...prev,
-                                                                billingManager: '',
-                                                                billingManagerPhone: '',
-                                                                billingManagerEmail: '',
-                                                            }));
-                                                            return;
-                                                        }
-                                                        setForm((prev) => ({
-                                                            ...prev,
-                                                            billingManager: prev.customer ?? '',
-                                                            billingManagerPhone: prev.customerPhone ?? '',
-                                                            billingManagerEmail: prev.customerEmail ?? '',
-                                                        }));
-                                                    }}
-                                                />
-                                                담당자 동일
-                                            </label>
-                                        </div>
-                                    </>
+                                    </div>
                                 )}
                                 {/* 단체 추가 정보 */}
                                 {showAddress && (
-                                    <>
-                                        <div className={`${styles.fullWidth} ${styles.addressRow}`}>
+                                    <div className={`${styles.fullWidth} ${styles.extraInfoSection}`}>
+                                        <div className={styles.extraInfoSectionTitle}>단체 추가 정보</div>
+                                        <div className={styles.addressRow}>
                                             <label className={styles.label}>
                                                 우편번호
                                                 <div className={styles.zipRow}>
@@ -1122,7 +1124,7 @@ export default function ReservationModal({ reservation, allReservations, onClose
                                                 />
                                             </label>
                                         </div>
-                                        <div className={`${styles.fullWidth} ${styles.grid2}`}>
+                                        <div className={styles.grid2}>
                                             <label className={styles.label}>
                                                 사업자번호
                                                 <input
@@ -1142,12 +1144,22 @@ export default function ReservationModal({ reservation, allReservations, onClose
                                                 />
                                             </label>
                                         </div>
-                                    </>
+                                    </div>
                                 )}
 
                                 {/* 섹션: 일정 */}
                                 <div className={`${styles.sectionDivider} ${styles.fullWidth}`} />
-                                <div className={`${styles.sectionLabel} ${styles.fullWidth}`}>교육일정</div>
+                                <div className={`${styles.sectionLabelRow} ${styles.contactControlBar} ${styles.fullWidth}`}>
+                                    <div className={styles.sectionLabel}>교육일정</div>
+                                    <label className={`${styles.checkboxLabel} ${styles.scheduleWeekendToggle}`}>
+                                        <input
+                                            type="checkbox"
+                                            checked={skipWeekends}
+                                            onChange={(e) => handleSkipWeekendsChange(e.target.checked)}
+                                        />
+                                        주말 제외
+                                    </label>
+                                </div>
                                 <div className={`${styles.fullWidth} ${styles.dateRow}`}>
                                     <div className={styles.dateField}>
                                         <span className={styles.labelText}>
@@ -1179,16 +1191,6 @@ export default function ReservationModal({ reservation, allReservations, onClose
                                             popperProps={{ strategy: 'fixed' }}
                                             popperPlacement="bottom-start"
                                         />
-                                    </div>
-                                    <div className={styles.dateOptions}>
-                                        <label className={styles.checkboxLabel}>
-                                            <input
-                                                type="checkbox"
-                                                checked={skipWeekends}
-                                                onChange={(e) => handleSkipWeekendsChange(e.target.checked)}
-                                            />
-                                            주말 제외
-                                        </label>
                                     </div>
                                 </div>
                                 {dateError && <p className={`${styles.dateError} ${styles.fullWidth}`}>{dateError}</p>}
