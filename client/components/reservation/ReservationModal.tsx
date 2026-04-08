@@ -866,15 +866,7 @@ export default function ReservationModal({ reservation, allReservations, onClose
                                         <input
                                             type="checkbox"
                                             checked={showSiteManager}
-                                            onChange={(e) => {
-                                                setShowSiteManager(e.target.checked);
-                                                if (!e.target.checked) {
-                                                    setField('siteManager', '');
-                                                    setField('siteManagerPhone', '');
-                                                    setField('siteManagerPhone2', '');
-                                                    setField('siteManagerEmail', '');
-                                                }
-                                            }}
+                                            onChange={(e) => setShowSiteManager(e.target.checked)}
                                         />
                                         현장 담당자
                                     </label>
@@ -882,15 +874,7 @@ export default function ReservationModal({ reservation, allReservations, onClose
                                         <input
                                             type="checkbox"
                                             checked={showBillingManager}
-                                            onChange={(e) => {
-                                                setShowBillingManager(e.target.checked);
-                                                if (!e.target.checked) {
-                                                    setField('billingManager', '');
-                                                    setField('billingManagerPhone', '');
-                                                    setField('billingManagerEmail', '');
-                                                    setField('paymentMethod', '미정');
-                                                }
-                                            }}
+                                            onChange={(e) => setShowBillingManager(e.target.checked)}
                                         />
                                         정산 담당자
                                     </label>
@@ -898,15 +882,7 @@ export default function ReservationModal({ reservation, allReservations, onClose
                                         <input
                                             type="checkbox"
                                             checked={showAddress}
-                                            onChange={(e) => {
-                                                setShowAddress(e.target.checked);
-                                                if (!e.target.checked) {
-                                                    setField('companyZipCode', '');
-                                                    setField('companyAddress', '');
-                                                    setField('businessNumber', '');
-                                                    setField('ceoName', '');
-                                                }
-                                            }}
+                                            onChange={(e) => setShowAddress(e.target.checked)}
                                         />
                                         단체 추가 정보
                                     </label>

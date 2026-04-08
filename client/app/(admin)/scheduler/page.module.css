@@ -17,13 +17,29 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 4px;
+  margin-bottom: 10px;
   position: sticky;
   top: var(--header-height);
   z-index: 100;
   background: var(--bg);
-  padding: 2px 0;
+  padding: 6px 0 8px;
   margin-top: -2px;
+}
+
+.headerActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.monthNavigatorCard {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  border: 1px solid #d8e0ea;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
 }
 
 .title {
@@ -72,15 +88,16 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 .sectionTitle {
-  padding: 4px 8px;
+  padding: 6px 10px;
   font-size: 11px;
   font-weight: 700;
   color: var(--text-sub);
-  background: #f5f7fa;
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
   border-bottom: 1px solid var(--border);
 }
 
@@ -374,17 +391,19 @@
 .printBtn {
   height: 32px;
   padding: 0 14px;
-  background: var(--surface);
-  color: var(--text-sub);
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  background: #f8fafc;
+  color: #526071;
+  border: 1px solid #d8e0ea;
+  border-radius: 9px;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 .printBtn:hover {
-  background: #f0f0f0;
+  background: #eef3f8;
+  border-color: #c7d2df;
+  color: #334155;
 }
 
 /* ── A3 가로 인쇄 ── */

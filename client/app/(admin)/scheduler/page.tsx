@@ -2,6 +2,7 @@
 
 import ReservationModal from "@/components/reservation/ReservationModal";
 import ReservationTooltip from "@/components/scheduler/ReservationTooltip";
+import MonthNavigator from "@/components/ui/MonthNavigator";
 import {
   createReservation,
   getReservationsByRange,
@@ -11,7 +12,6 @@ import {
 import { printSchedulerWeekly } from "@/lib/utils/printRoomTable";
 import { Reservation } from "@/types/reservation";
 import { isHoliday } from "@hyunbinseo/holidays-kr";
-import MonthNavigator from "@/components/ui/MonthNavigator";
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 
@@ -214,7 +214,7 @@ export default function SchedulerPage() {
   return (
     <div id="schedulerPrintArea">
       <div className={styles.header}>
-        <div style={{ display: "flex", gap: 6 }}>
+        <div className={styles.headerActions}>
           <button className={styles.printBtn} onClick={() => window.print()}>
             🖨 인쇄 / PDF
           </button>
@@ -225,13 +225,18 @@ export default function SchedulerPage() {
             🖨 주차별 인쇄
           </button>
         </div>
-        <MonthNavigator
-          year={year}
-          month={month}
-          onPrev={prevMonth}
-          onNext={nextMonth}
-          onJump={(y, m) => { setYear(y); setMonth(m); }}
-        />
+        <div className={styles.monthNavigatorCard}>
+          <MonthNavigator
+            year={year}
+            month={month}
+            onPrev={prevMonth}
+            onNext={nextMonth}
+            onJump={(y, m) => {
+              setYear(y);
+              setMonth(m);
+            }}
+          />
+        </div>
       </div>
 
       <div className={styles.printTitle}>
