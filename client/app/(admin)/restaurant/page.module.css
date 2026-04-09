@@ -186,6 +186,8 @@
 .thTotal {
   min-width: 36px !important;
   font-size: 11px !important;
+  background: #4b6280 !important;
+  color: #fff !important;
 }
 
 /* ── 셀 ── */
@@ -218,47 +220,18 @@
 }
 
 .mealCell {
+  position: relative;
   text-align: center;
   font-size: 11px;
   font-weight: 600;
 }
 
-.confirmed {
-  color: #dc2626;
-  font-weight: 700;
-}
-.pending {
-  color: #aaa;
-  font-weight: 500;
+.mealCellHasValue {
+  background: #f0f4fb;
 }
 
-/* 합계 행 */
-.totalRow td {
-  background: #dce4f0;
-  font-weight: 700;
-  font-size: 11px;
-  color: var(--text);
-  text-align: center;
-}
-
-.totalLabel {
-  text-align: center !important;
-  font-weight: 700 !important;
-}
-
-.weekTotalCell {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--primary);
-  text-align: center;
-  background: #f0f4ff;
-}
-
-.emptyCell {
-  text-align: center;
-  color: var(--text-sub);
-  font-size: 13px;
-  padding: 24px !important;
+.weekendCellHasValue {
+  background: #ffc8c8 !important;
 }
 
 .specialMeal {
@@ -290,3 +263,43 @@
   border-radius: 4px;
   line-height: 1;
 }
+
+.confirmed {
+  color: #dc2626;
+  font-weight: 700;
+}
+.pending {
+  color: #aaa;
+  font-weight: 500;
+}
+
+/* 합계 행 */
+.totalRow td {
+  background: #b8cce4 !important;
+  font-weight: 700;
+  font-size: 12px;
+  color: #1a2a45;
+  text-align: center;
+  border-top: 2px solid #7a99c0 !important;
+}
+
+.totalLabel {
+  text-align: center !important;
+  font-weight: 700 !important;
+}
+
+.weekTotalCell {
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff !important;
+  text-align: center;
+  background: #5c7a99 !important;
+}
+
+.emptyCell {
+  text-align: center;
+  color: var(--text-sub);
+  font-size: 13px;
+  padding: 24px !important;
+}
+

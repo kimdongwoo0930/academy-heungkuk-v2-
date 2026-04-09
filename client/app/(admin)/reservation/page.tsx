@@ -32,6 +32,7 @@ export default function ReservationPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalReservations, setModalReservations] = useState<Reservation[]>([]);
   const [surveyTarget, setSurveyTarget] = useState<Reservation | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
   const admin = isAdmin();
 
   // 검색어 디바운스 + 페이지 리셋
@@ -98,14 +99,18 @@ export default function ReservationPage() {
     fetchModalReservations([...new Set([startYear, endYear])]);
   };
 
-  const handleHardDelete = async (r: Reservation) => {
-    if (!confirm(`[${r.organization}] 예약을 완전히 삭제합니다.\n이 작업은 되돌릴 수 없습니다.`)) return;
-    try {
-      await hardDeleteReservation(r.id);
-      refetch();
-    } catch {
-      alert('삭제 중 오류가 발생했습니다.');
-    }
+  const handleHardDelete = (r: Reservation) => {
+    setConfirmDialog({
+      message: `[${r.organization}] 예약을 완전히 삭제합니다.\n이 작업은 되돌릴 수 없습니다.`,
+      onConfirm: async () => {
+        try {
+          await hardDeleteReservation(r.id);
+          refetch();
+        } catch {
+          alert('삭제 중 오류가 발생했습니다.');
+        }
+      },
+    });
   };
 
   const handleSave = async (data: Reservation) => {
@@ -120,39 +125,55 @@ export default function ReservationPage() {
 
   return (
     <div>
-      <div className={styles.filters}>
-        <div className={styles.sortBtns}>
-          <button
-            className={`${styles.sortBtn} ${sortBy === 'createdAt' ? styles.sortBtnActive : ''}`}
-            onClick={() => handleSortChange('createdAt')}
-          >
-            등록일순 {sortBy === 'createdAt' ? (sortDir === 'desc' ? '↓' : '↑') : ''}
-          </button>
-          <button
-            className={`${styles.sortBtn} ${sortBy === 'startDate' ? styles.sortBtnActive : ''}`}
-            onClick={() => handleSortChange('startDate')}
-          >
-            입실일순 {sortBy === 'startDate' ? (sortDir === 'desc' ? '↓' : '↑') : ''}
-          </button>
+      <div className={styles.filterCard}>
+        <div className={styles.filterRow}>
+          <span className={styles.filterLabel}>검색옵션</span>
+          <div className={styles.statusCheckboxes}>
+            {STATUS_OPTIONS.map((s) => (
+              <label key={s} className={styles.statusCheckLabel}>
+                <input
+                  type="checkbox"
+                  checked={status === s}
+                  onChange={() => handleStatusChange(status === s ? '전체' : s)}
+                />
+                {s}
+              </label>
+            ))}
+          </div>
+          <div className={styles.filterRowRight}>
+            <div className={styles.sortBtns}>
+              <button
+                className={`${styles.sortBtn} ${sortBy === 'createdAt' ? styles.sortBtnActive : ''}`}
+                onClick={() => handleSortChange('createdAt')}
+              >
+                등록일순 {sortBy === 'createdAt' ? (sortDir === 'desc' ? '↓' : '↑') : ''}
+              </button>
+              <button
+                className={`${styles.sortBtn} ${sortBy === 'startDate' ? styles.sortBtnActive : ''}`}
+                onClick={() => handleSortChange('startDate')}
+              >
+                입실일순 {sortBy === 'startDate' ? (sortDir === 'desc' ? '↓' : '↑') : ''}
+              </button>
+            </div>
+            {admin && <button className={styles.addBtn} onClick={openCreate}>+ 예약 등록</button>}
+          </div>
         </div>
-        <input
-          className={styles.searchInput}
-          placeholder="단체명 / 담당자 / 예약코드 검색"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <select
-          className={styles.statusSelect}
-          aria-label="예약 상태 필터"
-          value={status}
-          onChange={(e) => handleStatusChange(e.target.value)}
-        >
-          {STATUS_OPTIONS.map((s) => (
-            <option key={s} value={s}>{s}</option>
-          ))}
-        </select>
-        <span className={styles.countLabel}>총 {totalElements}건</span>
-        {admin && <button className={styles.addBtn} style={{ marginLeft: 'auto' }} onClick={openCreate}>+ 예약 등록</button>}
+        <div className={styles.filterDivider} />
+        <div className={styles.filterRow}>
+          <span className={styles.filterLabel}>검색명</span>
+          <input
+            className={styles.searchInput}
+            placeholder="단체명 / 담당자 / 예약코드를 입력하세요."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') { setDebouncedSearch(search); setPage(0); } }}
+          />
+          <button className={styles.searchBtn} onClick={() => { setDebouncedSearch(search); setPage(0); }}>검색</button>
+        </div>
+      </div>
+
+      <div className={styles.toolbar}>
+        <span className={styles.countLabel}>전체 {totalElements}건</span>
       </div>
 
       <div className={styles.tableWrap}>
@@ -252,6 +273,18 @@ export default function ReservationPage() {
           organization={surveyTarget.organization}
           onClose={() => setSurveyTarget(null)}
         />
+      )}
+
+      {confirmDialog && (
+        <div className={styles.confirmOverlay}>
+          <div className={styles.confirmBox}>
+            <p className={styles.confirmMsg}>{confirmDialog.message}</p>
+            <div className={styles.confirmBtns}>
+              <button className={styles.confirmCancelBtn} onClick={() => setConfirmDialog(null)}>취소</button>
+              <button className={styles.confirmOkBtn} onClick={() => { confirmDialog.onConfirm(); setConfirmDialog(null); }}>확인</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

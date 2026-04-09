@@ -89,19 +89,32 @@ export default function RestaurantPage() {
     halves.push(calDays.slice(i, i + 7));
   }
 
-  const isRedDay = (_dateStr: string, date: Date) =>
-    date.getDay() === 0 || date.getDay() === 6 || checkIsHoliday(date);
+  const redDaySet = new Set(
+    calDays
+      .filter((c) => c.date.getDay() === 0 || c.date.getDay() === 6 || checkIsHoliday(c.date))
+      .map((c) => c.dateStr)
+  );
+
+  const isRedDay = (cal: CalDay) => redDaySet.has(cal.dateStr);
 
   const thCls = (cal: CalDay) => {
     if (!cal.isCurrent) return styles.otherMonthTh;
-    if (isRedDay(cal.dateStr, cal.date)) return styles.weekendTh;
+    if (isRedDay(cal)) return styles.weekendTh;
     return "";
   };
 
   const tdCls = (cal: CalDay) => {
     if (!cal.isCurrent) return styles.otherMonthCol;
-    if (isRedDay(cal.dateStr, cal.date)) return styles.weekendCol;
+    if (isRedDay(cal)) return styles.weekendCol;
     return "";
+  };
+
+  const mealTdCls = (cal: CalDay, count: number) => {
+    if (!cal.isCurrent) return styles.otherMonthCol;
+    if (isRedDay(cal)) {
+      return count > 0 ? styles.weekendCellHasValue : styles.weekendCol;
+    }
+    return count > 0 ? styles.mealCellHasValue : "";
   };
 
   const prevMonth = () => {
@@ -305,13 +318,13 @@ export default function RestaurantPage() {
                                 return <span className={cls}>{count}</span>;
                               };
                               return [
-                                <td key={`${cal.dateStr}b`} className={`${styles.mealCell} ${tdCls(cal)}`}>
+                                <td key={`${cal.dateStr}b`} className={`${styles.mealCell} ${mealTdCls(cal, b)}`}>
                                   {renderMeal(b, sb)}
                                 </td>,
-                                <td key={`${cal.dateStr}l`} className={`${styles.mealCell} ${tdCls(cal)}`}>
+                                <td key={`${cal.dateStr}l`} className={`${styles.mealCell} ${mealTdCls(cal, l)}`}>
                                   {renderMeal(l, sl)}
                                 </td>,
-                                <td key={`${cal.dateStr}d`} className={`${styles.mealCell} ${tdCls(cal)}`}>
+                                <td key={`${cal.dateStr}d`} className={`${styles.mealCell} ${mealTdCls(cal, dn)}`}>
                                   {renderMeal(dn, sd)}
                                 </td>,
                               ];

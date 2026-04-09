@@ -9,4 +9,6 @@ public interface MealReservationRepository extends JpaRepository<MealReservation
     List<MealReservation> findByReservation(Reservation reservation);
 
     void deleteByReservation(Reservation reservation);
+
+    List<MealReservation> findByReservationIn(List<Reservation> reservations);
 }

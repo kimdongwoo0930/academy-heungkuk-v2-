@@ -1,6 +1,5 @@
 .page {
   padding: 24px;
-  max-width: 1000px;
 }
 
 .comingSoon {
@@ -53,19 +52,37 @@
 }
 
 .searchInput {
+  flex: 1;
   height: 36px;
   padding: 0 12px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
   font-size: 13px;
   outline: none;
-  width: 260px;
-  flex-shrink: 0;
-  transition: border-color 0.15s;
   font-family: inherit;
+  background: #fff;
+  transition: border-color 0.15s;
 }
 .searchInput:focus {
   border-color: var(--accent);
+}
+
+.searchBtn {
+  height: 36px;
+  padding: 0 20px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  flex-shrink: 0;
+  transition: filter 0.15s;
+}
+.searchBtn:hover {
+  filter: brightness(1.08);
 }
 
 .empty {
@@ -82,15 +99,14 @@
 }
 
 .card {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  justify-content: space-between;
   gap: 16px;
-  padding: 14px 18px;
+  padding: 16px 20px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
-  flex-wrap: wrap;
   transition: box-shadow 0.15s;
 }
 .card:hover {
@@ -98,10 +114,10 @@
 }
 
 .cardLeft {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  flex: 1;
+  display: grid;
+  grid-template-columns: auto 2.2fr 2fr 1.6fr 1fr;
+  align-items: center;
+  gap: 0 24px;
   min-width: 0;
 }
 
@@ -110,36 +126,82 @@
   height: 10px;
   border-radius: 50%;
   flex-shrink: 0;
-  margin-top: 5px;
+}
+
+.cardOrgBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
 }
 
 .org {
   font-size: 15px;
   font-weight: 700;
   color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.code {
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--text-sub);
+}
+
+.cardDateBlock {
+  display: flex;
+  align-items: center;
+}
+
+.cardDateRange {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.cardCustomerBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.cardPurposeBlock {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cardFieldValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardFieldSub {
+  font-size: 13px;
+  color: var(--text-sub);
+  white-space: nowrap;
 }
 
 .meta {
   font-size: 12px;
   color: var(--text-sub);
-  margin-top: 2px;
   display: flex;
   gap: 8px;
   align-items: center;
 }
 
-.code {
-  font-family: monospace;
-  font-size: 11px;
-  background: #f0f0f0;
-  border-radius: 4px;
-  padding: 1px 6px;
-}
-
 .info {
   font-size: 12px;
   color: var(--text-sub);
-  margin-top: 2px;
   display: flex;
   gap: 8px;
   align-items: center;
@@ -182,42 +244,103 @@
   cursor: not-allowed;
 }
 
-.filters {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-  align-items: center;
+.filterCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  overflow: hidden;
 }
 
-.filterSelect {
-  height: 36px;
-  padding: 0 10px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+.filterRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 20px;
+}
+
+.filterLabel {
   font-size: 13px;
-  background: var(--surface);
+  font-weight: 600;
+  color: var(--text-sub);
+  white-space: nowrap;
+  width: 52px;
+  flex-shrink: 0;
+}
+
+.filterDivider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0;
+}
+
+.filterRowRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.statusCheckboxes {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.statusCheckLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
   color: var(--text);
+  cursor: pointer;
+  user-select: none;
+}
+
+.statusCheckLabel input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+.dateInput {
+  height: 28px;
+  padding: 0 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  font-size: 13px;
   outline: none;
+  font-family: inherit;
+  background: #fff;
+  color: var(--text);
+  transition: border-color 0.15s;
+}
+.dateInput:focus {
+  border-color: var(--accent);
+}
+
+.dateSep {
+  font-size: 13px;
+  color: var(--text-sub);
+  flex-shrink: 0;
+}
+
+.resetBtn {
+  height: 34px;
+  padding: 0 14px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-size: 13px;
+  color: var(--text-sub);
   cursor: pointer;
   font-family: inherit;
+  margin-left: auto;
+  transition: background 0.15s;
 }
-.filterSelect:focus {
-  border-color: var(--accent);
-}
-
-.filterInput {
-  height: 36px;
-  padding: 0 10px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 13px;
-  outline: none;
-  font-family: inherit;
-  background: var(--surface);
-  color: var(--text);
-}
-.filterInput:focus {
-  border-color: var(--accent);
+.resetBtn:hover {
+  background: #f5f5f5;
 }
 
 .pagination {

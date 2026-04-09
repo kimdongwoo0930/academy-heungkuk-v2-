@@ -1,8 +1,17 @@
 package com.heungkuk.academy.domain.setting.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import com.heungkuk.academy.global.entity.BaseTimeEntity;
-import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * 애플리케이션 공통 설정 (key-value 구조)
@@ -20,8 +29,8 @@ import lombok.*;
  * price.classroom.다목적실     강의실 요금 (원/일)              기본: 250000
  *
  * ── 연수원 담당자 정보 (견적서 헤더에 출력) ───────────────────────────────────
- * contact.representative      대표이사명                        기본: 임형준
- * contact.manager             담당 소장명                       기본: 김 대 술 소장
+ * contact.representative      대표이사명                        기본: 이름
+ * contact.manager             담당 소장명                       기본: 이름
  * contact.phone               대표 전화번호                     기본: 031-283-6157
  * contact.fax                 팩스 번호                         기본: 031-284-5323
  * contact.email               이메일 주소                       기본: hka6157@naver.com
