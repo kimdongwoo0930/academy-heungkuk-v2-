@@ -1,18 +1,15 @@
-name: Deploy to Oracle Cloud
+name: Deploy
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  deploy:
-    name: SSH Deploy
+  deploy-backend:
     runs-on: ubuntu-latest
-
+    if: contains(toJson(github.event.commits.*.modified), 'server/')
     steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
+      - uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ubuntu
@@ -21,6 +18,21 @@ jobs:
             cd ~/academy-heungkuk-v2-
             git fetch origin main
             git reset --hard origin/main
-            docker compose up --build -d backend client
+            docker compose up --build -d backend
             docker image prune -f
 
+  deploy-frontend:
+    needs: deploy-backend
+    if: always() && contains(toJson(github.event.commits.*.modified), 'client/')
+    steps:
+      - uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/academy-heungkuk-v2-
+            git fetch origin main
+            git reset --hard origin/main
+            docker compose up --build -d client
+            docker image prune -f
