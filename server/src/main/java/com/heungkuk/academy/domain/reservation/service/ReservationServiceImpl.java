@@ -3,12 +3,13 @@ package com.heungkuk.academy.domain.reservation.service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.heungkuk.academy.domain.reservation.dto.request.ReservationRequest;
 import com.heungkuk.academy.domain.reservation.dto.response.ClassroomReservationResponse;
 import com.heungkuk.academy.domain.reservation.dto.response.MealReservationResponse;
@@ -24,7 +25,6 @@ import com.heungkuk.academy.domain.reservation.repository.ReservationRepository;
 import com.heungkuk.academy.domain.reservation.repository.RoomReservationRepository;
 import com.heungkuk.academy.global.exception.BusinessException;
 import com.heungkuk.academy.global.exception.ErrorCode;
-
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -48,7 +48,8 @@ public class ReservationServiceImpl implements ReservationService {
         String reservationCode = generateReservationCode(request.getStartDate());
 
         // 2. Reservation 엔티티 생성 후 저장
-        Reservation reservation = reservationRepository.save(Reservation.from(request, reservationCode));
+        Reservation reservation =
+                reservationRepository.save(Reservation.from(request, reservationCode));
 
         // 3. 객실 예약 저장
         saveRooms(reservation, request);
@@ -71,15 +72,15 @@ public class ReservationServiceImpl implements ReservationService {
     /** 연도별 전체 조회 — 일정/숙박 현황표용 */
     @Override
     public List<ReservationResponse> getReservationsByYear(int year) {
-        return reservationRepository
-                .findByDateRange(LocalDate.of(year, 1, 1), LocalDate.of(year, 12, 31)).stream()
-                .map(this::toResponse).toList();
+        return toResponseList(reservationRepository.findByDateRange(LocalDate.of(year, 1, 1),
+                LocalDate.of(year, 12, 31)));
+
     }
 
     /** 날짜 범위 조회 — 일정현황 3개월 뷰용 */
     @Override
     public List<ReservationResponse> getReservationsByDateRange(LocalDate from, LocalDate to) {
-        return reservationRepository.findByDateRange(from, to).stream().map(this::toResponse).toList();
+        return toResponseList(reservationRepository.findByDateRange(from, to));
     }
 
     /** 검색 + 필터 + 페이징 — 예약 관리 리스트용 */
@@ -87,8 +88,11 @@ public class ReservationServiceImpl implements ReservationService {
     public Page<ReservationResponse> searchReservations(String keyword, String status,
             LocalDate startDate, LocalDate endDate, Pageable pageable) {
 
-        return reservationRepository.search(keyword, status, startDate, endDate, pageable)
-                .map(this::toResponse); // Page<Reservation> → Page<ReservationResponse>
+        Page<Reservation> page =
+                reservationRepository.search(keyword, status, startDate, endDate, pageable);
+        List<ReservationResponse> responseList = toResponseList(page.getContent());
+        return new PageImpl<>(responseList, pageable, page.getTotalElements());
+
     }
 
     /** 예약 단건 조회 */
@@ -158,12 +162,43 @@ public class ReservationServiceImpl implements ReservationService {
         return "HK-" + dateStr + "-" + seq;
     }
 
+    private List<ReservationResponse> toResponseList(List<Reservation> reservations) {
+        // 1. 3번 쿼리로 전부 가져옴
+        List<RoomReservation> allRooms =
+                roomReservationRepository.findByReservationIn(reservations);
+        List<ClassroomReservation> allClassrooms =
+                classroomReservationRepository.findByReservationIn(reservations);
+        List<MealReservation> allMeals =
+                mealReservationRepository.findByReservationIn(reservations);
+
+        // 2. 예약 ID 기준으로 Map으로 분류 (DB 아님, 메모리 작업)
+        Map<Long, List<RoomReservation>> roomsMap =
+                allRooms.stream().collect(Collectors.groupingBy(r -> r.getReservation().getId()));
+        Map<Long, List<ClassroomReservation>> classroomsMap = allClassrooms.stream()
+                .collect(Collectors.groupingBy(c -> c.getReservation().getId()));
+        Map<Long, List<MealReservation>> mealsMap =
+                allMeals.stream().collect(Collectors.groupingBy(m -> m.getReservation().getId()));
+
+        // 3. 각 예약에 맞는 데이터를 Map에서 꺼내서 Response 조립
+        return reservations.stream()
+                .map(r -> ReservationResponse.of(r,
+                        roomsMap.getOrDefault(r.getId(), List.of()).stream()
+                                .map(RoomReservationResponse::of).toList(),
+                        classroomsMap.getOrDefault(r.getId(), List.of()).stream()
+                                .map(ClassroomReservationResponse::of).toList(),
+                        mealsMap.getOrDefault(r.getId(), List.of()).stream()
+                                .map(MealReservationResponse::of).toList()))
+                .toList();
+    }
+
+
+
     private ReservationResponse toResponse(Reservation reservation) {
         List<RoomReservationResponse> rooms = roomReservationRepository
                 .findByReservation(reservation).stream().map(RoomReservationResponse::of).toList();
-        List<ClassroomReservationResponse> classrooms = classroomReservationRepository.findByReservation(reservation)
-                .stream()
-                .map(ClassroomReservationResponse::of).toList();
+        List<ClassroomReservationResponse> classrooms =
+                classroomReservationRepository.findByReservation(reservation).stream()
+                        .map(ClassroomReservationResponse::of).toList();
         List<MealReservationResponse> meals = mealReservationRepository
                 .findByReservation(reservation).stream().map(MealReservationResponse::of).toList();
         return ReservationResponse.of(reservation, rooms, classrooms, meals);

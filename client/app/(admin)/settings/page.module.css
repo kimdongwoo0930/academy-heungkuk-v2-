@@ -524,3 +524,53 @@
   background: #9ca3af;
   cursor: not-allowed;
 }
+
+/* 업데이트 내역 */
+.changelogBody {
+  padding: 8px 4px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.clH1 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 16px 0 8px;
+}
+
+.clH2 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 20px 0 6px;
+}
+
+.clH3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-sub);
+  margin: 12px 0 4px;
+}
+
+.clItem {
+  font-size: 13px;
+  color: var(--text);
+  padding: 2px 0 2px 12px;
+  line-height: 1.6;
+}
+
+.clText {
+  font-size: 13px;
+  color: var(--text-sub);
+}
+
+.clDivider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 12px 0;
+}
+
+.clGap {
+  height: 4px;
+}

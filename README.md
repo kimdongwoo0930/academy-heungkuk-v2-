@@ -9,7 +9,7 @@
 | 항목       | 내용                        |
 | ---------- | --------------------------- |
 | 프로젝트명 | 흥국생명 연수원 관리 시스템 |
-| 버전       | 2.5.9 Release               |
+| 버전       | 3.0.1 Release               |
 | 사용 대상  | 연수원 직원                 |
 
 ---
@@ -73,38 +73,38 @@
 
 ### 계정 관리 `🔐 JWT 필요`
 
-| Method | Endpoint                        | Auth         | 설명                 |
-| ------ | ------------------------------- | ------------ | -------------------- |
-| POST   | `/admin/accounts`               | ROLE_ADMIN   | 계정 생성            |
-| GET    | `/admin/accounts`               | 인증 필요    | 전체 계정 조회       |
-| PATCH  | `/admin/accounts/{id}/role`     | ROLE_ADMIN   | 역할 변경            |
-| PATCH  | `/admin/accounts/{id}/password` | ROLE_ADMIN   | 관리자 비밀번호 변경 |
-| PATCH  | `/admin/accounts/me/password`   | 인증 필요    | 내 비밀번호 변경     |
-| DELETE | `/admin/accounts/{id}`          | ROLE_ADMIN   | 계정 삭제            |
+| Method | Endpoint                        | Auth       | 설명                 |
+| ------ | ------------------------------- | ---------- | -------------------- |
+| POST   | `/admin/accounts`               | ROLE_ADMIN | 계정 생성            |
+| GET    | `/admin/accounts`               | 인증 필요  | 전체 계정 조회       |
+| PATCH  | `/admin/accounts/{id}/role`     | ROLE_ADMIN | 역할 변경            |
+| PATCH  | `/admin/accounts/{id}/password` | ROLE_ADMIN | 관리자 비밀번호 변경 |
+| PATCH  | `/admin/accounts/me/password`   | 인증 필요  | 내 비밀번호 변경     |
+| DELETE | `/admin/accounts/{id}`          | ROLE_ADMIN | 계정 삭제            |
 
 ### 예약 관리 `🔐 JWT 필요`
 
-| Method | Endpoint                              | 설명                                                  |
-| ------ | ------------------------------------- | ----------------------------------------------------- |
-| POST   | `/admin/reservations`                 | 예약 등록 (강의실·객실·식사 포함)                     |
-| GET    | `/admin/reservations?year=`           | 연도별 전체 예약 조회                                 |
-| GET    | `/admin/reservations/range`           | 날짜 범위 예약 조회 (`?from=&to=`)                    |
-| GET    | `/admin/reservations/search`          | 예약 검색 (키워드·상태·날짜 범위·페이징)              |
-| GET    | `/admin/reservations/{id}`            | 예약 상세 조회                                        |
-| PUT    | `/admin/reservations/{id}`            | 예약 전체 수정 (하위 데이터 재생성)                   |
-| DELETE | `/admin/reservations/{id}`            | 예약 취소 (상태를 "취소"로 변경, Soft)                |
-| DELETE | `/admin/reservations/{id}/hard`       | 예약 영구 삭제 (하위 데이터 포함)                     |
-| GET    | `/admin/reservations/check-classroom` | 강의실 이용 가능 여부 확인 (`?classroom=&date=`)      |
+| Method | Endpoint                              | 설명                                             |
+| ------ | ------------------------------------- | ------------------------------------------------ |
+| POST   | `/admin/reservations`                 | 예약 등록 (강의실·객실·식사 포함)                |
+| GET    | `/admin/reservations?year=`           | 연도별 전체 예약 조회                            |
+| GET    | `/admin/reservations/range`           | 날짜 범위 예약 조회 (`?from=&to=`)               |
+| GET    | `/admin/reservations/search`          | 예약 검색 (키워드·상태·날짜 범위·페이징)         |
+| GET    | `/admin/reservations/{id}`            | 예약 상세 조회                                   |
+| PUT    | `/admin/reservations/{id}`            | 예약 전체 수정 (하위 데이터 재생성)              |
+| DELETE | `/admin/reservations/{id}`            | 예약 취소 (상태를 "취소"로 변경, Soft)           |
+| DELETE | `/admin/reservations/{id}/hard`       | 예약 영구 삭제 (하위 데이터 포함)                |
+| GET    | `/admin/reservations/check-classroom` | 강의실 이용 가능 여부 확인 (`?classroom=&date=`) |
 
 ### Excel `🔐 ROLE_ADMIN 필요`
 
-| Method | Endpoint                            | 설명                        |
-| ------ | ----------------------------------- | --------------------------- |
-| GET    | `/admin/reservations/{id}/estimate` | 견적서 Excel 다운로드       |
-| GET    | `/admin/reservations/{id}/trade`    | 거래명세서 Excel 다운로드   |
-| GET    | `/admin/reservations/{id}/confirmation` | 확인서 Excel 다운로드   |
-| GET    | `/admin/reservations/export`        | 전체 예약 데이터 내보내기   |
-| POST   | `/admin/reservations/import`        | 예약 데이터 Excel 가져오기  |
+| Method | Endpoint                                | 설명                       |
+| ------ | --------------------------------------- | -------------------------- |
+| GET    | `/admin/reservations/{id}/estimate`     | 견적서 Excel 다운로드      |
+| GET    | `/admin/reservations/{id}/trade`        | 거래명세서 Excel 다운로드  |
+| GET    | `/admin/reservations/{id}/confirmation` | 확인서 Excel 다운로드      |
+| GET    | `/admin/reservations/export`            | 전체 예약 데이터 내보내기  |
+| POST   | `/admin/reservations/import`            | 예약 데이터 Excel 가져오기 |
 
 ### 설문 (공개 / 관리자 혼합)
 
@@ -155,16 +155,16 @@
 
 ### 3. 일정 현황 (Scheduler)
 
-| 기능             | 설명                                    | 상태    |
-| ---------------- | --------------------------------------- | ------- |
-| 월별 현황표      | 강의실·숙소를 행, 날짜를 열로 표시      | ✅ 완료 |
-| 식수 현황표      | 날짜별 조식·중식·석식 인원 표시         | ✅ 완료 |
-| 호버 팝업        | 예약 간단 정보 미니 팝업                | ✅ 완료 |
-| 셀 클릭          | 예약 상세 모달                          | ✅ 완료 |
-| 셀 더블클릭      | 날짜·강의실 자동 세팅 후 신규 예약 모달 | ✅ 완료 |
-| 특식 시각화      | 주황색 pill 표시                        | ✅ 완료 |
-| 상태 시각화      | 확정/예약/문의/취소별 색상 구분         | ✅ 완료 |
-| 숙박 배정표      | 날짜 클릭 시 호실별 배정 현황 + 인쇄    | ✅ 완료 |
+| 기능        | 설명                                    | 상태    |
+| ----------- | --------------------------------------- | ------- |
+| 월별 현황표 | 강의실·숙소를 행, 날짜를 열로 표시      | ✅ 완료 |
+| 식수 현황표 | 날짜별 조식·중식·석식 인원 표시         | ✅ 완료 |
+| 호버 팝업   | 예약 간단 정보 미니 팝업                | ✅ 완료 |
+| 셀 클릭     | 예약 상세 모달                          | ✅ 완료 |
+| 셀 더블클릭 | 날짜·강의실 자동 세팅 후 신규 예약 모달 | ✅ 완료 |
+| 특식 시각화 | 주황색 pill 표시                        | ✅ 완료 |
+| 상태 시각화 | 확정/예약/문의/취소별 색상 구분         | ✅ 완료 |
+| 숙박 배정표 | 날짜 클릭 시 호실별 배정 현황 + 인쇄    | ✅ 완료 |
 
 ### 4. 식수 현황 (Restaurant)
 
@@ -174,10 +174,10 @@
 
 ### 5. 문서 출력
 
-| 기능        | 설명                              | 상태    |
-| ----------- | --------------------------------- | ------- |
-| 견적서      | 예약 기반 견적서 Excel(.xlsx) 생성 | ✅ 완료 |
-| 거래명세서  | 예약 기반 거래명세서 Excel 생성   | ✅ 완료 |
+| 기능       | 설명                               | 상태    |
+| ---------- | ---------------------------------- | ------- |
+| 견적서     | 예약 기반 견적서 Excel(.xlsx) 생성 | ✅ 완료 |
+| 거래명세서 | 예약 기반 거래명세서 Excel 생성    | ✅ 완료 |
 
 ### 6. 설문 시스템
 

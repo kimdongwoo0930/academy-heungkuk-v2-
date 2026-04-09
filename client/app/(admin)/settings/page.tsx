@@ -34,12 +34,13 @@ interface CreateForm {
   password: string;
 }
 
-type TabKey = 'account' | 'price' | 'backup';
+type TabKey = 'account' | 'price' | 'backup' | 'changelog';
 
 const TABS: { key: TabKey; label: string; icon: string }[] = [
   { key: 'account', label: '계정 관리', icon: '👤' },
   { key: 'price', label: '요금 · 담당자', icon: '💰' },
   { key: 'backup', label: '데이터 백업', icon: '💾' },
+  { key: 'changelog', label: '업데이트 내역', icon: '📋' },
 ];
 
 export default function SettingsPage() {
@@ -61,6 +62,7 @@ export default function SettingsPage() {
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
+  const [changelog, setChangelog] = useState('');
 
   useEffect(() => {
     getSettings()
@@ -71,6 +73,14 @@ export default function SettingsPage() {
       })
       .catch(() => {/* 서버 미설정 시 기본값 사용 */ });
   }, []);
+
+  useEffect(() => {
+    if (activeTab !== 'changelog' || changelog) return;
+    fetch('/api/changelog')
+      .then((r) => r.json())
+      .then((d) => setChangelog(d.content))
+      .catch(() => {});
+  }, [activeTab, changelog]);
 
   const handleSettingsSave = async () => {
     setSettingsSaving(true);
@@ -379,6 +389,33 @@ export default function SettingsPage() {
                   </label>
                 ))}
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* 업데이트 내역 */}
+        {activeTab === 'changelog' && (
+          <div className={styles.panel}>
+            <div className={styles.panelHeader}>
+              <div>
+                <h2 className={styles.panelTitle}>업데이트 내역</h2>
+                <p className={styles.panelDesc}>시스템 버전별 변경 이력입니다.</p>
+              </div>
+            </div>
+            <div className={styles.changelogBody}>
+              {changelog ? (
+                changelog.split('\n').map((line, i) => {
+                  if (line.startsWith('## ')) return <h2 key={i} className={styles.clH2}>{line.replace('## ', '')}</h2>;
+                  if (line.startsWith('### ')) return <h3 key={i} className={styles.clH3}>{line.replace('### ', '')}</h3>;
+                  if (line.startsWith('# ')) return <h1 key={i} className={styles.clH1}>{line.replace('# ', '')}</h1>;
+                  if (line.startsWith('- ')) return <p key={i} className={styles.clItem}>· {line.replace('- ', '')}</p>;
+                  if (line === '---') return <hr key={i} className={styles.clDivider} />;
+                  if (line.trim() === '') return <div key={i} className={styles.clGap} />;
+                  return <p key={i} className={styles.clText}>{line}</p>;
+                })
+              ) : (
+                <p className={styles.empty}>불러오는 중...</p>
+              )}
             </div>
           </div>
         )}

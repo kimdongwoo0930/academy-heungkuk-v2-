@@ -346,3 +346,68 @@
 .surveyBtn:hover {
   background: #dce8ff;
 }
+
+.confirmOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.confirmBox {
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 20px 24px 16px;
+  min-width: 240px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.confirmMsg {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+  text-align: center;
+  white-space: pre-line;
+}
+
+.confirmBtns {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.confirmCancelBtn {
+  height: 30px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-sub);
+  background: transparent;
+  cursor: pointer;
+}
+
+.confirmCancelBtn:hover {
+  background: var(--hover);
+}
+
+.confirmOkBtn {
+  height: 30px;
+  padding: 0 14px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.confirmOkBtn:hover {
+  background: var(--accent-hover);
+}

@@ -32,6 +32,7 @@ export default function ReservationPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalReservations, setModalReservations] = useState<Reservation[]>([]);
   const [surveyTarget, setSurveyTarget] = useState<Reservation | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
   const admin = isAdmin();
 
   // 검색어 디바운스 + 페이지 리셋
@@ -98,14 +99,18 @@ export default function ReservationPage() {
     fetchModalReservations([...new Set([startYear, endYear])]);
   };
 
-  const handleHardDelete = async (r: Reservation) => {
-    if (!confirm(`[${r.organization}] 예약을 완전히 삭제합니다.\n이 작업은 되돌릴 수 없습니다.`)) return;
-    try {
-      await hardDeleteReservation(r.id);
-      refetch();
-    } catch {
-      alert('삭제 중 오류가 발생했습니다.');
-    }
+  const handleHardDelete = (r: Reservation) => {
+    setConfirmDialog({
+      message: `[${r.organization}] 예약을 완전히 삭제합니다.\n이 작업은 되돌릴 수 없습니다.`,
+      onConfirm: async () => {
+        try {
+          await hardDeleteReservation(r.id);
+          refetch();
+        } catch {
+          alert('삭제 중 오류가 발생했습니다.');
+        }
+      },
+    });
   };
 
   const handleSave = async (data: Reservation) => {
@@ -268,6 +273,18 @@ export default function ReservationPage() {
           organization={surveyTarget.organization}
           onClose={() => setSurveyTarget(null)}
         />
+      )}
+
+      {confirmDialog && (
+        <div className={styles.confirmOverlay}>
+          <div className={styles.confirmBox}>
+            <p className={styles.confirmMsg}>{confirmDialog.message}</p>
+            <div className={styles.confirmBtns}>
+              <button className={styles.confirmCancelBtn} onClick={() => setConfirmDialog(null)}>취소</button>
+              <button className={styles.confirmOkBtn} onClick={() => { confirmDialog.onConfirm(); setConfirmDialog(null); }}>확인</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
