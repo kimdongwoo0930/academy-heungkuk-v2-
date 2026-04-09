@@ -37,7 +37,6 @@
 #             git reset --hard origin/main
 #             docker compose up --build -d client
 #             docker image prune -f
-
 name: Deploy to Oracle Cloud
 
 on:
