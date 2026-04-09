@@ -207,11 +207,10 @@ export default function SurveyModal({
               ) : !results || results.length === 0 ? (
                 <p className={styles.empty}>아직 제출된 설문이 없습니다.</p>
               ) : (
-                results.map((r, idx) => {
+                results.map((r) => {
                   const a = parseAnswers(r.answer);
                   return (
                     <div key={r.id} className={styles.resultCard}>
-                      <div className={styles.resultNum}>응답 #{idx + 1}</div>
                       <div className={styles.resultDate}>
                         {new Date(r.createdAt).toLocaleString("ko-KR")}
                       </div>

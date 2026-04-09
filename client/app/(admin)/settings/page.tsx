@@ -34,8 +34,17 @@ interface CreateForm {
   password: string;
 }
 
+type TabKey = 'account' | 'price' | 'backup';
+
+const TABS: { key: TabKey; label: string; icon: string }[] = [
+  { key: 'account', label: '계정 관리', icon: '👤' },
+  { key: 'price', label: '요금 · 담당자', icon: '💰' },
+  { key: 'backup', label: '데이터 백업', icon: '💾' },
+];
+
 export default function SettingsPage() {
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<TabKey>('account');
   const [accounts, setAccounts] = useState<AccountInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId] = useState<string | null>(() => getCurrentUserId());
@@ -107,7 +116,6 @@ export default function SettingsPage() {
   const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    // input 초기화 — 같은 파일을 다시 선택해도 onChange 발생하도록
     e.target.value = '';
     if (!confirm(`'${file.name}' 파일로 예약 데이터를 가져옵니다.\n기존 예약은 덮어씌워집니다. 계속하시겠습니까?`)) return;
     setImporting(true);
@@ -193,202 +201,236 @@ export default function SettingsPage() {
   };
 
   return (
-    <div>
-      {/* 계정 관리 */}
-      <div className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.title}>계정 관리</h2>
-          {admin && (
-            <button className={styles.addBtn} onClick={() => setShowModal(true)}>
-              + 멤버 추가
-            </button>
-          )}
-        </div>
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>아이디</th>
-                <th>이름</th>
-                <th>권한</th>
-                <th>등록일</th>
-                {admin && <th>관리</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr><td colSpan={admin ? 5 : 4} className={styles.empty}>불러오는 중...</td></tr>
-              ) : accounts.length === 0 ? (
-                <tr><td colSpan={admin ? 5 : 4} className={styles.empty}>계정이 없습니다.</td></tr>
-              ) : (
-                accounts.map((acc) => {
-                  const isSelf = acc.userId === currentUserId;
-                  return (
-                    <tr key={acc.id}>
-                      <td className={styles.userId}>{acc.userId}</td>
-                      <td>{acc.username}</td>
-                      <td>
-                        <button
-                          className={`${styles.roleBtn} ${acc.role === 'ROLE_ADMIN' ? styles.admin : styles.user}`}
-                          onClick={() => handleToggleRole(acc)}
-                          disabled={!admin || isSelf}
-                        >
-                          {acc.role === 'ROLE_ADMIN' ? '관리자' : '일반'}
-                        </button>
-                      </td>
-                      <td className={styles.date}>{acc.createdAt?.slice(0, 10)}</td>
-                      {admin && (
-                        <td className={styles.actionCell}>
-                          <button
-                            className={styles.pwBtn}
-                            onClick={() => { setPwTarget(acc); setNewPassword(''); }}
-                          >
-                            비밀번호
-                          </button>
-                          <button
-                            className={styles.deleteBtn}
-                            onClick={() => handleDelete(acc.id, acc.userId)}
-                            disabled={isSelf}
-                          >
-                            삭제
-                          </button>
-                        </td>
-                      )}
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* 요금 / 담당자 설정 */}
-      <div className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.title}>요금 / 담당자 설정</h2>
-          <button className={styles.addBtn} onClick={handleSettingsSave} disabled={settingsSaving}>
-            {settingsSaved ? '저장됨 ✓' : settingsSaving ? '저장 중...' : '저장'}
+    <div className={styles.layout}>
+      {/* 사이드 탭 */}
+      <nav className={styles.sidebar}>
+        {TABS.map((tab) => (
+          <button
+            key={tab.key}
+            className={`${styles.tabBtn} ${activeTab === tab.key ? styles.tabBtnActive : ''}`}
+            onClick={() => setActiveTab(tab.key)}
+          >
+            <span className={styles.tabIcon}>{tab.icon}</span>
+            <span className={styles.tabLabel}>{tab.label}</span>
           </button>
-        </div>
+        ))}
+      </nav>
 
-        <div className={styles.priceGrid}>
-          {/* 강의실 요금 */}
-          <div className={styles.priceBlock}>
-            <h3 className={styles.priceBlockTitle}>강의실 요금 (원/일)</h3>
-            {CLASSROOM_CATEGORIES.map((cat) => (
-              <label key={cat} className={styles.priceRow}>
-                <span className={styles.priceLabel}>{cat}</span>
-                <input
-                  className={styles.priceInput}
-                  type="number"
-                  value={appSettings.prices.classrooms[cat]}
-                  onChange={(e) => setPrice(cat, Number(e.target.value))}
-                />
-              </label>
-            ))}
-          </div>
+      {/* 콘텐츠 영역 */}
+      <div className={styles.content}>
 
-          {/* 숙박 / 식비 */}
-          <div className={styles.priceBlock}>
-            <h3 className={styles.priceBlockTitle}>숙박 / 식비 (원/건)</h3>
-            <label className={styles.priceRow}>
-              <span className={styles.priceLabel}>숙박비</span>
-              <input
-                className={styles.priceInput}
-                type="number"
-                value={appSettings.prices.roomPrice}
-                onChange={(e) => setPrice('roomPrice', Number(e.target.value))}
-              />
-            </label>
-            <label className={styles.priceRow}>
-              <span className={styles.priceLabel}>식비 (일반)</span>
-              <input
-                className={styles.priceInput}
-                type="number"
-                value={appSettings.prices.mealPrice}
-                onChange={(e) => setPrice('mealPrice', Number(e.target.value))}
-              />
-            </label>
-            <label className={styles.priceRow}>
-              <span className={styles.priceLabel}>식비 (특식)</span>
-              <input
-                className={styles.priceInput}
-                type="number"
-                value={appSettings.prices.specialMealPrice}
-                onChange={(e) => setPrice('specialMealPrice', Number(e.target.value))}
-              />
-            </label>
-          </div>
-
-          {/* 담당자 / 대표이사 */}
-          <div className={styles.priceBlock}>
-            <h3 className={styles.priceBlockTitle}>담당자 / 대표이사</h3>
-            {(
-              [
-                { key: 'representative', label: '대표이사' },
-                { key: 'manager', label: '담당자' },
-                { key: 'phone', label: '전화번호' },
-                { key: 'fax', label: '팩스번호' },
-                { key: 'email', label: '이메일' },
-              ] as { key: keyof AppSettings['contact']; label: string }[]
-            ).map(({ key, label }) => (
-              <label key={key} className={styles.priceRow}>
-                <span className={styles.priceLabel}>{label}</span>
-                <input
-                  className={styles.priceInput}
-                  type="text"
-                  value={appSettings.contact[key]}
-                  onChange={(e) => setContact(key, e.target.value)}
-                  style={{ width: 160 }}
-                />
-              </label>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* 데이터 백업 */}
-      <div className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.title}>데이터 백업</h2>
-        </div>
-        <div className={styles.backupBlock}>
-          <div className={styles.backupRow}>
-            <div>
-              <p className={styles.backupLabel}>예약 데이터 내보내기</p>
-              <p className={styles.backupDesc}>모든 예약 정보를 xlsx 파일로 다운로드합니다.</p>
-            </div>
-            <button className={styles.exportBtn} onClick={handleExport} disabled={exporting}>
-              {exporting ? '다운로드 중...' : 'xlsx 내보내기'}
-            </button>
-          </div>
-          <div className={styles.backupDivider} />
-          <div className={styles.backupRow}>
-            <div>
-              <p className={styles.backupLabel}>예약 데이터 가져오기</p>
-              <p className={styles.backupDesc}>내보내기한 xlsx 파일로 데이터를 복원합니다. 예약 코드 기준으로 덮어씁니다.</p>
-              {importResult && (
-                <p className={styles.importResult}>
-                  완료 — 신규 {importResult.created}건 / 수정 {importResult.updated}건
-                  {importResult.failed > 0 && ` / 실패 ${importResult.failed}건`}
-                </p>
+        {/* 계정 관리 */}
+        {activeTab === 'account' && (
+          <div className={styles.panel}>
+            <div className={styles.panelHeader}>
+              <div>
+                <h2 className={styles.panelTitle}>계정 관리</h2>
+                <p className={styles.panelDesc}>시스템 접근 계정을 추가하거나 권한을 변경합니다.</p>
+              </div>
+              {admin && (
+                <button className={styles.addBtn} onClick={() => setShowModal(true)}>
+                  + 멤버 추가
+                </button>
               )}
             </div>
-            <label className={`${styles.importBtn} ${importing ? styles.importing : ''}`}>
-              {importing ? '가져오는 중...' : 'xlsx 가져오기'}
-              <input
-                type="file"
-                accept=".xlsx"
-                onChange={handleImport}
-                disabled={importing}
-                style={{ display: 'none' }}
-              />
-            </label>
+            <div className={styles.tableWrap}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>아이디</th>
+                    <th>이름</th>
+                    <th>권한</th>
+                    <th>등록일</th>
+                    {admin && <th>관리</th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr><td colSpan={admin ? 5 : 4} className={styles.empty}>불러오는 중...</td></tr>
+                  ) : accounts.length === 0 ? (
+                    <tr><td colSpan={admin ? 5 : 4} className={styles.empty}>계정이 없습니다.</td></tr>
+                  ) : (
+                    accounts.map((acc) => {
+                      const isSelf = acc.userId === currentUserId;
+                      return (
+                        <tr key={acc.id}>
+                          <td className={styles.userId}>{acc.userId}</td>
+                          <td>{acc.username}</td>
+                          <td>
+                            <button
+                              className={`${styles.roleBtn} ${acc.role === 'ROLE_ADMIN' ? styles.admin : styles.user}`}
+                              onClick={() => handleToggleRole(acc)}
+                              disabled={!admin || isSelf}
+                            >
+                              {acc.role === 'ROLE_ADMIN' ? '관리자' : '일반'}
+                            </button>
+                          </td>
+                          <td className={styles.date}>{acc.createdAt?.slice(0, 10)}</td>
+                          {admin && (
+                            <td className={styles.actionCell}>
+                              <button
+                                className={styles.pwBtn}
+                                onClick={() => { setPwTarget(acc); setNewPassword(''); }}
+                              >
+                                비밀번호
+                              </button>
+                              <button
+                                className={styles.deleteBtn}
+                                onClick={() => handleDelete(acc.id, acc.userId)}
+                                disabled={isSelf}
+                              >
+                                삭제
+                              </button>
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* 요금 / 담당자 설정 */}
+        {activeTab === 'price' && (
+          <div className={styles.panel}>
+            <div className={styles.panelHeader}>
+              <div>
+                <h2 className={styles.panelTitle}>요금 · 담당자 설정</h2>
+                <p className={styles.panelDesc}>강의실 요금, 숙박/식비, 담당자 정보를 설정합니다.</p>
+              </div>
+              <button className={styles.saveBtn} onClick={handleSettingsSave} disabled={settingsSaving}>
+                {settingsSaved ? '저장됨 ✓' : settingsSaving ? '저장 중...' : '저장'}
+              </button>
+            </div>
+
+            <div className={styles.priceGrid}>
+              {/* 강의실 요금 */}
+              <div className={styles.priceBlock}>
+                <h3 className={styles.priceBlockTitle}>강의실 요금 (원/일)</h3>
+                {CLASSROOM_CATEGORIES.map((cat) => (
+                  <label key={cat} className={styles.priceRow}>
+                    <span className={styles.priceLabel}>{cat}</span>
+                    <input
+                      className={styles.priceInput}
+                      type="number"
+                      value={appSettings.prices.classrooms[cat]}
+                      onChange={(e) => setPrice(cat, Number(e.target.value))}
+                    />
+                  </label>
+                ))}
+              </div>
+
+              {/* 숙박 / 식비 */}
+              <div className={styles.priceBlock}>
+                <h3 className={styles.priceBlockTitle}>숙박 / 식비 (원/건)</h3>
+                <label className={styles.priceRow}>
+                  <span className={styles.priceLabel}>숙박비</span>
+                  <input
+                    className={styles.priceInput}
+                    type="number"
+                    value={appSettings.prices.roomPrice}
+                    onChange={(e) => setPrice('roomPrice', Number(e.target.value))}
+                  />
+                </label>
+                <label className={styles.priceRow}>
+                  <span className={styles.priceLabel}>식비 (일반)</span>
+                  <input
+                    className={styles.priceInput}
+                    type="number"
+                    value={appSettings.prices.mealPrice}
+                    onChange={(e) => setPrice('mealPrice', Number(e.target.value))}
+                  />
+                </label>
+                <label className={styles.priceRow}>
+                  <span className={styles.priceLabel}>식비 (특식)</span>
+                  <input
+                    className={styles.priceInput}
+                    type="number"
+                    value={appSettings.prices.specialMealPrice}
+                    onChange={(e) => setPrice('specialMealPrice', Number(e.target.value))}
+                  />
+                </label>
+              </div>
+
+              {/* 담당자 / 대표이사 */}
+              <div className={styles.priceBlock}>
+                <h3 className={styles.priceBlockTitle}>담당자 / 대표이사</h3>
+                {(
+                  [
+                    { key: 'representative', label: '대표이사' },
+                    { key: 'manager', label: '담당자' },
+                    { key: 'phone', label: '전화번호' },
+                    { key: 'fax', label: '팩스번호' },
+                    { key: 'email', label: '이메일' },
+                  ] as { key: keyof AppSettings['contact']; label: string }[]
+                ).map(({ key, label }) => (
+                  <label key={key} className={styles.priceRow}>
+                    <span className={styles.priceLabel}>{label}</span>
+                    <input
+                      className={styles.priceInput}
+                      type="text"
+                      value={appSettings.contact[key]}
+                      onChange={(e) => setContact(key, e.target.value)}
+                      style={{ width: 160 }}
+                    />
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 데이터 백업 */}
+        {activeTab === 'backup' && (
+          <div className={styles.panel}>
+            <div className={styles.panelHeader}>
+              <div>
+                <h2 className={styles.panelTitle}>데이터 백업</h2>
+                <p className={styles.panelDesc}>예약 데이터를 xlsx 파일로 내보내거나 가져옵니다.</p>
+              </div>
+            </div>
+            <div className={styles.backupBlock}>
+              <div className={styles.backupRow}>
+                <div className={styles.backupInfo}>
+                  <p className={styles.backupLabel}>예약 데이터 내보내기</p>
+                  <p className={styles.backupDesc}>모든 예약 정보를 xlsx 파일로 다운로드합니다.</p>
+                </div>
+                <button className={styles.exportBtn} onClick={handleExport} disabled={exporting}>
+                  {exporting ? '다운로드 중...' : 'xlsx 내보내기'}
+                </button>
+              </div>
+              <div className={styles.backupDivider} />
+              <div className={styles.backupRow}>
+                <div className={styles.backupInfo}>
+                  <p className={styles.backupLabel}>예약 데이터 가져오기</p>
+                  <p className={styles.backupDesc}>내보내기한 xlsx 파일로 데이터를 복원합니다. 예약 코드 기준으로 덮어씁니다.</p>
+                  {importResult && (
+                    <p className={styles.importResult}>
+                      완료 — 신규 {importResult.created}건 / 수정 {importResult.updated}건
+                      {importResult.failed > 0 && ` / 실패 ${importResult.failed}건`}
+                    </p>
+                  )}
+                </div>
+                <label className={`${styles.importBtn} ${importing ? styles.importing : ''}`}>
+                  {importing ? '가져오는 중...' : 'xlsx 가져오기'}
+                  <input
+                    type="file"
+                    accept=".xlsx"
+                    onChange={handleImport}
+                    disabled={importing}
+                    style={{ display: 'none' }}
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
+      {/* 비밀번호 변경 모달 */}
       {pwTarget && (
         <div className={styles.overlay} onClick={() => setPwTarget(null)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
@@ -414,7 +456,7 @@ export default function SettingsPage() {
                 <button type="button" className={styles.cancelBtn} onClick={() => setPwTarget(null)}>
                   취소
                 </button>
-                <button type="submit" className={styles.saveBtn} disabled={pwChanging}>
+                <button type="submit" className={styles.confirmBtn} disabled={pwChanging}>
                   {pwChanging ? '변경 중...' : '변경'}
                 </button>
               </div>
@@ -423,6 +465,7 @@ export default function SettingsPage() {
         </div>
       )}
 
+      {/* 멤버 추가 모달 */}
       {showModal && (
         <div className={styles.overlay} onClick={() => setShowModal(false)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
@@ -469,7 +512,7 @@ export default function SettingsPage() {
                 <button type="button" className={styles.cancelBtn} onClick={() => setShowModal(false)}>
                   취소
                 </button>
-                <button type="submit" className={styles.saveBtn} disabled={creating}>
+                <button type="submit" className={styles.confirmBtn} disabled={creating}>
                   {creating ? '생성 중...' : '계정 생성'}
                 </button>
               </div>

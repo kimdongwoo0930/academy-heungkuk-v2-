@@ -107,6 +107,12 @@ export default function AccommodationPage() {
 
   const displayedDates = new Set(calDays.map((c) => c.dateStr));
 
+  const redDaySet = new Set(
+    calDays
+      .filter((c) => c.date.getDay() === 0 || c.date.getDay() === 6 || checkIsHoliday(c.date))
+      .map((c) => c.dateStr)
+  );
+
   const activeRoomReservations = reservations.filter((r) => {
     if (r.status === "취소") return false;
     return r.rooms?.some((rm) => displayedDates.has(String(rm.reservedDate)));
@@ -172,18 +178,24 @@ export default function AccommodationPage() {
   const getDayTotal = (dateStr: string) =>
     ROOM_TYPES.reduce((s, t) => s + getDayTypeTotal(dateStr, t), 0);
 
-  const isRedDay = (_dateStr: string, date: Date) =>
-    date.getDay() === 0 || date.getDay() === 6 || checkIsHoliday(date);
+  const isRedDay = (cal: CalDay) => redDaySet.has(cal.dateStr);
 
   const thCls = (cal: CalDay) => {
     if (!cal.isCurrent) return styles.otherMonthTh;
-    if (isRedDay(cal.dateStr, cal.date)) return styles.weekendTh;
+    if (isRedDay(cal)) return styles.weekendTh;
     return "";
   };
   const tdCls = (cal: CalDay) => {
     if (!cal.isCurrent) return styles.otherMonthCol;
-    if (isRedDay(cal.dateStr, cal.date)) return styles.weekendCol;
+    if (isRedDay(cal)) return styles.weekendCol;
     return "";
+  };
+  const roomCellTdCls = (cal: CalDay, count: number) => {
+    if (!cal.isCurrent) return styles.otherMonthCol;
+    if (isRedDay(cal)) {
+      return count > 0 ? styles.weekendCellHasValue : styles.weekendCol;
+    }
+    return count > 0 ? styles.roomCellHasValue : "";
   };
 
   const prevMonth = () => {
@@ -405,7 +417,7 @@ export default function AccommodationPage() {
                                 return [
                                   <td
                                     key={`${cal.dateStr}4`}
-                                    className={`${styles.roomCell} ${tdCls(cal)}`}
+                                    className={`${styles.roomCell} ${roomCellTdCls(cal, c4)}`}
                                     onMouseEnter={(e) =>
                                       hasAny && handleMouseMove(e, res, rooms)
                                     }
@@ -422,7 +434,7 @@ export default function AccommodationPage() {
                                   </td>,
                                   <td
                                     key={`${cal.dateStr}2`}
-                                    className={`${styles.roomCell} ${tdCls(cal)}`}
+                                    className={`${styles.roomCell} ${roomCellTdCls(cal, c2)}`}
                                     onMouseEnter={(e) =>
                                       hasAny && handleMouseMove(e, res, rooms)
                                     }
@@ -439,7 +451,7 @@ export default function AccommodationPage() {
                                   </td>,
                                   <td
                                     key={`${cal.dateStr}1`}
-                                    className={`${styles.roomCell} ${tdCls(cal)}`}
+                                    className={`${styles.roomCell} ${roomCellTdCls(cal, c1)}`}
                                     onMouseEnter={(e) =>
                                       hasAny && handleMouseMove(e, res, rooms)
                                     }

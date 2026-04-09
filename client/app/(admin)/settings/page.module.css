@@ -1,16 +1,96 @@
-.pageHeader {
+/* ── 전체 레이아웃 ── */
+.layout {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
+  gap: 0;
+  min-height: calc(100vh - 60px);
 }
 
-.title {
-  font-size: 20px;
-  font-weight: 700;
+/* ── 사이드바 ── */
+.sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  padding: 24px 12px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tabBtn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-sub);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tabBtn:hover {
+  background: var(--bg);
   color: var(--text);
 }
 
+.tabBtnActive {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.tabBtnActive:hover {
+  background: var(--accent-hover, var(--accent));
+  color: #fff;
+}
+
+.tabIcon {
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.tabLabel {
+  white-space: nowrap;
+}
+
+/* ── 콘텐츠 영역 ── */
+.content {
+  flex: 1;
+  padding: 28px 32px;
+  min-width: 0;
+}
+
+/* ── 패널 ── */
+.panel {
+  max-width: 900px;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 16px;
+}
+
+.panelTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.panelDesc {
+  font-size: 13px;
+  color: var(--text-sub);
+}
+
+/* ── 버튼 ── */
 .addBtn {
   height: 36px;
   padding: 0 18px;
@@ -19,13 +99,302 @@
   border-radius: 8px;
   font-size: 13px;
   font-weight: 700;
+  flex-shrink: 0;
   transition: background 0.15s;
+  border: none;
+  cursor: pointer;
 }
 .addBtn:hover {
-  background: var(--accent-hover);
+  background: var(--accent-hover, var(--accent));
 }
 
-/* 모달 */
+.saveBtn {
+  height: 36px;
+  padding: 0 20px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: background 0.15s;
+  border: none;
+  cursor: pointer;
+}
+.saveBtn:hover:not(:disabled) {
+  background: var(--accent-hover, var(--accent));
+}
+.saveBtn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* ── 테이블 ── */
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-sub);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  vertical-align: middle;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.userId {
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.date {
+  color: var(--text-sub);
+  font-size: 13px;
+}
+
+.empty {
+  text-align: center;
+  color: var(--text-sub);
+  padding: 40px !important;
+}
+
+/* ── 권한 버튼 ── */
+.roleBtn {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s;
+}
+.roleBtn:hover {
+  opacity: 0.8;
+}
+.admin {
+  background: #ebf4ff;
+  color: #2b6cb0;
+}
+.user {
+  background: var(--bg);
+  color: var(--text-sub);
+  border: 1px solid var(--border) !important;
+}
+
+/* ── 액션 셀 ── */
+.actionCell {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.pwBtn {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-sub);
+  border: 1px solid var(--border);
+  transition: all 0.15s;
+}
+.pwBtn:hover {
+  background: #f5f5f5;
+}
+
+.deleteBtn {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: #e53e3e;
+  border: 1px solid #fc8181;
+  transition: all 0.15s;
+}
+.deleteBtn:hover {
+  background: #fff5f5;
+}
+.deleteBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ── 요금 설정 ── */
+.priceGrid {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.priceBlock {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  min-width: 260px;
+  flex: 1;
+}
+
+.priceBlockTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+}
+
+.priceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text);
+  cursor: default;
+}
+.priceRow:last-child {
+  border-bottom: none;
+}
+
+.priceLabel {
+  flex: 1;
+  font-size: 13px;
+}
+
+.priceInput {
+  width: 120px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg);
+  text-align: right;
+  font-family: inherit;
+  outline: none;
+}
+.priceInput:focus {
+  border-color: var(--accent);
+}
+
+/* ── 데이터 백업 ── */
+.backupBlock {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 24px;
+}
+
+.backupRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 20px 0;
+}
+
+.backupInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.backupLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.backupDesc {
+  font-size: 12px;
+  color: var(--text-sub);
+}
+
+.backupDivider {
+  border-top: 1px solid var(--border);
+}
+
+.exportBtn {
+  height: 36px;
+  padding: 0 18px;
+  background: #16a34a;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.exportBtn:hover {
+  background: #15803d;
+}
+.exportBtn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.importBtn {
+  height: 36px;
+  padding: 0 18px;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.importBtn:hover {
+  background: #1d4ed8;
+}
+.importBtn.importing {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.importResult {
+  font-size: 12px;
+  color: #16a34a;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+/* ── 모달 ── */
 .overlay {
   position: fixed;
   inset: 0;
@@ -69,6 +438,9 @@
   align-items: center;
   justify-content: center;
   transition: background 0.15s;
+  background: transparent;
+  border: none;
+  cursor: pointer;
 }
 .closeBtn:hover {
   background: #f0f0f0;
@@ -127,12 +499,13 @@
   color: var(--text-sub);
   background: var(--surface);
   transition: background 0.15s;
+  cursor: pointer;
 }
 .cancelBtn:hover {
   background: #f5f5f5;
 }
 
-.saveBtn {
+.confirmBtn {
   height: 34px;
   padding: 0 20px;
   background: var(--accent);
@@ -140,300 +513,14 @@
   border-radius: 7px;
   font-size: 13px;
   font-weight: 700;
+  border: none;
+  cursor: pointer;
   transition: background 0.15s;
 }
-.saveBtn:hover {
-  background: var(--accent-hover);
+.confirmBtn:hover:not(:disabled) {
+  background: var(--accent-hover, var(--accent));
 }
-
-.tableWrap {
-  overflow-x: auto;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface);
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-.table th {
-  padding: 12px 16px;
-  text-align: left;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-sub);
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
-}
-
-.table td {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border);
-  color: var(--text);
-  vertical-align: middle;
-}
-
-.table tr:last-child td {
-  border-bottom: none;
-}
-
-.userId {
-  font-family: monospace;
-  font-size: 13px;
-}
-
-.date {
-  color: var(--text-sub);
-  font-size: 13px;
-}
-
-.empty {
-  text-align: center;
-  color: var(--text-sub);
-  padding: 40px !important;
-}
-
-/* 권한 버튼 */
-.roleBtn {
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  transition: opacity 0.15s;
-}
-
-.roleBtn:hover {
-  opacity: 0.8;
-}
-
-.admin {
-  background: #ebf4ff;
-  color: #2b6cb0;
-}
-
-.user {
-  background: var(--bg);
-  color: var(--text-sub);
-  border: 1px solid var(--border) !important;
-}
-
-/* 승인 버튼 */
-.stateBtn {
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  transition: opacity 0.15s;
-}
-
-.stateBtn:hover {
-  opacity: 0.8;
-}
-
-.approved {
-  background: #f0fff4;
-  color: #276749;
-}
-
-.pending {
-  background: #fffbeb;
-  color: #975a16;
-}
-
-/* 섹션 구분 */
-.section {
-  margin-bottom: 40px;
-}
-
-.sectionHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-/* 요금 설정 */
-.priceGrid {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-}
-
-.priceBlock {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 16px 20px;
-  min-width: 280px;
-}
-
-.priceBlockTitle {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-sub);
-  margin-bottom: 12px;
-}
-
-.priceRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 13px;
-  color: var(--text);
-}
-
-.priceRow:last-child {
-  border-bottom: none;
-}
-
-.priceLabel {
-  flex: 1;
-  font-size: 13px;
-}
-
-.priceInput {
-  width: 120px;
-  height: 30px;
-  padding: 0 8px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 13px;
-  color: var(--text);
-  background: var(--bg);
-  text-align: right;
-  font-family: inherit;
-  outline: none;
-}
-
-.priceInput:focus {
-  border-color: var(--accent);
-}
-
-/* 액션 셀 */
-.actionCell {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-/* 비밀번호 변경 버튼 */
-.pwBtn {
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  background: transparent;
-  color: var(--text-sub);
-  border: 1px solid var(--border);
-  transition: all 0.15s;
-}
-.pwBtn:hover {
-  background: #f5f5f5;
-}
-
-/* 백업 섹션 */
-.backupBlock {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 0 20px;
-}
-
-.backupRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 0;
-}
-
-.backupLabel {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 4px;
-}
-
-.backupDesc {
-  font-size: 12px;
-  color: var(--text-sub);
-}
-
-.exportBtn {
-  height: 36px;
-  padding: 0 18px;
-  background: #16a34a;
-  color: #fff;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 700;
-  flex-shrink: 0;
-  transition: background 0.15s;
-}
-.exportBtn:hover {
-  background: #15803d;
-}
-.exportBtn:disabled {
+.confirmBtn:disabled {
   background: #9ca3af;
   cursor: not-allowed;
-}
-
-.backupDivider {
-  border-top: 1px solid var(--border);
-}
-
-.importBtn {
-  height: 36px;
-  padding: 0 18px;
-  background: #2563eb;
-  color: #fff;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 700;
-  flex-shrink: 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  transition: background 0.15s;
-}
-.importBtn:hover {
-  background: #1d4ed8;
-}
-.importBtn.importing {
-  background: #9ca3af;
-  cursor: not-allowed;
-}
-
-.importResult {
-  font-size: 12px;
-  color: #16a34a;
-  font-weight: 600;
-  margin-top: 4px;
-}
-
-/* 삭제 버튼 */
-.deleteBtn {
-  padding: 4px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  background: transparent;
-  color: #e53e3e;
-  border: 1px solid #fc8181;
-  transition: all 0.15s;
-}
-
-.deleteBtn:hover {
-  background: #fff5f5;
 }

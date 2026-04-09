@@ -12,6 +12,8 @@ const STATUS_COLOR: Record<string, string> = {
   취소: '#ef4444',
 };
 
+const STATUS_OPTIONS = ['전체', '확정', '예약', '문의', '취소'];
+
 const PAGE_SIZE = 15;
 
 export default function DocumentPage() {
@@ -100,51 +102,60 @@ export default function DocumentPage() {
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   };
 
+  const handleStatusChange = (s: string) => {
+    setStatus(s === '전체' ? '' : (status === s ? '' : s));
+    setPage(0);
+  };
+
+  const handleReset = () => { setKeyword(''); setStatus(''); setStartDate(''); setEndDate(''); setPage(0); };
+
   return (
     <div className={styles.page}>
-      <div className={styles.filters}>
-        <input
-          className={styles.searchInput}
-          placeholder="단체명·담당자 검색"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-        />
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
+      <div className={styles.filterCard}>
+        <div className={styles.filterRow}>
+          <span className={styles.filterLabel}>검색옵션</span>
+          <div className={styles.statusCheckboxes}>
+            {STATUS_OPTIONS.map((s) => (
+              <label key={s} className={styles.statusCheckLabel}>
+                <input
+                  type="checkbox"
+                  checked={s === '전체' ? status === '' : status === s}
+                  onChange={() => handleStatusChange(s)}
+                />
+                {s}
+              </label>
+            ))}
+          </div>
+          <div className={styles.filterRowRight}>
+            <input
+              type="date"
+              className={styles.dateInput}
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+            <span className={styles.dateSep}>~</span>
+            <input
+              type="date"
+              className={styles.dateInput}
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+            {(keyword || status || startDate || endDate) && (
+              <button className={styles.resetBtn} onClick={handleReset}>초기화</button>
+            )}
+          </div>
+        </div>
+        <div className={styles.filterDivider} />
+        <div className={styles.filterRow}>
+          <span className={styles.filterLabel}>검색명</span>
           <input
-            type="date"
-            className={styles.filterInput}
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            placeholder="시작일"
+            className={styles.searchInput}
+            placeholder="단체명 / 담당자를 입력하세요."
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') { setPage(0); fetchList(keyword, status, startDate, endDate, 0); } }}
           />
-          <span style={{ color: 'var(--text-sub)', fontSize: 13 }}>~</span>
-          <input
-            type="date"
-            className={styles.filterInput}
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            placeholder="종료일"
-          />
-          {(keyword || status || startDate || endDate) && (
-            <button
-              className={styles.filterSelect}
-              style={{ cursor: 'pointer', color: 'var(--text-sub)' }}
-              onClick={() => { setKeyword(''); setStatus(''); setStartDate(''); setEndDate(''); }}
-            >
-              초기화
-            </button>
-          )}
-          <select
-            className={styles.filterSelect}
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-          >
-            <option value="">전체 상태</option>
-            <option value="확정">확정</option>
-            <option value="예약">예약</option>
-            <option value="문의">문의</option>
-            <option value="취소">취소</option>
-          </select>
+          <button className={styles.searchBtn} onClick={() => { setPage(0); fetchList(keyword, status, startDate, endDate, 0); }}>검색</button>
         </div>
       </div>
 
@@ -159,23 +170,25 @@ export default function DocumentPage() {
               <div key={r.id} className={styles.card}>
                 <div className={styles.cardLeft}>
                   <div className={styles.dot} style={{ backgroundColor: r.colorCode }} />
-                  <div>
+                  <div className={styles.cardOrgBlock}>
                     <div className={styles.org}>{r.organization}</div>
-                    <div className={styles.meta}>
-                      <span className={styles.code}>{r.reservationCode}</span>
-                      <span>{r.startDate} ~ {r.endDate}</span>
-                      <span
-                        className={styles.statusBadge}
-                        style={{ backgroundColor: STATUS_COLOR[r.status] ?? '#888' }}
-                      >
-                        {r.status}
-                      </span>
-                    </div>
-                    <div className={styles.info}>
-                      <span>{r.customer}</span>
-                      <span>{r.customerPhone}</span>
-                      {r.people != null && <span>{r.people}명</span>}
-                    </div>
+                    <div className={styles.code}>{r.reservationCode}</div>
+                  </div>
+                  <div className={styles.cardDateBlock}>
+                    <span className={styles.cardDateRange}>{String(r.startDate)} ~ {String(r.endDate)}</span>
+                  </div>
+                  <div className={styles.cardCustomerBlock}>
+                    <span className={styles.cardFieldValue}>{r.customer}</span>
+                    <span className={styles.cardFieldSub}>{r.customerPhone}</span>
+                  </div>
+                  <div className={styles.cardPurposeBlock}>
+                    <span
+                      className={styles.statusBadge}
+                      style={{ backgroundColor: STATUS_COLOR[r.status] ?? '#888' }}
+                    >
+                      {r.status}
+                    </span>
+                    {r.people != null && <span className={styles.cardFieldSub}>{r.people}명</span>}
                   </div>
                 </div>
                 <div className={styles.cardBtns}>

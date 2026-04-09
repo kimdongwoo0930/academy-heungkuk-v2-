@@ -192,6 +192,13 @@
   cursor: default !important;
 }
 
+/* 행 호버 시 호실 셀 강조 */
+.table tbody tr:hover .tdRoom,
+.table tbody tr:hover .tdCap {
+  background: #c8d8f0 !important;
+  transition: background 0.1s;
+}
+
 /* 구분 셀 */
 .tdType {
   font-weight: 700;

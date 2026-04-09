@@ -347,18 +347,13 @@ export default function ReservationModal({ reservation, allReservations, onClose
         });
     }, [isBillingSameAsCustomer, showBillingManager, form.customer, form.customerPhone, form.customerEmail]);
 
-    // 불러오기: 단체명으로 필터링 후 가장 최근 예약 1건씩
+    // 불러오기: 단체명 또는 담당자명으로 필터링, 최신순 정렬
     const loadCandidates = (() => {
         const q = loadSearch.trim();
-        const filtered = allReservations.filter((r) => r.organization.includes(q) || r.customer.includes(q));
-        // 단체명별로 가장 최근 예약만
-        const map = new Map<string, Reservation>();
-        [...filtered]
-            .sort((a, b) => String(b.startDate).localeCompare(String(a.startDate)))
-            .forEach((r) => {
-                if (!map.has(r.organization)) map.set(r.organization, r);
-            });
-        return Array.from(map.values()).slice(0, 6);
+        if (!q) return [];
+        return [...allReservations]
+            .filter((r) => r.organization.includes(q) || r.customer.includes(q))
+            .sort((a, b) => String(b.startDate).localeCompare(String(a.startDate)));
     })();
 
     const applyLoad = (r: Reservation) => {
@@ -766,57 +761,9 @@ export default function ReservationModal({ reservation, allReservations, onClose
                             <div className={styles.grid}>
                                 {!isEdit && (
                                     <div className={`${styles.fullWidth} ${styles.loadWrap}`}>
-                                        {!showLoad ? (
-                                            <button className={styles.loadBtn} onClick={() => setShowLoad(true)}>
-                                                이전 예약에서 불러오기
-                                            </button>
-                                        ) : (
-                                            <div className={styles.loadPanel}>
-                                                <div className={styles.loadSearchRow}>
-                                                    <input
-                                                        className={styles.loadInput}
-                                                        autoFocus
-                                                        placeholder="단체명 또는 담당자 검색"
-                                                        value={loadSearch}
-                                                        onChange={(e) => setLoadSearch(e.target.value)}
-                                                    />
-                                                    <button
-                                                        className={styles.loadCancelBtn}
-                                                        onClick={() => {
-                                                            setShowLoad(false);
-                                                            setLoadSearch('');
-                                                        }}
-                                                    >
-                                                        취소
-                                                    </button>
-                                                </div>
-                                                {loadCandidates.length === 0 ? (
-                                                    <p className={styles.loadEmpty}>검색 결과가 없습니다.</p>
-                                                ) : (
-                                                    <ul className={styles.loadList}>
-                                                        {loadCandidates.map((r) => (
-                                                            <li
-                                                                key={r.id}
-                                                                className={styles.loadItem}
-                                                                onClick={() => applyLoad(r)}
-                                                            >
-                                                                <span
-                                                                    className={styles.loadDot}
-                                                                    style={{ backgroundColor: r.colorCode }}
-                                                                />
-                                                                <span className={styles.loadOrg}>{r.organization}</span>
-                                                                <span className={styles.loadCustomer}>
-                                                                    {r.customer} · {r.customerPhone}
-                                                                </span>
-                                                                <span className={styles.loadDate}>
-                                                                    {String(r.startDate)}
-                                                                </span>
-                                                            </li>
-                                                        ))}
-                                                    </ul>
-                                                )}
-                                            </div>
-                                        )}
+                                        <button className={styles.loadBtn} onClick={() => setShowLoad(true)}>
+                                            이전 예약에서 불러오기
+                                        </button>
                                     </div>
                                 )}
                                 {/* 섹션: 기본 정보 */}
@@ -1786,6 +1733,72 @@ export default function ReservationModal({ reservation, allReservations, onClose
 
                 {/* 토스트 알림 */}
                 {toast && <div className={`${styles.toast} ${styles[`toast_${toast.type}`]}`}>{toast.message}</div>}
+
+                {/* 이전 예약 검색 팝업 */}
+                {showLoad && (
+                    <div className={styles.loadOverlay} onClick={() => { setShowLoad(false); setLoadSearch(''); }}>
+                        <div className={styles.loadPopup} onClick={(e) => e.stopPropagation()}>
+                            <div className={styles.loadPopupHeader}>
+                                <span className={styles.loadPopupTitle}>이전 예약 불러오기</span>
+                                <button className={styles.loadPopupClose} onClick={() => { setShowLoad(false); setLoadSearch(''); }}>✕</button>
+                            </div>
+                            <div className={styles.loadPopupSearch}>
+                                <input
+                                    className={styles.loadInput}
+                                    autoFocus
+                                    placeholder="단체명 또는 담당자명을 입력하세요."
+                                    value={loadSearch}
+                                    onChange={(e) => setLoadSearch(e.target.value)}
+                                />
+                                <button className={styles.loadSearchBtn}>검색</button>
+                            </div>
+                            <div className={styles.loadTableWrap}>
+                                {loadSearch.trim() === '' ? (
+                                    <p className={styles.loadEmpty}>검색어를 입력하세요.</p>
+                                ) : loadCandidates.length === 0 ? (
+                                    <p className={styles.loadEmpty}>검색 결과가 없습니다.</p>
+                                ) : (
+                                    <table className={styles.loadTable}>
+                                        <thead>
+                                            <tr>
+                                                <th>번호</th>
+                                                <th>상태</th>
+                                                <th>입실일</th>
+                                                <th>단체명</th>
+                                                <th>담당자</th>
+                                                <th>연락처</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {loadCandidates.map((r, i) => (
+                                                <tr key={r.id} className={styles.loadTableRow} onClick={() => applyLoad(r)}>
+                                                    <td className={styles.loadTdNum}>{i + 1}</td>
+                                                    <td>
+                                                        <span className={`${styles.loadStatusBadge} ${styles[`loadStatus_${r.status}`]}`}>
+                                                            {r.status}
+                                                        </span>
+                                                    </td>
+                                                    <td className={styles.loadTdDate}>{String(r.startDate)}</td>
+                                                    <td className={styles.loadTdOrg}>
+                                                        <span className={styles.loadColorDot} style={{ backgroundColor: r.colorCode }} />
+                                                        {r.organization}
+                                                    </td>
+                                                    <td className={styles.loadTdCustomer}>{r.customer}</td>
+                                                    <td className={styles.loadTdPhone}>{r.customerPhone}</td>
+                                                    <td><button className={styles.loadSelectBtn}>선택</button></td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                )}
+                            </div>
+                            {loadCandidates.length > 0 && (
+                                <div className={styles.loadPopupFooter}>전체 {loadCandidates.length}건</div>
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 {/* 확인 다이얼로그 */}
                 {confirmDialog && (

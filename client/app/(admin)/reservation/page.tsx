@@ -120,39 +120,55 @@ export default function ReservationPage() {
 
   return (
     <div>
-      <div className={styles.filters}>
-        <div className={styles.sortBtns}>
-          <button
-            className={`${styles.sortBtn} ${sortBy === 'createdAt' ? styles.sortBtnActive : ''}`}
-            onClick={() => handleSortChange('createdAt')}
-          >
-            등록일순 {sortBy === 'createdAt' ? (sortDir === 'desc' ? '↓' : '↑') : ''}
-          </button>
-          <button
-            className={`${styles.sortBtn} ${sortBy === 'startDate' ? styles.sortBtnActive : ''}`}
-            onClick={() => handleSortChange('startDate')}
-          >
-            입실일순 {sortBy === 'startDate' ? (sortDir === 'desc' ? '↓' : '↑') : ''}
-          </button>
+      <div className={styles.filterCard}>
+        <div className={styles.filterRow}>
+          <span className={styles.filterLabel}>검색옵션</span>
+          <div className={styles.statusCheckboxes}>
+            {STATUS_OPTIONS.map((s) => (
+              <label key={s} className={styles.statusCheckLabel}>
+                <input
+                  type="checkbox"
+                  checked={status === s}
+                  onChange={() => handleStatusChange(status === s ? '전체' : s)}
+                />
+                {s}
+              </label>
+            ))}
+          </div>
+          <div className={styles.filterRowRight}>
+            <div className={styles.sortBtns}>
+              <button
+                className={`${styles.sortBtn} ${sortBy === 'createdAt' ? styles.sortBtnActive : ''}`}
+                onClick={() => handleSortChange('createdAt')}
+              >
+                등록일순 {sortBy === 'createdAt' ? (sortDir === 'desc' ? '↓' : '↑') : ''}
+              </button>
+              <button
+                className={`${styles.sortBtn} ${sortBy === 'startDate' ? styles.sortBtnActive : ''}`}
+                onClick={() => handleSortChange('startDate')}
+              >
+                입실일순 {sortBy === 'startDate' ? (sortDir === 'desc' ? '↓' : '↑') : ''}
+              </button>
+            </div>
+            {admin && <button className={styles.addBtn} onClick={openCreate}>+ 예약 등록</button>}
+          </div>
         </div>
-        <input
-          className={styles.searchInput}
-          placeholder="단체명 / 담당자 / 예약코드 검색"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <select
-          className={styles.statusSelect}
-          aria-label="예약 상태 필터"
-          value={status}
-          onChange={(e) => handleStatusChange(e.target.value)}
-        >
-          {STATUS_OPTIONS.map((s) => (
-            <option key={s} value={s}>{s}</option>
-          ))}
-        </select>
-        <span className={styles.countLabel}>총 {totalElements}건</span>
-        {admin && <button className={styles.addBtn} style={{ marginLeft: 'auto' }} onClick={openCreate}>+ 예약 등록</button>}
+        <div className={styles.filterDivider} />
+        <div className={styles.filterRow}>
+          <span className={styles.filterLabel}>검색명</span>
+          <input
+            className={styles.searchInput}
+            placeholder="단체명 / 담당자 / 예약코드를 입력하세요."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') { setDebouncedSearch(search); setPage(0); } }}
+          />
+          <button className={styles.searchBtn} onClick={() => { setDebouncedSearch(search); setPage(0); }}>검색</button>
+        </div>
+      </div>
+
+      <div className={styles.toolbar}>
+        <span className={styles.countLabel}>전체 {totalElements}건</span>
       </div>
 
       <div className={styles.tableWrap}>
