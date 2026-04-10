@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const filePath = join(process.cwd(), '..', 'CHANGELOG.md');
+    const filePath = join(process.cwd(), 'CHANGELOG.md');
     const content = readFileSync(filePath, 'utf-8');
     return NextResponse.json({ content });
   } catch {

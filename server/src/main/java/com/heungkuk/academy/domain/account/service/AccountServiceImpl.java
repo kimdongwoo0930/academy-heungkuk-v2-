@@ -34,6 +34,7 @@ public class AccountServiceImpl implements AccountService {
         String encodedPassword = passwordEncoder.encode(request.getPassword());
         Account account = Account.fromAdmin(request, encodedPassword);
         accountRepository.save(account);
+        log.info("계정 생성: userId={}, username={}, role={}", account.getUserId(), account.getUsername(), account.getRole());
         return SignupResponse.of(account);
     }
 
@@ -62,6 +63,7 @@ public class AccountServiceImpl implements AccountService {
     public void deleteAccount(Long id) {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
+        log.info("계정 삭제: userId={}, username={}", account.getUserId(), account.getUsername());
         accountRepository.delete(account);
     }
 
@@ -76,6 +78,7 @@ public class AccountServiceImpl implements AccountService {
     public void updateRole(Long id, String role) {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
+        log.info("권한 변경: userId={}, {} → {}", account.getUserId(), account.getRole(), role);
         account.updateRole(role);
     }
 
@@ -91,6 +94,7 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
         account.updatePassword(passwordEncoder.encode(newPassword));
+        log.info("비밀번호 변경: userId={}", account.getUserId());
     }
 
     @Override

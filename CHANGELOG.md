@@ -6,6 +6,14 @@
 
 - 박스 해제시 데이터 삭제 문제 해결
 - 예약 날짜 변경시 강의실 중복오류 버그
+- SSE 구독자 누적 문제 해결 (AbortController + onerror 시 es.close())
+- SSE async dispatch 시 `AuthorizationDeniedException` 수정 (`RequestAttributeSecurityContextRepository` 적용)
+- `AsyncRequestNotUsableException` 불필요 에러 로그 억제 (DEBUG 레벨로 처리)
+- Docker 로그 한글 깨짐 수정 (`-Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8`)
+- 로그 뷰어 초기 로드 한글 깨짐 수정 (UTF-8 바이트 배열 디코딩)
+- 로그 실시간 업데이트 안 되던 문제 수정 (WatchService → 500ms 폴링 교체)
+- NGINX SSE 버퍼링으로 실시간 전송 안 되던 문제 수정 (`X-Accel-Buffering: no` 헤더 추가)
+- 예약 서비스 빌드 오류 수정 (`getGroupName()` → `getOrganization()`)
 
 ### Added
 
@@ -15,6 +23,14 @@
 - N+1 쿼리 개선 (findByReservationIn 적용)
 - 예약 삭제 버튼 커스텀 다이얼로그 적용
 - 설정 페이지 업데이트 내역 탭 추가
+- **로그 뷰어** 추가 (설정 → 로그 탭)
+  - app·auth·reservation·access·error 파일별 탭 전환
+  - 초기 최근 1000줄 로드
+  - SSE 실시간 스트림 (500ms 폴링, 브라우저 → Spring 직접 연결)
+  - 키워드 검색, ERROR/WARN/DEBUG 색상 구분
+  - 연결 상태 표시 (연결 중 / 실시간)
+- 예약 데이터 xlsx 가져오기 (import) 기능 추가
+- docker-compose logs 볼륨 마운트 (`./logs:/app/logs`)
 
 ### Style
 

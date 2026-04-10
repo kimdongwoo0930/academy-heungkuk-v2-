@@ -32,6 +32,8 @@ services:
       JWT_ACCESS_EXPIRATION: ${JWT_ACCESS_EXPIRATION:-28800000}
       JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-2592000000}
       TZ: Asia/Seoul
+    volumes:
+      - ./logs:/app/logs
     depends_on:
       db:
         condition: service_healthy
@@ -63,6 +65,8 @@ services:
     container_name: frontend
     environment:
       TZ: Asia/Seoul
+    volumes:
+      - ./CHANGELOG.md:/app/CHANGELOG.md:ro
     depends_on:
       - backend
     networks:
