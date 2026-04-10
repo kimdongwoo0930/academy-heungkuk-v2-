@@ -66,3 +66,15 @@
 | ------ | ----------------- | ----------------------- |
 | GET    | `/admin/settings` | 설정 전체 조회 (KV Map) |
 | PUT    | `/admin/settings` | 설정 전체 저장          |
+
+### 로그 뷰어 `🔐 JWT 필요`
+
+> SSE 엔드포인트는 헤더 설정 불가 → `?token=` 쿼리 파라미터로 JWT 전달
+> 브라우저가 Spring에 직접 연결 (Next.js 프록시 미사용)
+
+| Method | Endpoint                        | 설명                                                          |
+| ------ | ------------------------------- | ------------------------------------------------------------- |
+| GET    | `/admin/logs?file=&lines=`      | 로그 파일 끝에서 N줄 반환 (초기 로드용)                       |
+| GET    | `/admin/logs/stream?file=&token=` | SSE 실시간 스트림 — 새 로그 줄 발생 시 즉시 전송 (500ms 폴링) |
+
+**file 파라미터 허용값:** `app` · `auth` · `reservation` · `access` · `error`

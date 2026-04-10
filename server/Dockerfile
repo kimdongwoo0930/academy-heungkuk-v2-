@@ -19,4 +19,4 @@ COPY --from=builder /app/build/libs/*.jar app.jar
 
 EXPOSE 8888
 
-ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=docker", "app.jar"]
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=docker", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "app.jar"]

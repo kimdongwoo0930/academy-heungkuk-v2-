@@ -383,12 +383,21 @@ export default function ReservationModal({ reservation, allReservations, onClose
         return dates;
     };
 
-    const getDateRange = () => buildDateRange(form.startDate, form.endDate);
+    const isWeekday = (d: string) => {
+        const day = new Date(d).getDay();
+        return day !== 0 && day !== 6;
+    };
+
+    const getDateRange = () => {
+        const dates = buildDateRange(form.startDate, form.endDate);
+        return skipWeekends ? dates.filter(isWeekday) : dates;
+    };
 
     // 숙박은 퇴실일(endDate) 제외
     const getRoomDateRange = () => {
         const dates = buildDateRange(form.startDate, form.endDate);
-        return dates.slice(0, -1);
+        const range = dates.slice(0, -1);
+        return skipWeekends ? range.filter(isWeekday) : range;
     };
 
     // --- 중복 체크 ---
@@ -435,10 +444,6 @@ export default function ReservationModal({ reservation, allReservations, onClose
         setDateError('');
 
         if (start && end && end >= start) {
-            const isWeekday = (d: string) => {
-                const day = new Date(d).getDay();
-                return day !== 0 && day !== 6;
-            };
             const allDates = buildDateRange(start, end);
             const dates = skipWeekends ? allDates.filter(isWeekday) : allDates;
             const datesSet = new Set(dates);
@@ -493,10 +498,6 @@ export default function ReservationModal({ reservation, allReservations, onClose
     const handleSkipWeekendsChange = (checked: boolean) => {
         setSkipWeekends(checked);
         if (!form.startDate || !form.endDate) return;
-        const isWeekday = (d: string) => {
-            const day = new Date(d).getDay();
-            return day !== 0 && day !== 6;
-        };
         const allDates = buildDateRange(form.startDate, form.endDate);
         const dates = checked ? allDates.filter(isWeekday) : allDates;
         const filledSkip = bulkClassrooms.filter((c) => c !== '');

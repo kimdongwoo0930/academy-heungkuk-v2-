@@ -8,6 +8,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 
 @Slf4j
 @RestControllerAdvice
@@ -27,6 +28,12 @@ public class GlobalExceptionHandler {
                 .orElse("입력값이 올바르지 않습니다.");
         log.warn("ValidationException: {}", message);
         return ResponseEntity.badRequest().body(CommonResponse.error(message));
+    }
+
+    // SSE 클라이언트가 연결을 끊으면 발생하는 정상적인 예외 — 무시
+    @ExceptionHandler(AsyncRequestNotUsableException.class)
+    public void handleAsyncDisconnect(AsyncRequestNotUsableException e) {
+        log.debug("SSE 클라이언트 연결 종료: {}", e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

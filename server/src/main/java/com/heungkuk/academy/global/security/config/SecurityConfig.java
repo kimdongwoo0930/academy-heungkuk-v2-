@@ -13,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -33,6 +34,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // SSE async dispatch 시 SecurityContext 유지: request 속성에 저장 → async 재사용 가능
+                .securityContext(ctx -> ctx
+                        .securityContextRepository(new RequestAttributeSecurityContextRepository()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/v1/auth/**", "/v1/survey/**", "/swagger-ui/**",
                                 "/swagger-ui.html", "/v3/api-docs/**", "/v3/api-docs",

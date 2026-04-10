@@ -34,9 +34,13 @@ public class AuthService {
     public LoginResponse login(LoginRequest request) {
         // 1. userId로 Account 조회 → 없으면 예외
         Account account = accountRepository.findByUserId(request.getUserId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
+                .orElseThrow(() -> {
+                    log.warn("로그인 실패 - 존재하지 않는 계정: userId={}", request.getUserId());
+                    return new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND);
+                });
         // 2. 비밀번호 검증 (passwordEncoder.matches) → 틀리면 예외
         if (!passwordEncoder.matches(request.getPassword(), account.getPassword())) {
+            log.warn("로그인 실패 - 비밀번호 불일치: userId={}", request.getUserId());
             throw new BusinessException(ErrorCode.INVALID_PASSWORD);
         }
         // 3. accessToken, refreshToken 생성
@@ -45,9 +49,9 @@ public class AuthService {
         String refreshToken = jwtProvider.generateRefreshToken(account.getUserId());
         // 5. refreshToken DB 저장
         account.updateRefreshToken(refreshToken);
+        log.info("로그인 성공: userId={}, role={}", account.getUserId(), account.getRole());
         // 6. LoginResponse 반환
         return LoginResponse.of(accessToken, refreshToken);
-
     }
 
     /**

@@ -12,7 +12,7 @@
         </encoder>
     </appender>
 
-    <!-- 전체 로그 파일 (날짜별 롤링) -->
+    <!-- 전체 로그 파일 -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_DIR}/app.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -26,7 +26,7 @@
         </encoder>
     </appender>
 
-    <!-- 에러 전용 파일 -->
+    <!-- ERROR 전용 파일 -->
     <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_DIR}/error.log</file>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
@@ -37,6 +37,45 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${LOG_DIR}/error.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>60</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 인증 로그 파일 (auth.log) -->
+    <appender name="AUTH_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/auth.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/auth.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 예약 로그 파일 (reservation.log) -->
+    <appender name="RESERVATION_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/reservation.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/reservation.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 조회/접근 로그 파일 (access.log) -->
+    <appender name="ACCESS_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/access.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/access.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
             <pattern>${LOG_PATTERN}</pattern>
@@ -59,7 +98,49 @@
             <appender-ref ref="FILE"/>
             <appender-ref ref="ERROR_FILE"/>
         </root>
-        <logger name="com.heungkuk.academy" level="INFO"/>
+
+        <!-- 인증: global.security 패키지 전체 → auth.log + app.log -->
+        <logger name="com.heungkuk.academy.global.security" level="INFO" additivity="false">
+            <appender-ref ref="AUTH_FILE"/>
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="ERROR_FILE"/>
+        </logger>
+
+        <!--
+            예약 Controller → access.log + reservation.log + app.log
+            (더 구체적인 패키지가 우선 적용되므로 service보다 먼저 선언)
+        -->
+        <logger name="com.heungkuk.academy.domain.reservation.controller" level="INFO" additivity="false">
+            <appender-ref ref="ACCESS_FILE"/>
+            <appender-ref ref="RESERVATION_FILE"/>
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="ERROR_FILE"/>
+        </logger>
+
+        <!-- 예약 Service/Repository → reservation.log + app.log -->
+        <logger name="com.heungkuk.academy.domain.reservation" level="INFO" additivity="false">
+            <appender-ref ref="RESERVATION_FILE"/>
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="ERROR_FILE"/>
+        </logger>
+
+        <!-- 그 외 Controller (account, setting, statistics) → access.log + app.log -->
+        <logger name="com.heungkuk.academy.domain.account.controller" level="INFO" additivity="false">
+            <appender-ref ref="ACCESS_FILE"/>
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="ERROR_FILE"/>
+        </logger>
+        <logger name="com.heungkuk.academy.domain.setting.controller" level="INFO" additivity="false">
+            <appender-ref ref="ACCESS_FILE"/>
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="ERROR_FILE"/>
+        </logger>
+        <logger name="com.heungkuk.academy.domain.statistics.controller" level="INFO" additivity="false">
+            <appender-ref ref="ACCESS_FILE"/>
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="ERROR_FILE"/>
+        </logger>
+
         <!-- SQL 로그 끄기 -->
         <logger name="org.hibernate.SQL" level="WARN"/>
         <logger name="org.hibernate.orm.jdbc.bind" level="WARN"/>

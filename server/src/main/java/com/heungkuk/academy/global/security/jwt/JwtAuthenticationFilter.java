@@ -1,20 +1,21 @@
 package com.heungkuk.academy.global.security.jwt;
 
+import java.io.IOException;
+import java.util.List;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -22,10 +23,12 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
+    private final RequestAttributeSecurityContextRepository contextRepository =
+            new RequestAttributeSecurityContextRepository();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+            FilterChain filterChain) throws ServletException, IOException {
 
         // 1. Authorization 헤더에서 토큰 추출 ("Bearer xxx...")
         String token = resolveToken(request);
@@ -38,30 +41,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String role = jwtProvider.getRole(token);
 
             // 4. Spring Security 인증 객체 생성
-            //    - principal: userId (이후 컨트롤러에서 꺼낼 수 있음)
-            //    - credentials: null (JWT 방식은 비밀번호 불필요)
-            //    - authorities: role (ROLE_ADMIN / ROLE_USER 권한 체크용)
             UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                            userId,
-                            null,
-                            List.of(new SimpleGrantedAuthority(role))
-                    );
+                    new UsernamePasswordAuthenticationToken(userId, null,
+                            List.of(new SimpleGrantedAuthority(role)));
 
-            // 5. SecurityContext에 인증 정보 저장 → 이후 요청에서 인증된 사용자로 처리됨
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            // 5. SecurityContext에 인증 정보 저장
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            context.setAuthentication(authentication);
+            SecurityContextHolder.setContext(context);
+
+            // 6. request 속성에도 저장 → SSE async dispatch 시에도 SecurityContext 유지됨
+            contextRepository.saveContext(context, request, response);
         }
 
-        // 6. 다음 필터로 요청 넘기기 (인증 실패해도 넘김 — 접근 제어는 SecurityConfig에서 처리)
+        // 7. 다음 필터로 요청 넘기기 (인증 실패해도 넘김 — 접근 제어는 SecurityConfig에서 처리)
         filterChain.doFilter(request, response);
     }
 
     // Authorization 헤더에서 "Bearer " 제거 후 순수 토큰만 반환
-    // 헤더가 없거나 Bearer로 시작하지 않으면 null 반환
+    // 헤더가 없으면 쿼리 파라미터 "token" 체크 (SSE는 EventSource라 헤더 불가)
     private String resolveToken(HttpServletRequest request) {
         String bearer = request.getHeader("Authorization");
         if (StringUtils.hasText(bearer) && bearer.startsWith("Bearer ")) {
             return bearer.substring(7);
+        }
+        // SSE 연결 시 쿼리 파라미터로 토큰 전달: ?token=eyJ...
+        String queryToken = request.getParameter("token");
+        if (StringUtils.hasText(queryToken)) {
+            return queryToken;
         }
         return null;
     }
