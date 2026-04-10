@@ -3,7 +3,7 @@
 import { ClassroomReservation, MealReservation, Reservation, RoomReservation } from '@/types/reservation';
 import { useEffect, useRef, useState } from 'react';
 // RoomReservation used in handleRoomConfirm type annotation
-import { downloadConfirmation, downloadEstimate, downloadTrade } from '@/lib/api/reservation';
+import { downloadConfirmation, downloadEstimate, downloadTrade, searchReservations } from '@/lib/api/reservation';
 import { CLASSROOM_ROOM_TO_CATEGORY } from '@/lib/constants/classrooms';
 import { ROOM_INFO, RoomType } from '@/lib/constants/rooms';
 import { isAdmin } from '@/lib/utils/auth';
@@ -247,6 +247,8 @@ export default function ReservationModal({ reservation, allReservations, onClose
         return [];
     });
     const [showLoad, setShowLoad] = useState(false);
+    const [loadResults, setLoadResults] = useState<Reservation[]>([]);
+    const [loadSearching, setLoadSearching] = useState(false);
     const [showAddress, setShowAddress] = useState(
         !!(
             reservation?.companyZipCode ||
@@ -347,14 +349,30 @@ export default function ReservationModal({ reservation, allReservations, onClose
         });
     }, [isBillingSameAsCustomer, showBillingManager, form.customer, form.customerPhone, form.customerEmail]);
 
-    // 불러오기: 단체명 또는 담당자명으로 필터링, 최신순 정렬
-    const loadCandidates = (() => {
+    // 불러오기: 단체명 또는 담당자명으로 API 검색 (debounce 300ms)
+    useEffect(() => {
         const q = loadSearch.trim();
-        if (!q) return [];
-        return [...allReservations]
-            .filter((r) => r.organization.includes(q) || r.customer.includes(q))
-            .sort((a, b) => String(b.startDate).localeCompare(String(a.startDate)));
-    })();
+        if (!q) { setLoadResults([]); return; }
+        setLoadSearching(true);
+        const timer = setTimeout(async () => {
+            try {
+                const result = await searchReservations({ keyword: q, size: 100, sort: 'startDate,desc' });
+                const seen = new Set<string>();
+                const deduped = result.content.filter((r) => {
+                    const key = `${r.organization}__${r.customer}`;
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+                setLoadResults(deduped);
+            } catch {
+                setLoadResults([]);
+            } finally {
+                setLoadSearching(false);
+            }
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [loadSearch]);
 
     const applyLoad = (r: Reservation) => {
         setForm((prev) => ({
@@ -369,6 +387,7 @@ export default function ReservationModal({ reservation, allReservations, onClose
         }));
         setShowLoad(false);
         setLoadSearch('');
+        setLoadResults([]);
     };
 
     // --- 날짜 범위 생성 헬퍼 ---
@@ -1737,11 +1756,11 @@ export default function ReservationModal({ reservation, allReservations, onClose
 
                 {/* 이전 예약 검색 팝업 */}
                 {showLoad && (
-                    <div className={styles.loadOverlay} onClick={() => { setShowLoad(false); setLoadSearch(''); }}>
+                    <div className={styles.loadOverlay} onClick={() => { setShowLoad(false); setLoadSearch(''); setLoadResults([]); }}>
                         <div className={styles.loadPopup} onClick={(e) => e.stopPropagation()}>
                             <div className={styles.loadPopupHeader}>
                                 <span className={styles.loadPopupTitle}>이전 예약 불러오기</span>
-                                <button className={styles.loadPopupClose} onClick={() => { setShowLoad(false); setLoadSearch(''); }}>✕</button>
+                                <button className={styles.loadPopupClose} onClick={() => { setShowLoad(false); setLoadSearch(''); setLoadResults([]); }}>✕</button>
                             </div>
                             <div className={styles.loadPopupSearch}>
                                 <input
@@ -1751,12 +1770,14 @@ export default function ReservationModal({ reservation, allReservations, onClose
                                     value={loadSearch}
                                     onChange={(e) => setLoadSearch(e.target.value)}
                                 />
-                                <button className={styles.loadSearchBtn}>검색</button>
+                                <button className={styles.loadSearchBtn} disabled={loadSearching}>검색</button>
                             </div>
                             <div className={styles.loadTableWrap}>
                                 {loadSearch.trim() === '' ? (
                                     <p className={styles.loadEmpty}>검색어를 입력하세요.</p>
-                                ) : loadCandidates.length === 0 ? (
+                                ) : loadSearching ? (
+                                    <p className={styles.loadEmpty}>검색 중...</p>
+                                ) : loadResults.length === 0 ? (
                                     <p className={styles.loadEmpty}>검색 결과가 없습니다.</p>
                                 ) : (
                                     <table className={styles.loadTable}>
@@ -1772,7 +1793,7 @@ export default function ReservationModal({ reservation, allReservations, onClose
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {loadCandidates.map((r, i) => (
+                                            {loadResults.map((r, i) => (
                                                 <tr key={r.id} className={styles.loadTableRow} onClick={() => applyLoad(r)}>
                                                     <td className={styles.loadTdNum}>{i + 1}</td>
                                                     <td>
@@ -1794,8 +1815,8 @@ export default function ReservationModal({ reservation, allReservations, onClose
                                     </table>
                                 )}
                             </div>
-                            {loadCandidates.length > 0 && (
-                                <div className={styles.loadPopupFooter}>전체 {loadCandidates.length}건</div>
+                            {loadResults.length > 0 && (
+                                <div className={styles.loadPopupFooter}>전체 {loadResults.length}건</div>
                             )}
                         </div>
                     </div>
