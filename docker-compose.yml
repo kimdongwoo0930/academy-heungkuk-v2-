@@ -44,13 +44,21 @@ services:
   nginx:
     image: nginx:alpine
     container_name: hka-nginx
+    # 공식 nginx 이미지는 /var/log/nginx/access.log → /dev/stdout (pipe) 심볼릭 링크로 생성
+    # Promtail은 pipe를 읽지 못하므로 시작 전 심볼릭 링크를 제거하고 실제 파일로 교체
+    command: >
+      /bin/sh -c "
+        rm -f /var/log/nginx/access.log /var/log/nginx/error.log &&
+        touch /var/log/nginx/access.log /var/log/nginx/error.log &&
+        nginx -g 'daemon off;'
+      "
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./nginx/ssl:/etc/nginx/ssl
-      - nginx_logs:/var/log/nginx # Promtail이 읽을 수 있도록 볼륨 공유
+      - nginx_logs:/var/log/nginx
     depends_on:
       - backend
     networks:

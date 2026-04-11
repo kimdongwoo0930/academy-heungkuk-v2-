@@ -63,3 +63,4 @@ jobs:
             git reset --hard origin/main
             docker compose up --build -d backend client
             docker image prune -f
+            docker builder prune -f
