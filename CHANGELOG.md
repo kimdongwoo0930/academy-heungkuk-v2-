@@ -1,5 +1,49 @@
 # CHANGELOG
 
+## [3.2.0] - 2026-04-11
+
+### Added
+
+- **Grafana 통합 대시보드** (`grafana/dashboards/hka-overview.json`)
+  - Spring Boot: Uptime / Heap Used / CPU Usage / HTTP req/s / JVM Heap 추이 / 상태코드별 요청
+  - 서버 리소스: CPU 사용률 / 메모리 사용량 / 디스크 사용률 / 네트워크 수신·송신
+  - Docker 컨테이너: 컨테이너별 CPU / 메모리 (cAdvisor)
+  - 로그: ERROR 발생률 / NGINX 5xx 발생률 / Spring 전체 로그 / Spring 에러 로그 / NGINX Access 로그
+  - Grafana Import에서 바로 사용 가능 (`__inputs` 기반 데이터소스 매핑)
+- **NGINX 로그 라벨 체계 정리**
+  - `log_type: nginx-access` / `log_type: nginx-error` 로 분리
+  - Spring `log_type: error` 와 충돌 방지
+
+---
+
+## [3.1.0] - 2026-04-11
+
+### Added
+
+- **Prometheus + 메트릭 모니터링** 구축
+  - `node-exporter`: 호스트 CPU / 메모리 / 디스크 수집
+  - `cadvisor`: 컨테이너별 자원 사용량 수집
+  - `prometheus`: 메트릭 수집 및 15일 보존 (`prometheus.yml`)
+  - Spring `Actuator` + `Micrometer` 연동 → `/actuator/prometheus` 엔드포인트
+  - SecurityConfig에 `/actuator/health`, `/actuator/prometheus` `permitAll` 추가
+- **NGINX 로그 Promtail 수집** 추가
+  - `nginx_logs` named volume으로 nginx ↔ promtail 파일 공유
+  - `nginx-access` job: JSON 파싱 후 `method`, `status` 라벨 자동 추출
+  - `nginx-error` job: 에러 로그 수집
+- Grafana `depends_on`에 `prometheus` 추가
+- `docs/Grafana-Loki.md` 전체 개편 (로그 + 메트릭 통합 문서)
+
+### Removed
+
+- **로그 뷰어 SSE 실시간 스트림 제거** (Grafana + Loki로 대체)
+  - `LogService`: `subscribe()`, `startWatching()`, `broadcast()` 등 SSE 관련 메서드 비활성화
+  - `LogController`: `/admin/logs/stream` 엔드포인트 비활성화
+  - `JwtAuthenticationFilter`: 쿼리 파라미터 `?token=` 처리 비활성화
+  - Next.js `app/api/logs/` 디렉토리 삭제 (`route.ts`, `stream/route.ts`)
+  - 설정 페이지 로그 뷰어 탭 및 SSE state / useEffect 제거
+
+---
+
 ## [3.x.x] - 2026-04
 
 ### Fixed

@@ -60,7 +60,7 @@ scrape_configs:
           - localhost
         labels:
           job: hka-nginx
-          log_type: access
+          log_type: nginx-access
           __path__: /var/log/nginx/access.log
     pipeline_stages:
       - json:
@@ -84,5 +84,5 @@ scrape_configs:
           - localhost
         labels:
           job: hka-nginx
-          log_type: error
+          log_type: nginx-error
           __path__: /var/log/nginx/error.log

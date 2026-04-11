@@ -1,4 +1,4 @@
-auth_enabled: false
+auth_enabled: false  # Loki 자체 인증 비활성화 — 외부 포트 미노출(docker-compose에 ports 없음)이므로 안전
 
 server:
   http_listen_port: 3100

@@ -67,14 +67,22 @@
 | GET    | `/admin/settings` | 설정 전체 조회 (KV Map) |
 | PUT    | `/admin/settings` | 설정 전체 저장          |
 
-### 로그 뷰어 `🔐 JWT 필요`
+### 로그 조회 `🔐 JWT 필요`
 
-> SSE 엔드포인트는 헤더 설정 불가 → `?token=` 쿼리 파라미터로 JWT 전달
-> 브라우저가 Spring에 직접 연결 (Next.js 프록시 미사용)
+> SSE 실시간 스트림은 Grafana + Loki로 이전되어 제거됨
+> 초기 로그 로드 엔드포인트만 유지 (서버 내부 참조용)
 
-| Method | Endpoint                        | 설명                                                          |
-| ------ | ------------------------------- | ------------------------------------------------------------- |
-| GET    | `/admin/logs?file=&lines=`      | 로그 파일 끝에서 N줄 반환 (초기 로드용)                       |
-| GET    | `/admin/logs/stream?file=&token=` | SSE 실시간 스트림 — 새 로그 줄 발생 시 즉시 전송 (500ms 폴링) |
+| Method | Endpoint                   | 설명                                    |
+| ------ | -------------------------- | --------------------------------------- |
+| GET    | `/admin/logs?file=&lines=` | 로그 파일 끝에서 N줄 반환               |
 
 **file 파라미터 허용값:** `app` · `auth` · `reservation` · `access` · `error`
+
+### 모니터링 (내부 전용, 인증 불필요)
+
+> Prometheus가 스크랩하는 엔드포인트 — 외부 직접 호출 불필요
+
+| Method | Endpoint              | 설명                              |
+| ------ | --------------------- | --------------------------------- |
+| GET    | `/actuator/health`    | 애플리케이션 헬스 체크            |
+| GET    | `/actuator/prometheus`| Prometheus 메트릭 스크랩 엔드포인트 |
