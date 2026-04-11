@@ -35,7 +35,7 @@
   justify-content: center;
   transition: background 0.15s;
 }
-.navBtn:hover { background: #f0f0f0; }
+.navBtn:hover { background: var(--surface-hover); }
 
 .printBtn {
   height: 32px;
@@ -51,7 +51,7 @@
   margin-right: auto;
 }
 .printBtn:hover {
-  background: #f0f0f0;
+  background: var(--surface-hover);
 }
 
 .monthLabel {
@@ -230,14 +230,14 @@
 .monthSummaryRange {
   font-size: 14px;
   font-weight: 500;
-  color: var(--text-secondary, #888);
+  color: var(--text-sub);
 }
 
 .monthSummaryItems {
   display: flex;
   gap: 20px;
   font-size: 13px;
-  color: var(--text-secondary, #555);
+  color: var(--text-sub);
 }
 
 .monthSummaryItems span {
@@ -255,6 +255,81 @@
 .monthSummaryTotal {
   padding-left: 12px;
   border-left: 1px solid var(--border);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   다크 모드
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+[data-theme='dark'] .table th {
+  background: #2c2c2f;
+  border-color: #4a4a4e;
+  color: #d4d4d8;
+}
+[data-theme='dark'] .weekendTh {
+  background: #2c1e22 !important;
+  color: #f87171 !important;
+}
+[data-theme='dark'] .otherMonthTh {
+  background: #1a1a1c !important;
+  color: #52525b !important;
+}
+[data-theme='dark'] .roomSubTh {
+  color: #71717a;
+}
+[data-theme='dark'] .thTotal {
+  background: #1a1a1d !important;
+  color: #a1a1aa !important;
+}
+[data-theme='dark'] .table td {
+  border-color: #3c3c3f;
+  color: #d4d4d8;
+}
+[data-theme='dark'] .weekendCol {
+  background: #1f1819 !important;
+}
+[data-theme='dark'] .otherMonthCol {
+  background: #151516 !important;
+}
+[data-theme='dark'] .tdOrg {
+  background: #252528;
+  color: #d4d4d8;
+}
+[data-theme='dark'] .roomCellHasValue {
+  background: #303034;
+}
+[data-theme='dark'] .weekendCellHasValue {
+  background: #3a1e22 !important;
+}
+[data-theme='dark'] .confirmed {
+  color: #f87171;
+}
+[data-theme='dark'] .pending {
+  color: #52525b;
+}
+[data-theme='dark'] .totalRow td {
+  background: #2c2c2f !important;
+  color: #d4d4d8 !important;
+  border-top-color: #52525b !important;
+}
+[data-theme='dark'] .totalRow td.weekendCol {
+  background: #282428 !important;
+  color: #d4d4d8 !important;
+}
+[data-theme='dark'] .totalRow td.otherMonthCol {
+  background: #1e1e20 !important;
+  color: #71717a !important;
+}
+[data-theme='dark'] .weekTotalCell {
+  background: #1a1a1d !important;
+  color: #f4f4f5 !important;
+}
+
+/* 툴팁 — 다크 모드에서 테두리 강조 */
+[data-theme='dark'] .tooltip {
+  background: #111113;
+  border: 1px solid #3f3f44;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
 }
 
 /* ── 호버 툴팁 ── */

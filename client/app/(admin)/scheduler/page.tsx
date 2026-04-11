@@ -212,7 +212,7 @@ export default function SchedulerPage() {
   };
 
   return (
-    <div id="schedulerPrintArea">
+    <div id="schedulerPrintArea" className={styles.schedulerPage}>
       <div className={styles.header}>
         <div className={styles.headerActions}>
           <button className={styles.printBtn} onClick={() => window.print()}>

@@ -1,7 +1,7 @@
 .wrapper {
   position: relative;
   padding: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--sidebar-border);
   flex-shrink: 0;
 }
 
@@ -12,7 +12,7 @@
   gap: 10px;
   padding: 8px 10px;
   border-radius: 8px;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--sidebar-text);
   transition: background 0.15s;
   text-align: left;
   cursor: pointer;
@@ -24,7 +24,7 @@
 }
 
 .profileBtn:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--sidebar-hover);
 }
 
 .avatar {
@@ -32,7 +32,7 @@
   height: 32px;
   border-radius: 50%;
   background: var(--accent);
-  color: #fff;
+  color: var(--text-inverse);
   font-size: 13px;
   font-weight: 700;
   display: flex;
@@ -51,7 +51,7 @@
 .userId {
   font-size: 13px;
   font-weight: 600;
-  color: #fff;
+  color: var(--sidebar-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -62,7 +62,7 @@
   align-items: center;
   gap: 3px;
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--sidebar-text-soft);
 }
 
 .roleIcon {
@@ -75,11 +75,12 @@
   bottom: calc(100% + 6px);
   left: 12px;
   right: 12px;
-  background: #fff;
+  background: var(--surface);
   border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-elevated);
   overflow: hidden;
   z-index: 200;
+  border: 1px solid var(--border);
 }
 
 .dropdownCollapsed {
@@ -96,40 +97,40 @@
   gap: 8px;
   padding: 10px 14px;
   font-size: 13px;
-  color: #333;
+  color: var(--text);
   transition: background 0.12s;
   cursor: pointer;
   text-align: left;
 }
 
 .dropdownItem:hover {
-  background: #f5f5f5;
+  background: var(--surface-hover);
 }
 
 .itemIcon {
   font-size: 15px;
-  color: #666;
+  color: var(--text-sub);
   flex-shrink: 0;
 }
 
 .divider {
   height: 1px;
-  background: #eee;
+  background: var(--border);
 }
 
 .logout {
-  color: #e53e3e;
+  color: var(--danger);
 }
 
 .logout .itemIcon {
-  color: #e53e3e;
+  color: var(--danger);
 }
 
 /* 비밀번호 변경 모달 */
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -137,19 +138,21 @@
 }
 
 .modal {
-  background: #fff;
+  background: var(--surface);
   border-radius: 12px;
   padding: 28px;
   width: 360px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  box-shadow: var(--shadow-elevated);
+  border: 1px solid var(--border);
 }
 
 .modalTitle {
   font-size: 16px;
   font-weight: 700;
-  color: #111;
+  color: var(--text);
 }
 
 .modalField {
@@ -161,16 +164,18 @@
 .modalField label {
   font-size: 13px;
   font-weight: 500;
-  color: #444;
+  color: var(--text-sub);
 }
 
 .input {
   padding: 10px 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
   border-radius: 6px;
   font-size: 14px;
   outline: none;
   transition: border-color 0.15s;
+  color: var(--text);
+  background: var(--surface);
 }
 
 .input:focus {
@@ -179,7 +184,7 @@
 
 .errorMsg {
   font-size: 12px;
-  color: #e53e3e;
+  color: var(--danger);
 }
 
 .modalActions {
@@ -193,14 +198,14 @@
   padding: 9px 18px;
   border-radius: 6px;
   font-size: 13px;
-  color: #555;
-  background: #f0f0f0;
+  color: var(--text-sub);
+  background: var(--surface-2);
   transition: background 0.12s;
   cursor: pointer;
 }
 
 .cancelBtn:hover {
-  background: #e5e5e5;
+  background: var(--surface-hover);
 }
 
 .confirmBtn {
@@ -208,7 +213,7 @@
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-inverse);
   background: var(--primary);
   transition: opacity 0.12s;
   cursor: pointer;

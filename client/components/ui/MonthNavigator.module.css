@@ -15,10 +15,12 @@
   align-items: center;
   justify-content: center;
   transition: background 0.15s;
+  background: var(--surface);
+  color: var(--text);
 }
 
 .navBtn:hover {
-  background: #f0f0f0;
+  background: var(--surface-hover);
 }
 
 .monthLabel {
@@ -32,10 +34,11 @@
   padding: 4px 8px;
   border-radius: 6px;
   transition: background 0.15s;
+  color: var(--text);
 }
 
 .monthLabel:hover {
-  background: #f0f0f0;
+  background: var(--surface-hover);
 }
 
 .monthInput {
@@ -48,4 +51,5 @@
   padding: 3px 6px;
   outline: none;
   color: var(--text);
+  background: var(--surface);
 }

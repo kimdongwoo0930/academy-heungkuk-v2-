@@ -60,7 +60,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--border);
   font-size: 13px;
 }
 
@@ -95,7 +95,7 @@
   font-weight: 600;
 }
 
-.badge.확정 { background: #e6f4ea; color: #1e7e34; }
-.badge.대기 { background: #fff3cd; color: #856404; }
-.badge.완료 { background: #e2e3e5; color: #495057; }
-.badge.취소 { background: #fde8e8; color: #c0392b; }
+.badge.확정 { background: var(--success-bg); color: var(--success); }
+.badge.대기 { background: var(--warning-bg); color: var(--warning); }
+.badge.완료 { background: var(--neutral-bg); color: var(--neutral); }
+.badge.취소 { background: var(--danger-bg); color: var(--danger); }

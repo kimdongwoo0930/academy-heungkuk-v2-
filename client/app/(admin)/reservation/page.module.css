@@ -1,3 +1,8 @@
+.reservationPage {
+  background: var(--bg);
+  color: var(--text);
+}
+
 .header {
   display: flex;
   align-items: center;
@@ -36,31 +41,31 @@
 }
 
 .templateBtn:hover {
-  background: #f0f0f0;
+  background: var(--surface-hover);
 }
 
 .excelBtn {
   height: 32px;
   padding: 0 12px;
-  background: #f0faf4;
-  color: #1e7e34;
-  border: 1px solid #b7dfbf;
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px solid color-mix(in srgb, var(--success) 30%, transparent);
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: filter 0.15s;
 }
 
 .excelBtn:hover {
-  background: #d9f0e1;
+  filter: brightness(0.94);
 }
 
 .addBtn {
   height: 32px;
   padding: 0 14px;
   background: var(--accent);
-  color: #fff;
+  color: var(--text-inverse);
   border: none;
   border-radius: 7px;
   font-size: 13px;
@@ -81,6 +86,7 @@
   border-radius: 10px;
   margin-bottom: 14px;
   overflow: hidden;
+  box-shadow: var(--shadow-elevated);
 }
 
 .filterRow {
@@ -159,12 +165,12 @@
 }
 
 .sortBtn:hover {
-  background: var(--bg);
+  background: var(--surface-hover);
 }
 
 .sortBtnActive {
   background: var(--accent);
-  color: #fff;
+  color: var(--text-inverse);
   border-color: var(--accent);
 }
 
@@ -189,6 +195,7 @@
   background: var(--surface);
   cursor: pointer;
   font-size: 14px;
+  color: var(--text);
 }
 
 .pagination button:disabled {
@@ -197,7 +204,7 @@
 }
 
 .pagination button:not(:disabled):hover {
-  background: var(--bg);
+  background: var(--surface-hover);
 }
 
 .searchInput {
@@ -210,7 +217,8 @@
   outline: none;
   font-family: inherit;
   transition: border-color 0.15s;
-  background: #fff;
+  background: var(--surface-2);
+  color: var(--text);
 }
 
 .searchInput:focus {
@@ -221,7 +229,7 @@
   height: 36px;
   padding: 0 20px;
   background: var(--accent);
-  color: #fff;
+  color: var(--text-inverse);
   border: none;
   border-radius: 7px;
   font-size: 13px;
@@ -229,11 +237,11 @@
   cursor: pointer;
   font-family: inherit;
   flex-shrink: 0;
-  transition: filter 0.15s;
+  transition: background 0.15s;
 }
 
 .searchBtn:hover {
-  filter: brightness(1.08);
+  background: var(--accent-hover);
 }
 
 .countLabel {
@@ -248,16 +256,18 @@
   border: 1px solid var(--border);
   border-radius: 10px;
   overflow: hidden;
+  box-shadow: var(--shadow-elevated);
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
+  color: var(--text);
 }
 
 .table th {
-  background: #f8f9fb;
+  background: var(--surface-2);
   padding: 11px 14px;
   text-align: left;
   font-weight: 600;
@@ -268,7 +278,7 @@
 
 .table td {
   padding: 12px 14px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--border);
   color: var(--text);
   vertical-align: middle;
 }
@@ -278,7 +288,7 @@
 }
 
 .table tbody tr:hover {
-  background: #fafafa;
+  background: var(--surface-hover);
   cursor: pointer;
 }
 
@@ -299,58 +309,62 @@
 }
 
 .badge.확정 {
-  background: #e6f4ea;
-  color: #1e7e34;
+  background: var(--success-bg);
+  color: var(--success);
 }
 .badge.예약 {
-  background: #fff3cd;
-  color: #856404;
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.badge.문의 {
+  background: var(--info-bg);
+  color: var(--info);
 }
 .badge.취소 {
-  background: #fde8e8;
-  color: #c0392b;
+  background: var(--danger-bg);
+  color: var(--danger);
 }
 
 .deleteBtn {
   height: 28px;
   padding: 0 12px;
-  background: #fff0f0;
-  color: #c0392b;
+  background: var(--danger-bg);
+  color: var(--danger);
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  border: 1px solid #f5c0c0;
-  transition: background 0.15s;
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
+  transition: filter 0.15s;
   white-space: nowrap;
 }
 
 .deleteBtn:hover {
-  background: #fde8e8;
+  filter: brightness(0.92);
 }
 
 .surveyBtn {
   height: 28px;
   padding: 0 12px;
-  background: #f0f4ff;
-  color: #3b6ef0;
+  background: var(--info-bg);
+  color: var(--info);
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  border: 1px solid #c5d3f7;
-  transition: background 0.15s;
+  border: 1px solid color-mix(in srgb, var(--info) 30%, transparent);
+  transition: filter 0.15s;
   white-space: nowrap;
 }
 
 .surveyBtn:hover {
-  background: #dce8ff;
+  filter: brightness(0.92);
 }
 
 .confirmOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -362,7 +376,8 @@
   border-radius: 10px;
   padding: 20px 24px 16px;
   min-width: 240px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-elevated);
+  border: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -389,23 +404,26 @@
   border-radius: 6px;
   font-size: 12px;
   color: var(--text-sub);
-  background: transparent;
+  background: var(--surface);
   cursor: pointer;
+  transition: background 0.15s;
 }
 
 .confirmCancelBtn:hover {
-  background: var(--hover);
+  background: var(--surface-hover);
 }
 
 .confirmOkBtn {
   height: 30px;
   padding: 0 14px;
   background: var(--accent);
-  color: #fff;
+  color: var(--text-inverse);
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
+  border: none;
+  transition: background 0.15s;
 }
 
 .confirmOkBtn:hover {

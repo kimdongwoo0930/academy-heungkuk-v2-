@@ -20,16 +20,22 @@
   color: var(--text);
 }
 
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.headerCollapsed {
+  left: var(--sidebar-collapsed-width);
+}
+
 .user {
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 13px;
   color: var(--text-sub);
-}
-
-.headerCollapsed {
-  left: var(--sidebar-collapsed-width);
 }
 
 .user {
@@ -39,22 +45,22 @@
   transition: background 0.15s;
 }
 .user:hover {
-  background: var(--bg);
+  background: var(--surface-hover);
 }
 
 .adminBadge {
   font-size: 11px;
   padding: 2px 7px;
   border-radius: 10px;
-  background: #ebf4ff;
-  color: #2b6cb0;
+  background: var(--info-bg);
+  color: var(--info);
   font-weight: 600;
 }
 
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: var(--overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -65,7 +71,8 @@
   background: var(--surface);
   border-radius: 12px;
   width: 340px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  box-shadow: var(--shadow-elevated);
+  border: 1px solid var(--border);
 }
 
 .modalHeader {
@@ -92,7 +99,7 @@
   justify-content: center;
   transition: background 0.15s;
 }
-.closeBtn:hover { background: #f0f0f0; }
+.closeBtn:hover { background: var(--surface-hover); }
 
 .modalBody {
   padding: 16px 20px;
@@ -140,13 +147,13 @@
   background: var(--surface);
   transition: background 0.15s;
 }
-.cancelBtn:hover { background: #f5f5f5; }
+.cancelBtn:hover { background: var(--surface-hover); }
 
 .saveBtn {
   height: 34px;
   padding: 0 20px;
   background: var(--accent);
-  color: #fff;
+  color: var(--text-inverse);
   border-radius: 7px;
   font-size: 13px;
   font-weight: 700;
@@ -159,7 +166,7 @@
   height: 30px;
   border-radius: 50%;
   background: var(--primary);
-  color: #fff;
+  color: var(--text-inverse);
   display: flex;
   align-items: center;
   justify-content: center;
