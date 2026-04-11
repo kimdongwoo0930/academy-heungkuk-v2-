@@ -50,7 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
 
-            // 6. request 속성에도 저장 → SSE async dispatch 시에도 SecurityContext 유지됨
+            // 6. request 속성에도 저장 → async dispatch 시에도 SecurityContext 유지됨
             contextRepository.saveContext(context, request, response);
         }
 
@@ -59,17 +59,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     // Authorization 헤더에서 "Bearer " 제거 후 순수 토큰만 반환
-    // 헤더가 없으면 쿼리 파라미터 "token" 체크 (SSE는 EventSource라 헤더 불가)
     private String resolveToken(HttpServletRequest request) {
         String bearer = request.getHeader("Authorization");
         if (StringUtils.hasText(bearer) && bearer.startsWith("Bearer ")) {
             return bearer.substring(7);
         }
-        // SSE 연결 시 쿼리 파라미터로 토큰 전달: ?token=eyJ...
-        String queryToken = request.getParameter("token");
-        if (StringUtils.hasText(queryToken)) {
-            return queryToken;
-        }
+        // SSE 쿼리 파라미터 토큰 — Grafana + Loki로 대체되어 비활성화
+        // String queryToken = request.getParameter("token");
+        // if (StringUtils.hasText(queryToken)) {
+        //     return queryToken;
+        // }
         return null;
     }
 }
