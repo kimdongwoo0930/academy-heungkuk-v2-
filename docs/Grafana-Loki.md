@@ -168,6 +168,20 @@ promtail:
     - nginx_logs:/var/log/nginx   # 읽기
 ```
 
+> **주의 — NGINX 심볼릭 링크 문제**
+> 공식 nginx 이미지는 시작 시 `/var/log/nginx/access.log` → `/dev/stdout` (pipe) 심볼릭 링크를 생성한다.
+> Promtail은 pipe를 읽지 못하므로 `command`로 시작 전 심볼릭 링크를 제거하고 실제 파일로 교체한다:
+>
+> ```yaml
+> nginx:
+>   command: >
+>     /bin/sh -c "
+>       rm -f /var/log/nginx/access.log /var/log/nginx/error.log &&
+>       touch /var/log/nginx/access.log /var/log/nginx/error.log &&
+>       nginx -g 'daemon off;'
+>     "
+> ```
+
 ---
 
 ## Grafana 접속 및 데이터소스 설정
@@ -238,6 +252,8 @@ Import 방법:
 | Spring 실시간 로그 | logs | `{job="hka-backend"}` |
 | Spring 에러 로그 | logs | `{job="hka-backend", log_type="error"}` |
 | NGINX Access 로그 | logs | `{job="hka-nginx", log_type="nginx-access"}` |
+| 인증 로그 | logs | `{job="hka-backend", log_type="auth"}` |
+| 예약 로그 | logs | `{job="hka-backend", log_type="reservation"}` |
 
 ---
 

@@ -8,11 +8,19 @@
   - Spring Boot: Uptime / Heap Used / CPU Usage / HTTP req/s / JVM Heap 추이 / 상태코드별 요청
   - 서버 리소스: CPU 사용률 / 메모리 사용량 / 디스크 사용률 / 네트워크 수신·송신
   - Docker 컨테이너: 컨테이너별 CPU / 메모리 (cAdvisor)
-  - 로그: ERROR 발생률 / NGINX 5xx 발생률 / Spring 전체 로그 / Spring 에러 로그 / NGINX Access 로그
+  - 로그: ERROR 발생률 / NGINX 5xx 발생률 / Spring 전체·에러·인증·예약 로그 / NGINX Access 로그
   - Grafana Import에서 바로 사용 가능 (`__inputs` 기반 데이터소스 매핑)
 - **NGINX 로그 라벨 체계 정리**
   - `log_type: nginx-access` / `log_type: nginx-error` 로 분리
   - Spring `log_type: error` 와 충돌 방지
+- `logs/.gitkeep` 추가 — 배포 시 `logs/` 폴더 존재 보장
+  - `.gitignore`: `logs/` → `logs/*` + `!logs/.gitkeep` 로 변경
+
+### Fixed
+
+- **NGINX Promtail 수집 불가 문제** 수정
+  - 원인: 공식 nginx 이미지가 로그 파일을 `/dev/stdout` pipe 심볼릭 링크로 생성
+  - 해결: `docker-compose.yml` nginx `command`에서 시작 전 심볼릭 링크 제거 후 실제 파일 생성
 
 ---
 
