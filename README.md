@@ -39,10 +39,13 @@
 
 ### 인프라
 
-| 항목     | 기술                    |
-| -------- | ----------------------- |
-| 서버     | Oracle Cloud ARM        |
-| 컨테이너 | Docker / docker-compose |
+| 항목          | 기술                    |
+| ------------- | ----------------------- |
+| 서버          | Oracle Cloud ARM        |
+| 컨테이너      | Docker / docker-compose |
+| 리버스 프록시 | NGINX                   |
+| 로그 수집     | Promtail → Loki         |
+| 로그 모니터링 | Grafana                 |
 
 ---
 
@@ -57,12 +60,13 @@
 
 ## 📄 문서
 
-| 문서      | 설명                              | 링크                                 |
-| --------- | --------------------------------- | ------------------------------------ |
-| API 명세  | 전체 엔드포인트 및 요청/응답 구조 | [docs/API.md](docs/API.md)           |
-| 기능 명세 | 도메인별 기능 목록 및 구현 상태   | [docs/FEATURES.md](docs/FEATURES.md) |
-| 변경 이력 | 버전별 업데이트 내역              | [CHANGELOG.md](CHANGELOG.md)         |
+| 문서              | 설명                              | 링크                                             |
+| ----------------- | --------------------------------- | ------------------------------------------------ |
+| API 명세          | 전체 엔드포인트 및 요청/응답 구조 | [docs/API.md](docs/API.md)                       |
+| 기능 명세         | 도메인별 기능 목록 및 구현 상태   | [docs/FEATURES.md](docs/FEATURES.md)             |
+| 변경 이력         | 버전별 업데이트 내역              | [CHANGELOG.md](CHANGELOG.md)                     |
+| Grafana + Loki    | 로그 모니터링 구성 및 쿼리 예시   | [docs/Grafana-Loki.md](docs/Grafana-Loki.md)     |
 
 ---
 
-_최종 수정: 2026-04-09_
+_최종 수정: 2026-04-11_

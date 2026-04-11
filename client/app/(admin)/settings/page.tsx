@@ -24,7 +24,7 @@ import {
   setCachedSettings,
 } from "@/lib/utils/priceSettings";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 
 function getCurrentUserId(): string | null {
@@ -45,23 +45,13 @@ interface CreateForm {
   password: string;
 }
 
-type TabKey = "account" | "price" | "backup" | "changelog" | "logs";
+type TabKey = "account" | "price" | "backup" | "changelog";
 
 const TABS: { key: TabKey; label: string; icon: string }[] = [
   { key: "account", label: "계정 관리", icon: "👤" },
   { key: "price", label: "요금 · 담당자", icon: "💰" },
   { key: "backup", label: "데이터 백업", icon: "💾" },
   { key: "changelog", label: "업데이트 내역", icon: "📋" },
-  { key: "logs", label: "로그 뷰어", icon: "🖥️" },
-];
-
-type LogFile = "app" | "auth" | "reservation" | "access" | "error";
-const LOG_FILES: { key: LogFile; label: string }[] = [
-  { key: "app", label: "전체" },
-  { key: "auth", label: "인증" },
-  { key: "reservation", label: "예약" },
-  { key: "access", label: "조회" },
-  { key: "error", label: "에러" },
 ];
 
 export default function SettingsPage() {
@@ -87,14 +77,6 @@ export default function SettingsPage() {
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [changelog, setChangelog] = useState("");
 
-  // ── 로그 뷰어 state ──
-  const [logFile, setLogFile] = useState<LogFile>("app");
-  const [logLines, setLogLines] = useState<string[]>([]);
-  const [logConnected, setLogConnected] = useState(false);
-  const [logSearch, setLogSearch] = useState("");
-  const logEndRef = useRef<HTMLDivElement>(null);
-  const esRef = useRef<EventSource | null>(null);
-
   useEffect(() => {
     getSettings()
       .then((raw) => {
@@ -114,59 +96,6 @@ export default function SettingsPage() {
       .then((d) => setChangelog(d.content))
       .catch(() => {});
   }, [activeTab, changelog]);
-
-  // 로그 탭 진입 시 초기 로그 로드
-  useEffect(() => {
-    if (activeTab !== "logs") return;
-    setLogLines([]);
-    const token =
-      typeof window !== "undefined"
-        ? (localStorage.getItem("accessToken") ?? "")
-        : "";
-    fetch(`/api/logs?file=${logFile}&lines=1000`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => r.json())
-      .then((d: { lines: string[] }) => setLogLines(d.lines))
-      .catch(() => {});
-  }, [activeTab, logFile]);
-
-  // SSE 연결 (로그 탭 활성화 시)
-  useEffect(() => {
-    if (activeTab !== "logs") {
-      esRef.current?.close();
-      esRef.current = null;
-      setLogConnected(false);
-      return;
-    }
-    esRef.current?.close();
-    // EventSource는 헤더 불가 → 쿼리 파라미터로 토큰 전달
-    const token =
-      typeof window !== "undefined"
-        ? (localStorage.getItem("accessToken") ?? "")
-        : "";
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? '';
-    const es = new EventSource(
-      `${apiUrl}/v1/admin/logs/stream?file=${logFile}&token=${token}`,
-    );
-    esRef.current = es;
-    es.onopen = () => setLogConnected(true);
-    es.onmessage = (e) => {
-      setLogLines((prev) => [...prev.slice(-1000), e.data]);
-      setTimeout(
-        () => logEndRef.current?.scrollIntoView({ behavior: "smooth" }),
-        50,
-      );
-    };
-    es.onerror = () => {
-      setLogConnected(false);
-      es.close(); // 자동 재연결 방지 (재연결 시 subscriber 누적 문제)
-    };
-    return () => {
-      es.close();
-      setLogConnected(false);
-    };
-  }, [activeTab, logFile]);
 
   const handleSettingsSave = async () => {
     setSettingsSaving(true);
@@ -522,79 +451,6 @@ export default function SettingsPage() {
                   </label>
                 ))}
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* 로그 뷰어 */}
-        {activeTab === "logs" && (
-          <div className={styles.panel}>
-            <div className={styles.panelHeader}>
-              <div>
-                <h2 className={styles.panelTitle}>로그 뷰어</h2>
-                <p className={styles.panelDesc}>
-                  서버 로그를 실시간으로 확인합니다.
-                </p>
-              </div>
-            </div>
-
-            {/* 파일 선택 탭 + 상태 + 검색 */}
-            <div className={styles.logToolbar}>
-              <div className={styles.logFileTabs}>
-                {LOG_FILES.map((f) => (
-                  <button
-                    key={f.key}
-                    className={`${styles.logFileTab} ${logFile === f.key ? styles.logFileTabActive : ""}`}
-                    onClick={() => setLogFile(f.key)}
-                  >
-                    {f.label}
-                  </button>
-                ))}
-              </div>
-              <div className={styles.logToolbarRight}>
-                <span
-                  className={`${styles.logStatus} ${logConnected ? styles.logStatusOn : styles.logStatusOff}`}
-                >
-                  {logConnected ? "● 실시간" : "○ 연결 중"}
-                </span>
-                <input
-                  className={styles.logSearchInput}
-                  placeholder="검색..."
-                  value={logSearch}
-                  onChange={(e) => setLogSearch(e.target.value)}
-                />
-                <button
-                  className={styles.logClearBtn}
-                  onClick={() => setLogLines([])}
-                >
-                  지우기
-                </button>
-              </div>
-            </div>
-
-            {/* 로그 본문 */}
-            <div className={styles.logBody}>
-              {logLines
-                .filter(
-                  (l) =>
-                    !logSearch ||
-                    l.toLowerCase().includes(logSearch.toLowerCase()),
-                )
-                .map((line, i) => {
-                  let cls = styles.logLine;
-                  if (line.includes("[ERROR]"))
-                    cls = `${styles.logLine} ${styles.logError}`;
-                  else if (line.includes("[WARN ]"))
-                    cls = `${styles.logLine} ${styles.logWarn}`;
-                  else if (line.includes("[DEBUG]"))
-                    cls = `${styles.logLine} ${styles.logDebug}`;
-                  return (
-                    <div key={i} className={cls}>
-                      {line}
-                    </div>
-                  );
-                })}
-              <div ref={logEndRef} />
             </div>
           </div>
         )}

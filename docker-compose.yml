@@ -50,6 +50,7 @@ services:
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./nginx/ssl:/etc/nginx/ssl
+      - nginx_logs:/var/log/nginx # Promtail이 읽을 수 있도록 볼륨 공유
     depends_on:
       - backend
     networks:
@@ -73,6 +74,49 @@ services:
       - hka-network
     restart: unless-stopped
 
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: hka-node-exporter
+    command:
+      - "--path.rootfs=/host"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    volumes:
+      - /:/host:ro,rslave
+    networks:
+      - hka-network
+    restart: unless-stopped
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: hka-cadvisor
+    privileged: true
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /cgroup:/cgroup:ro
+    networks:
+      - hka-network
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: hka-prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=15d"
+      - "--web.enable-lifecycle"
+    networks:
+      - hka-network
+    restart: unless-stopped
+
   loki:
     image: grafana/loki:latest
     container_name: hka-loki
@@ -89,6 +133,7 @@ services:
     container_name: hka-promtail
     volumes:
       - ./logs:/var/log/spring
+      - nginx_logs:/var/log/nginx # NGINX 로그 수집
       - ./promtail-config.yaml:/etc/promtail/config.yaml
     command: -config.file=/etc/promtail/config.yaml
     depends_on:
@@ -115,6 +160,7 @@ services:
       - grafana_data:/var/lib/grafana
     depends_on:
       - loki
+      - prometheus
     networks:
       - hka-network
     restart: unless-stopped
@@ -127,3 +173,5 @@ volumes:
   mysql_data:
   loki_data:
   grafana_data:
+  prometheus_data:
+  nginx_logs:

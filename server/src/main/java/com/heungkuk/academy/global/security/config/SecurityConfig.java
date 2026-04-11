@@ -34,13 +34,14 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // SSE async dispatch 시 SecurityContext 유지: request 속성에 저장 → async 재사용 가능
+                // async dispatch 시 SecurityContext 유지: request 속성에 저장 → async 재사용 가능
                 .securityContext(ctx -> ctx
                         .securityContextRepository(new RequestAttributeSecurityContextRepository()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/v1/auth/**", "/v1/survey/**", "/swagger-ui/**",
                                 "/swagger-ui.html", "/v3/api-docs/**", "/v3/api-docs",
-                                "/webjars/**")
+                                "/webjars/**",
+                                "/actuator/health", "/actuator/prometheus")
                         .permitAll()
                         // Excel 다운로드/내보내기/가져오기는 ROLE_ADMIN만 가능
                         .requestMatchers(HttpMethod.GET,

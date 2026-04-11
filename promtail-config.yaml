@@ -53,3 +53,36 @@ scrape_configs:
           job: hka-backend
           log_type: reservation
           __path__: /var/log/spring/reservation.log
+
+  - job_name: nginx-access
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: hka-nginx
+          log_type: access
+          __path__: /var/log/nginx/access.log
+    pipeline_stages:
+      - json:
+          expressions:
+            time: time
+            method: method
+            uri: uri
+            status: status
+            ip: ip
+            response_time: response_time
+      - labels:
+          method:
+          status:
+      - timestamp:
+          source: time
+          format: "2006-01-02T15:04:05+07:00"
+
+  - job_name: nginx-error
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: hka-nginx
+          log_type: error
+          __path__: /var/log/nginx/error.log
