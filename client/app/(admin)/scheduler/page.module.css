@@ -38,7 +38,7 @@
 }
 
 [data-theme='dark'] .schedulerPage {
-  --scheduler-bg: #0f1623;
+  --scheduler-bg: var(--bg);
   --scheduler-surface: #182030;
   --scheduler-surface-2: #1d2a3e;
   --scheduler-surface-hover: #1e2d42;
@@ -323,14 +323,6 @@
   background: var(--scheduler-surface) !important;
 }
 
-/* 그룹 구분은 tdType 왼쪽 보더로만 표시 */
-[data-theme='dark'] .schedulerPage .tdType.bgYellow { border-left: 3px solid #d97706 !important; }
-[data-theme='dark'] .schedulerPage .tdType.bgGreen  { border-left: 3px solid #22c55e !important; }
-[data-theme='dark'] .schedulerPage .tdType.bgBlue   { border-left: 3px solid #818cf8 !important; }
-[data-theme='dark'] .schedulerPage .tdType.bgPink   { border-left: 3px solid #ec4899 !important; }
-[data-theme='dark'] .schedulerPage .tdType.bgGray   { border-left: 3px solid #9ca3af !important; }
-[data-theme='dark'] .schedulerPage .tdType.bgOrange { border-left: 3px solid #f97316 !important; }
-[data-theme='dark'] .schedulerPage .tdType.bgWhite  { border-left: 3px solid #71717a !important; }
 
 /* 예약 바 */
 .bar {
