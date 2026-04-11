@@ -1,0 +1,55 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://hka-loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: spring-app
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: hka-backend
+          log_type: app
+          __path__: /var/log/spring/app.log
+
+  - job_name: spring-error
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: hka-backend
+          log_type: error
+          __path__: /var/log/spring/error.log
+
+  - job_name: spring-access
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: hka-backend
+          log_type: access
+          __path__: /var/log/spring/access.log
+
+  - job_name: spring-auth
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: hka-backend
+          log_type: auth
+          __path__: /var/log/spring/auth.log
+
+  - job_name: spring-reservation
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: hka-backend
+          log_type: reservation
+          __path__: /var/log/spring/reservation.log
