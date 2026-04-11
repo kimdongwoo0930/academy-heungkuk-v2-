@@ -23,4 +23,5 @@ server/bin/
 
 db/
 docker-compose.dev.yml
-logs/
+logs/*
+!logs/.gitkeep

@@ -695,6 +695,58 @@
           "refId": "A"
         }
       ]
+    },
+
+    {
+      "id": 46,
+      "type": "logs",
+      "title": "인증 로그",
+      "description": "로그인 · 토큰 발급 · 인증 실패 — auth.log",
+      "gridPos": { "x": 0, "y": 59, "w": 12, "h": 8 },
+      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showTime": true,
+        "showLabels": false,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending"
+      },
+      "targets": [
+        {
+          "expr": "{job=\"hka-backend\", log_type=\"auth\"}",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 47,
+      "type": "logs",
+      "title": "예약 로그",
+      "description": "예약 생성 · 수정 · 삭제 — reservation.log",
+      "gridPos": { "x": 12, "y": 59, "w": 12, "h": 8 },
+      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showTime": true,
+        "showLabels": false,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending"
+      },
+      "targets": [
+        {
+          "expr": "{job=\"hka-backend\", log_type=\"reservation\"}",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ]
     }
   ]
 }
