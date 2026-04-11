@@ -13,7 +13,7 @@
   padding: 48px 40px;
   width: 100%;
   max-width: 400px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-elevated);
 }
 
 .logo {
@@ -69,7 +69,7 @@
 
 .error {
   font-size: 12px;
-  color: #e53e3e;
+  color: var(--danger);
   margin-top: 2px;
 }
 
@@ -77,7 +77,7 @@
   margin-top: 8px;
   height: 44px;
   background: var(--accent);
-  color: #ffffff;
+  color: var(--text-inverse);
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;

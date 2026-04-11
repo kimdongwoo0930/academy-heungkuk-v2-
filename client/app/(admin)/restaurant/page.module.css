@@ -36,7 +36,7 @@
   transition: background 0.15s;
 }
 .navBtn:hover {
-  background: #f0f0f0;
+  background: var(--surface-hover);
 }
 
 .printBtn {
@@ -53,7 +53,7 @@
   margin-right: auto;
 }
 .printBtn:hover {
-  background: #f0f0f0;
+  background: var(--surface-hover);
 }
 
 .monthLabel {
@@ -90,14 +90,14 @@
 .monthSummaryRange {
   font-size: 14px;
   font-weight: 500;
-  color: var(--text-secondary, #888);
+  color: var(--text-sub);
 }
 
 .monthSummaryItems {
   display: flex;
   gap: 20px;
   font-size: 13px;
-  color: var(--text-secondary, #555);
+  color: var(--text-sub);
 }
 
 .monthSummaryItems span {
@@ -120,7 +120,7 @@
 .weekLabel {
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-secondary, #666);
+  color: var(--text-sub);
   margin-bottom: 6px;
 }
 
@@ -303,3 +303,113 @@
   padding: 24px !important;
 }
 
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   다크 모드
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* 날짜 헤더 */
+[data-theme='dark'] .table th {
+  background: #2c2c2f;
+  border-color: #4a4a4e;
+  color: #d4d4d8;
+}
+
+/* 주말 헤더 */
+[data-theme='dark'] .weekendTh {
+  background: #2c1e22 !important;
+  color: #f87171 !important;
+}
+
+/* 다음/이전달 헤더 */
+[data-theme='dark'] .otherMonthTh {
+  background: #1a1a1c !important;
+  color: #52525b !important;
+}
+
+/* 조/중/석 서브 헤더 */
+[data-theme='dark'] .mealSubTh {
+  color: #71717a;
+}
+
+/* 식수계 헤더 */
+[data-theme='dark'] .thTotal {
+  background: #1a1a1d !important;
+  color: #a1a1aa !important;
+}
+
+/* 기본 셀 테두리 */
+[data-theme='dark'] .table td {
+  border-color: #3c3c3f;
+  color: #d4d4d8;
+}
+
+/* 주말 열 배경 */
+[data-theme='dark'] .weekendCol {
+  background: #1f1819 !important;
+}
+
+/* 다음/이전달 열 배경 */
+[data-theme='dark'] .otherMonthCol {
+  background: #151516 !important;
+}
+
+/* 기관명 셀 */
+[data-theme='dark'] .tdOrg {
+  background: #252528;
+  color: #d4d4d8;
+}
+
+/* 값이 있는 식수 셀 (살짝 밝은 하이라이트) */
+[data-theme='dark'] .mealCellHasValue {
+  background: #303034;
+}
+
+/* 값이 있는 주말 셀 (분홍 하이라이트) */
+[data-theme='dark'] .weekendCellHasValue {
+  background: #3a1e22 !important;
+}
+
+/* 특이사항 배지 (회색) */
+[data-theme='dark'] .specialMeal {
+  background: #52525b;
+  color: #d4d4d8;
+}
+
+/* 특이사항 배지 (확정 주황) */
+[data-theme='dark'] .specialMealConfirmed {
+  background: #b35c10;
+  color: #ffe0b2;
+}
+
+/* 확정 식수 숫자 (빨간) */
+[data-theme='dark'] .confirmed {
+  color: #f87171;
+}
+
+/* 미확정 식수 숫자 (회색) */
+[data-theme='dark'] .pending {
+  color: #52525b;
+}
+
+/* 합계 행 */
+[data-theme='dark'] .totalRow td {
+  background: #2c2c2f !important;
+  color: #d4d4d8 !important;
+  border-top-color: #52525b !important;
+}
+
+/* 주간 식수계 셀 */
+[data-theme='dark'] .weekTotalCell {
+  background: #1a1a1d !important;
+  color: #f4f4f5 !important;
+}
+
+/* 합계 행 + 주말/다른달 열 충돌 — totalRow가 우선 */
+[data-theme='dark'] .totalRow td.weekendCol {
+  background: #282428 !important;
+  color: #d4d4d8 !important;
+}
+[data-theme='dark'] .totalRow td.otherMonthCol {
+  background: #1e1e20 !important;
+  color: #71717a !important;
+}

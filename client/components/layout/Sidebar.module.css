@@ -1,15 +1,36 @@
 .sidebar {
+  --sidebar-bg-start: var(--primary);
+  --sidebar-bg-end: var(--primary-hover);
+  --sidebar-text: rgba(255, 255, 255, 0.9);
+  --sidebar-text-muted: rgba(255, 255, 255, 0.65);
+  --sidebar-text-soft: rgba(255, 255, 255, 0.55);
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-hover: rgba(255, 255, 255, 0.08);
+  --sidebar-hover-soft: rgba(255, 255, 255, 0.05);
+  --sidebar-active-bg: rgba(241, 90, 169, 0.14);
   position: fixed;
   top: 0;
   left: 0;
   width: var(--sidebar-width);
   height: 100vh;
-  background: var(--primary);
+  background: linear-gradient(180deg, var(--sidebar-bg-start) 0%, var(--sidebar-bg-end) 100%);
   display: flex;
   flex-direction: column;
   z-index: 100;
   transition: width 0.2s ease;
   overflow: hidden;
+}
+
+[data-theme='dark'] .sidebar {
+  --sidebar-bg-start: #1e1b2e;
+  --sidebar-bg-end: #17152a;
+  --sidebar-text: rgba(255, 255, 255, 0.92);
+  --sidebar-text-muted: rgba(255, 255, 255, 0.7);
+  --sidebar-text-soft: rgba(255, 255, 255, 0.58);
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-hover: rgba(255, 255, 255, 0.1);
+  --sidebar-hover-soft: rgba(255, 255, 255, 0.06);
+  --sidebar-active-bg: rgba(241, 90, 169, 0.16);
 }
 
 .sidebar.collapsed {
@@ -22,7 +43,7 @@
   align-items: center;
   gap: 10px;
   padding: 0 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--sidebar-border);
   flex-shrink: 0;
 }
 
@@ -46,7 +67,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--sidebar-text-soft);
   font-size: 18px;
   border-radius: 4px;
   flex-shrink: 0;
@@ -54,15 +75,15 @@
 }
 
 .toggleBtn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text);
 }
 
 .logoText {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  color: #ffffff;
+  color: var(--sidebar-text);
   font-size: 13px;
   font-weight: 700;
   line-height: 1.25;
@@ -79,7 +100,7 @@
   align-items: center;
   gap: 10px;
   padding: 10px 18px;
-  color: rgba(255, 255, 255, 0.65);
+  color: var(--sidebar-text-muted);
   font-size: 13px;
   font-weight: 500;
   transition: background 0.15s, color 0.15s;
@@ -98,8 +119,8 @@
 }
 
 .navItem:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
+  background: var(--sidebar-hover-soft);
+  color: var(--sidebar-text);
 }
 
 .navItemDisabled {
@@ -111,15 +132,15 @@
 .soonBadge {
   margin-left: auto;
   font-size: 10px;
-  background: rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--sidebar-text-muted);
   padding: 2px 6px;
   border-radius: 4px;
 }
 
 .navItem.active {
-  background: rgba(236, 0, 140, 0.25);
-  color: #ffffff;
+  background: var(--sidebar-active-bg);
+  color: var(--sidebar-text);
   border-left: 3px solid var(--accent);
 }
 
@@ -132,7 +153,7 @@
 
 .bottom {
   padding: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--sidebar-border);
 }
 
 .logoutBtn {
@@ -141,7 +162,7 @@
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--sidebar-text-soft);
   font-size: 13px;
   border-radius: 6px;
   transition:
@@ -150,6 +171,6 @@
 }
 
 .logoutBtn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
+  background: var(--sidebar-hover-soft);
+  color: var(--sidebar-text);
 }

@@ -40,13 +40,13 @@
 
 .tabBtnActive {
   background: var(--accent);
-  color: #fff;
+  color: var(--text-inverse);
   font-weight: 600;
 }
 
 .tabBtnActive:hover {
   background: var(--accent-hover, var(--accent));
-  color: #fff;
+  color: var(--text-inverse);
 }
 
 .tabIcon {
@@ -95,7 +95,7 @@
   height: 36px;
   padding: 0 18px;
   background: var(--accent);
-  color: #fff;
+  color: var(--text-inverse);
   border-radius: 8px;
   font-size: 13px;
   font-weight: 700;
@@ -112,7 +112,7 @@
   height: 36px;
   padding: 0 20px;
   background: var(--accent);
-  color: #fff;
+  color: var(--text-inverse);
   border-radius: 8px;
   font-size: 13px;
   font-weight: 700;
@@ -125,8 +125,9 @@
   background: var(--accent-hover, var(--accent));
 }
 .saveBtn:disabled {
-  background: #9ca3af;
+  background: var(--neutral);
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 /* ── 테이블 ── */
@@ -194,8 +195,8 @@
   opacity: 0.8;
 }
 .admin {
-  background: #ebf4ff;
-  color: #2b6cb0;
+  background: var(--info-bg);
+  color: var(--info);
 }
 .user {
   background: var(--bg);
@@ -222,7 +223,7 @@
   transition: all 0.15s;
 }
 .pwBtn:hover {
-  background: #f5f5f5;
+  background: var(--surface-hover);
 }
 
 .deleteBtn {
@@ -232,12 +233,12 @@
   font-weight: 500;
   cursor: pointer;
   background: transparent;
-  color: #e53e3e;
-  border: 1px solid #fc8181;
+  color: var(--danger);
+  border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent);
   transition: all 0.15s;
 }
 .deleteBtn:hover {
-  background: #fff5f5;
+  background: var(--danger-bg);
 }
 .deleteBtn:disabled {
   opacity: 0.3;
@@ -346,29 +347,30 @@
 .exportBtn {
   height: 36px;
   padding: 0 18px;
-  background: #16a34a;
-  color: #fff;
+  background: var(--success);
+  color: var(--text-inverse);
   border-radius: 8px;
   font-size: 13px;
   font-weight: 700;
   flex-shrink: 0;
   border: none;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: filter 0.15s;
 }
 .exportBtn:hover {
-  background: #15803d;
+  filter: brightness(0.88);
 }
 .exportBtn:disabled {
-  background: #9ca3af;
+  background: var(--neutral);
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .importBtn {
   height: 36px;
   padding: 0 18px;
-  background: #2563eb;
-  color: #fff;
+  background: var(--info);
+  color: var(--text-inverse);
   border-radius: 8px;
   font-size: 13px;
   font-weight: 700;
@@ -376,20 +378,21 @@
   cursor: pointer;
   display: flex;
   align-items: center;
-  transition: background 0.15s;
+  transition: filter 0.15s;
   white-space: nowrap;
 }
 .importBtn:hover {
-  background: #1d4ed8;
+  filter: brightness(0.88);
 }
 .importBtn.importing {
-  background: #9ca3af;
+  background: var(--neutral);
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .importResult {
   font-size: 12px;
-  color: #16a34a;
+  color: var(--success);
   font-weight: 600;
   margin-top: 6px;
 }
@@ -443,7 +446,7 @@
   cursor: pointer;
 }
 .closeBtn:hover {
-  background: #f0f0f0;
+  background: var(--surface-hover);
 }
 
 .modalBody {
@@ -480,7 +483,7 @@
 
 .formError {
   font-size: 12px;
-  color: #e53e3e;
+  color: var(--danger);
 }
 
 .modalFooter {
@@ -502,14 +505,14 @@
   cursor: pointer;
 }
 .cancelBtn:hover {
-  background: #f5f5f5;
+  background: var(--surface-hover);
 }
 
 .confirmBtn {
   height: 34px;
   padding: 0 20px;
   background: var(--accent);
-  color: #fff;
+  color: var(--text-inverse);
   border-radius: 7px;
   font-size: 13px;
   font-weight: 700;
@@ -521,8 +524,9 @@
   background: var(--accent-hover, var(--accent));
 }
 .confirmBtn:disabled {
-  background: #9ca3af;
+  background: var(--neutral);
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 /* 업데이트 내역 */
@@ -598,12 +602,12 @@
 }
 
 .logFileTab:hover {
-  background: var(--bg-hover, #f5f5f5);
+  background: var(--surface-hover);
 }
 
 .logFileTabActive {
   background: var(--primary, #1a56db);
-  color: #fff;
+  color: var(--text-inverse);
   border-color: var(--primary, #1a56db);
 }
 
@@ -620,11 +624,11 @@
 }
 
 .logStatusOn {
-  color: #22c55e;
+  color: var(--success);
 }
 
 .logStatusOff {
-  color: #94a3b8;
+  color: var(--text-sub);
 }
 
 .logSearchInput {
@@ -648,7 +652,7 @@
 }
 
 .logClearBtn:hover {
-  background: var(--bg-hover, #f5f5f5);
+  background: var(--surface-hover);
 }
 
 .logBody {

@@ -124,7 +124,7 @@ export default function ReservationPage() {
   };
 
   return (
-    <div>
+    <div className={styles.reservationPage}>
       <div className={styles.filterCard}>
         <div className={styles.filterRow}>
           <span className={styles.filterLabel}>검색옵션</span>

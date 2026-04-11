@@ -58,7 +58,7 @@
   flex-shrink: 0;
 }
 .closeBtn:hover {
-  background: #f0f0f0;
+  background: var(--surface-hover);
 }
 
 /* 범례 */
@@ -212,7 +212,7 @@
   transition: background 0.15s;
 }
 .cancelBtn:hover {
-  background: #f5f5f5;
+  background: var(--surface-hover);
 }
 
 .confirmBtn {
@@ -227,4 +227,34 @@
 }
 .confirmBtn:hover {
   background: var(--accent-hover);
+}
+
+/* ── 다크 모드 ── */
+
+/* 호실 카드 배경은 파스텔(인라인 고정)이라 cellNum이 흰색이면 안 보임 */
+[data-theme='dark'] .cellNum {
+  color: #1a1a1a;
+}
+/* 선택된 카드는 배경이 진한 단색 → 흰 글씨 유지 */
+[data-theme='dark'] .roomPicked .cellNum {
+  color: #fff;
+}
+
+/* 사용중 카드 다크 처리 */
+[data-theme='dark'] .roomOccupied {
+  background: #2a2a2e !important;
+  border-color: #4a4a4e !important;
+}
+[data-theme='dark'] .roomOccupied .cellNum {
+  color: #71717a;
+}
+[data-theme='dark'] .roomOccupied .cellCap {
+  color: #e05050 !important;
+}
+
+/* 라벨 (화장실, 현관) */
+[data-theme='dark'] .floorLabel {
+  background: #2c2c2f;
+  border-color: #3f3f44;
+  color: var(--text-sub);
 }

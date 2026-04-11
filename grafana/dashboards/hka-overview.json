@@ -634,7 +634,7 @@
         "showLabels": false,
         "showCommonLabels": false,
         "wrapLogMessage": true,
-        "sortOrder": "Descending"
+        "sortOrder": "Ascending"
       },
       "targets": [
         {
@@ -660,7 +660,7 @@
         "showLabels": false,
         "showCommonLabels": false,
         "wrapLogMessage": true,
-        "sortOrder": "Descending"
+        "sortOrder": "Ascending"
       },
       "targets": [
         {
@@ -686,7 +686,7 @@
         "showLabels": true,
         "showCommonLabels": false,
         "wrapLogMessage": false,
-        "sortOrder": "Descending"
+        "sortOrder": "Ascending"
       },
       "targets": [
         {
@@ -712,7 +712,7 @@
         "showLabels": false,
         "showCommonLabels": false,
         "wrapLogMessage": true,
-        "sortOrder": "Descending"
+        "sortOrder": "Ascending"
       },
       "targets": [
         {
@@ -738,7 +738,7 @@
         "showLabels": false,
         "showCommonLabels": false,
         "wrapLogMessage": true,
-        "sortOrder": "Descending"
+        "sortOrder": "Ascending"
       },
       "targets": [
         {

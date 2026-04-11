@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import ThemeToggle from './ThemeToggle';
 import styles from './Header.module.css';
 
 const PAGE_TITLES: Record<string, string> = {
@@ -22,11 +23,11 @@ export default function Header({ collapsed }: Props) {
   const title = Object.entries(PAGE_TITLES).find(([key]) => pathname.startsWith(key))?.[1] ?? '';
 
   return (
-    <>
-      <header className={`${styles.header} ${collapsed ? styles.headerCollapsed : ''}`}>
-        <span className={styles.title}>{title}</span>
-      </header>
-
-    </>
+    <header className={`${styles.header} ${collapsed ? styles.headerCollapsed : ''}`}>
+      <span className={styles.title}>{title}</span>
+      <div className={styles.actions}>
+        <ThemeToggle />
+      </div>
+    </header>
   );
 }
