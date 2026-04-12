@@ -8,22 +8,16 @@ import {
   toRequestBody,
   updateReservation,
 } from "@/lib/api/reservation";
+import { ROOM_TYPES, RoomType } from "@/lib/constants/rooms";
+import { STATUS_COLOR } from "@/lib/constants/status";
 import { printAccommodationTable } from "@/lib/utils/printRoomTable";
 import { Reservation, RoomReservation } from "@/types/reservation";
 import MonthNavigator from "@/components/ui/MonthNavigator";
 import { isHoliday } from "@hyunbinseo/holidays-kr";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./page.module.css";
 
 const WEEK_DAYS = ["일", "월", "화", "수", "목", "금", "토"];
-const ROOM_TYPES = ["4인실", "2인실", "1인실"] as const;
-type RoomType = (typeof ROOM_TYPES)[number];
-
-const STATUS_COLOR: Record<string, string> = {
-  확정: "#16a34a",
-  예약: "#d97706",
-  취소: "#dc2626",
-};
 
 function checkIsHoliday(date: Date): boolean {
   try {
@@ -82,51 +76,62 @@ export default function AccommodationPage() {
       .finally(() => setIsLoading(false));
   }, [year, month]);
 
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
-  const startOffset = (firstDay.getDay() + 6) % 7;
-  const startDate = new Date(year, month, 1 - startOffset);
-  const endOffset = (7 - lastDay.getDay()) % 7;
-  const endDate = new Date(year, month + 1, endOffset);
+  // year/month가 바뀔 때만 달력 날짜 배열 재생성
+  const calDays = useMemo<CalDay[]>(() => {
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startOffset = (firstDay.getDay() + 6) % 7;
+    const startDate = new Date(year, month, 1 - startOffset);
+    const endOffset = (7 - lastDay.getDay()) % 7;
+    const endDate = new Date(year, month + 1, endOffset);
+    const days: CalDay[] = [];
+    const cur = new Date(startDate);
+    while (cur <= endDate) {
+      const d = new Date(cur);
+      days.push({ date: d, dateStr: makeDateStr(d), isCurrent: d.getMonth() === month });
+      cur.setDate(cur.getDate() + 1);
+    }
+    return days;
+  }, [year, month]);
 
-  const calDays: CalDay[] = [];
-  const cur = new Date(startDate);
-  while (cur <= endDate) {
-    const d = new Date(cur);
-    calDays.push({
-      date: d,
-      dateStr: makeDateStr(d),
-      isCurrent: d.getMonth() === month,
-    });
-    cur.setDate(cur.getDate() + 1);
-  }
+  const halves = useMemo<CalDay[][]>(() => {
+    const result: CalDay[][] = [];
+    for (let i = 0; i < calDays.length; i += 7)
+      result.push(calDays.slice(i, i + 7));
+    return result;
+  }, [calDays]);
 
-  const halves: CalDay[][] = [];
-  for (let i = 0; i < calDays.length; i += 7)
-    halves.push(calDays.slice(i, i + 7));
-
-  const displayedDates = new Set(calDays.map((c) => c.dateStr));
-
-  const redDaySet = new Set(
-    calDays
-      .filter((c) => c.date.getDay() === 0 || c.date.getDay() === 6 || checkIsHoliday(c.date))
-      .map((c) => c.dateStr)
+  const displayedDates = useMemo(
+    () => new Set(calDays.map((c) => c.dateStr)),
+    [calDays],
   );
 
-  const activeRoomReservations = reservations.filter((r) => {
-    if (r.status === "취소") return false;
-    return r.rooms?.some((rm) => displayedDates.has(String(rm.reservedDate)));
-  });
+  // checkIsHoliday 호출이 비싸므로 Set으로 미리 계산
+  const redDaySet = useMemo(
+    () => new Set(
+      calDays
+        .filter((c) => c.date.getDay() === 0 || c.date.getDay() === 6 || checkIsHoliday(c.date))
+        .map((c) => c.dateStr),
+    ),
+    [calDays],
+  );
 
-  const getRoomsOnDate = (
-    resId: number,
-    dateStr: string,
-  ): RoomReservation[] => {
-    const res = reservations.find((r) => r.id === resId);
-    return (
-      res?.rooms?.filter((rm) => String(rm.reservedDate) === dateStr) ?? []
-    );
-  };
+  const activeRoomReservations = useMemo(
+    () => reservations.filter((r) => {
+      if (r.status === "취소") return false;
+      return r.rooms?.some((rm) => displayedDates.has(String(rm.reservedDate)));
+    }),
+    [reservations, displayedDates],
+  );
+
+  // resId → 날짜별 객실 목록 맵 (O(n) find → O(1) 조회)
+  const roomsByResId = useMemo(
+    () => new Map(reservations.map((r) => [r.id, r.rooms ?? []])),
+    [reservations],
+  );
+
+  const getRoomsOnDate = (resId: number, dateStr: string): RoomReservation[] =>
+    (roomsByResId.get(resId) ?? []).filter((rm) => String(rm.reservedDate) === dateStr);
 
   const getDayTypeTotal = (dateStr: string, type: RoomType) => {
     let total = 0;

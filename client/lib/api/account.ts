@@ -1,20 +1,8 @@
 import instance from './instance';
 import { ApiResponse } from '@/types/api';
+import { AccountInfo, CreateAccountRequest } from '@/types/account';
 
-export interface AccountInfo {
-  id: number;
-  userId: string;
-  username: string;
-  role: string;
-  state: boolean;
-  createdAt: string;
-}
-
-export interface CreateAccountRequest {
-  userId: string;
-  password: string;
-  username: string;
-}
+export type { AccountInfo, CreateAccountRequest };
 
 export async function createAccount(data: CreateAccountRequest): Promise<AccountInfo> {
   const res = await instance.post<ApiResponse<AccountInfo>>('/v1/admin/accounts', data);

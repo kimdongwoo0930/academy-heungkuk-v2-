@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import { Reservation } from '@/types/reservation';
 import {
-  searchReservations, createReservation, updateReservation,
+  createReservation, updateReservation,
   toRequestBody, hardDeleteReservation, getReservationsByYear,
 } from '@/lib/api/reservation';
+import { useReservationSearch } from '@/hooks/useReservationSearch';
 import { isAdmin } from '@/lib/utils/auth';
 import ReservationModal from '@/components/reservation/ReservationModal';
 import SurveyModal from '@/components/reservation/SurveyModal';
@@ -17,10 +18,6 @@ type SortField = 'createdAt' | 'startDate';
 type SortDir = 'asc' | 'desc';
 
 export default function ReservationPage() {
-  const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [totalElements, setTotalElements] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [status, setStatus] = useState('전체');
@@ -44,24 +41,14 @@ export default function ReservationPage() {
     return () => clearTimeout(t);
   }, [search]);
 
-  // 데이터 조회
-  useEffect(() => {
-    setLoading(true);
-    searchReservations({
-      keyword: debouncedSearch || undefined,
-      status: status === '전체' ? undefined : status,
-      page,
-      size: PAGE_SIZE,
-      sort: `${sortBy},${sortDir}`,
-    })
-      .then((result) => {
-        setReservations(result.content);
-        setTotalElements(result.totalElements);
-        setTotalPages(result.totalPages);
-      })
-      .catch(() => alert('예약 목록을 불러오는데 실패했습니다.'))
-      .finally(() => setLoading(false));
-  }, [debouncedSearch, status, sortBy, sortDir, page, fetchTick]);
+  const { reservations, totalElements, totalPages, loading } = useReservationSearch({
+    keyword: debouncedSearch,
+    status: status === '전체' ? undefined : status,
+    sort: `${sortBy},${sortDir}`,
+    page,
+    size: PAGE_SIZE,
+    tick: fetchTick,
+  });
 
   const handleStatusChange = (v: string) => { setStatus(v); setPage(0); };
   const handleSortChange = (field: SortField) => {

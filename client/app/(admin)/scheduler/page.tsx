@@ -12,7 +12,7 @@ import {
 import { printSchedulerWeekly } from "@/lib/utils/printRoomTable";
 import { Reservation } from "@/types/reservation";
 import { isHoliday } from "@hyunbinseo/holidays-kr";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styles from "./page.module.css";
 
 const WEEK_DAYS = ["일", "월", "화", "수", "목", "금", "토"];
@@ -112,40 +112,46 @@ export default function SchedulerPage() {
     fetchReservations(year, month);
   }, [year, month]);
 
-  // ── 달력 그리드 생성 (일요일 시작) ──
-  const firstDayOfWeek = new Date(year, month, 1).getDay(); // 0=일
-  const lastDate = new Date(year, month + 1, 0).getDate();
-  const lastDayOfWeek = new Date(year, month + 1, 0).getDay(); // 마지막 날 요일
+  // year/month가 바뀔 때만 달력 날짜 배열 재생성
+  const calDays = useMemo<CalDay[]>(() => {
+    const firstDayOfWeek = new Date(year, month, 1).getDay();
+    const lastDate = new Date(year, month + 1, 0).getDate();
+    const lastDayOfWeek = new Date(year, month + 1, 0).getDay();
+    const days: CalDay[] = [];
+    for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+      const d = new Date(year, month, -i);
+      days.push({ date: d, dateStr: makeDateStr(d), isCurrent: false });
+    }
+    for (let i = 1; i <= lastDate; i++) {
+      const d = new Date(year, month, i);
+      days.push({ date: d, dateStr: makeDateStr(d), isCurrent: true });
+    }
+    const trailing = lastDayOfWeek === 6 ? 0 : 6 - lastDayOfWeek;
+    for (let i = 1; i <= trailing; i++) {
+      const d = new Date(year, month + 1, i);
+      days.push({ date: d, dateStr: makeDateStr(d), isCurrent: false });
+    }
+    return days;
+  }, [year, month]);
 
-  const calDays: CalDay[] = [];
+  const halves = useMemo<CalDay[][]>(() => {
+    const half1 = Math.ceil(calDays.length / 2);
+    return [calDays.slice(0, half1), calDays.slice(half1)].filter((h) => h.length > 0);
+  }, [calDays]);
 
-  // 전달 채움 (0일 = 전달 마지막, -1 = 전달 마지막-1, ...)
-  for (let i = firstDayOfWeek - 1; i >= 0; i--) {
-    const d = new Date(year, month, -i);
-    calDays.push({ date: d, dateStr: makeDateStr(d), isCurrent: false });
-  }
-  // 이번 달
-  for (let i = 1; i <= lastDate; i++) {
-    const d = new Date(year, month, i);
-    calDays.push({ date: d, dateStr: makeDateStr(d), isCurrent: true });
-  }
-  // 다음 달 채움 (마지막 주 토요일까지, 최대 35일=5주)
-  const trailing = lastDayOfWeek === 6 ? 0 : 6 - lastDayOfWeek;
-  for (let i = 1; i <= trailing; i++) {
-    const d = new Date(year, month + 1, i);
-    calDays.push({ date: d, dateStr: makeDateStr(d), isCurrent: false });
-  }
-
-  // 절반씩 나누기 — 대부분 17~18일씩
-  const half1 = Math.ceil(calDays.length / 2);
-  const halves: CalDay[][] = [
-    calDays.slice(0, half1),
-    calDays.slice(half1),
-  ].filter((h) => h.length > 0);
+  // checkIsHoliday 호출이 비싸므로 Set으로 미리 계산
+  const redDaySet = useMemo(
+    () => new Set(
+      calDays
+        .filter((c) => c.date.getDay() === 0 || c.date.getDay() === 6 || checkIsHoliday(c.date))
+        .map((c) => c.dateStr),
+    ),
+    [calDays],
+  );
 
   // ── 스타일 헬퍼 ──
   const isRedDay = (_dateStr: string, date: Date) =>
-    date.getDay() === 0 || date.getDay() === 6 || checkIsHoliday(date);
+    redDaySet.has(makeDateStr(date));
 
   const thCls = (cal: CalDay) => {
     if (!cal.isCurrent) return styles.otherMonthTh;

@@ -1,35 +1,12 @@
 import instance from './instance';
-import { Reservation } from '@/types/reservation';
+import {
+  Reservation,
+  PageResult,
+  ImportResult,
+  ReservationRequestBody,
+} from '@/types/reservation';
 
-interface ReservationRequestBody {
-  organization: string;
-  purpose: string;
-  people: number;
-  customer: string;
-  customerPhone: string;
-  customerPhone2?: string;
-  customerEmail?: string;
-  startDate: string;
-  endDate: string;
-  colorCode: string;
-  status: string;
-  companyZipCode?: string;
-  companyAddress?: string;
-  businessNumber?: string;
-  ceoName?: string;
-  siteManager?: string;
-  siteManagerPhone?: string;
-  siteManagerPhone2?: string;
-  siteManagerEmail?: string;
-  billingManager?: string;
-  billingManagerPhone?: string;
-  billingManagerEmail?: string;
-  paymentMethod?: string;
-  memo?: string;
-  classrooms: { classroomName: string; reservedDate: string }[];
-  rooms: { roomNumber: string; reservedDate: string }[];
-  meals: { reservedDate: string; breakfast: number; lunch: number; dinner: number; specialBreakfast?: boolean; specialLunch?: boolean; specialDinner?: boolean }[];
-}
+export type { PageResult, ImportResult, ReservationRequestBody };
 
 export function toRequestBody(data: Omit<Reservation, 'id' | 'reservationCode'>): ReservationRequestBody {
   return {
@@ -92,14 +69,6 @@ export async function getReservationsByRange(from: string, to: string): Promise<
   return res.data.data;
 }
 
-export interface PageResult<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  number: number;
-  size: number;
-}
-
 export async function searchReservations(params: {
   keyword?: string;
   status?: string;
@@ -137,22 +106,6 @@ export async function hardDeleteReservation(id: number): Promise<void> {
 }
 
 /**
- * 전체 예약 데이터를 xlsx 파일로 다운로드
- *
- * responseType: 'blob' — 서버에서 byte[]로 내려주는 파일을
- * axios가 Blob(브라우저 바이너리 객체)으로 받아주는 설정
- *
- * URL.createObjectURL(blob) — Blob을 가리키는 임시 URL 생성
- * → <a> 태그에 연결해서 클릭하면 파일 저장 다이얼로그가 뜸
- */
-export interface ImportResult {
-  created: number;
-  updated: number;
-  failed: number;
-  errors: string[];
-}
-
-/**
  * xlsx 파일을 서버로 업로드하여 예약 데이터를 일괄 등록/수정
  * FormData에 파일을 담아 multipart/form-data 로 전송
  */
@@ -165,51 +118,41 @@ export async function importReservations(file: File): Promise<ImportResult> {
   return res.data.data;
 }
 
-export async function downloadTrade(id: number, org?: string): Promise<void> {
-  const res = await instance.get(`/v1/admin/reservations/${id}/trade`, {
-    responseType: 'blob',
-  });
+/** Blob 응답을 파일로 다운로드하는 공통 헬퍼 */
+async function downloadBlob(endpoint: string, filename: string): Promise<void> {
+  const res = await instance.get(endpoint, { responseType: 'blob' });
   const url = URL.createObjectURL(new Blob([res.data]));
   const a = document.createElement('a');
   a.href = url;
-  a.download = org ? `거래명세서_${org}.xlsx` : `거래명세서_${id}.xlsx`;
+  a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+export async function downloadTrade(id: number, org?: string): Promise<void> {
+  await downloadBlob(
+    `/v1/admin/reservations/${id}/trade`,
+    org ? `거래명세서_${org}.xlsx` : `거래명세서_${id}.xlsx`,
+  );
 }
 
 export async function downloadEstimate(id: number, org?: string): Promise<void> {
-  const res = await instance.get(`/v1/admin/reservations/${id}/estimate`, {
-    responseType: 'blob',
-  });
-  const url = URL.createObjectURL(new Blob([res.data]));
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = org ? `견적서_${org}.xlsx` : `견적서_${id}.xlsx`;
-  a.click();
-  URL.revokeObjectURL(url);
+  await downloadBlob(
+    `/v1/admin/reservations/${id}/estimate`,
+    org ? `견적서_${org}.xlsx` : `견적서_${id}.xlsx`,
+  );
 }
 
 export async function downloadConfirmation(id: number, org?: string): Promise<void> {
-  const res = await instance.get(`/v1/admin/reservations/${id}/confirmation`, {
-    responseType: 'blob',
-  });
-  const url = URL.createObjectURL(new Blob([res.data]));
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = org ? `확인서_${org}.xlsx` : `확인서_${id}.xlsx`;
-  a.click();
-  URL.revokeObjectURL(url);
+  await downloadBlob(
+    `/v1/admin/reservations/${id}/confirmation`,
+    org ? `확인서_${org}.xlsx` : `확인서_${id}.xlsx`,
+  );
 }
 
 export async function exportReservations(): Promise<void> {
-  const res = await instance.get('/v1/admin/reservations/export', {
-    responseType: 'blob',
-  });
-
-  const url = URL.createObjectURL(new Blob([res.data]));
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `reservations_export_${new Date().toISOString().slice(0, 10)}.xlsx`;
-  a.click();
-  URL.revokeObjectURL(url); // 메모리 해제
+  await downloadBlob(
+    '/v1/admin/reservations/export',
+    `reservations_export_${new Date().toISOString().slice(0, 10)}.xlsx`,
+  );
 }

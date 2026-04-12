@@ -1,5 +1,13 @@
 export type RoomType = '1인실' | '2인실' | '4인실';
 
+export const ROOM_TYPES: RoomType[] = ['4인실', '2인실', '1인실'];
+
+export const ROOM_TYPE_LABEL: Record<RoomType, string> = {
+  '4인실': '4인 침대',
+  '2인실': '2인 침대',
+  '1인실': '1인 침대',
+};
+
 export interface RoomInfo {
   number: string;
   type: RoomType;

@@ -1,6 +1,23 @@
 import type { Metadata } from "next";
+import localFont from "next/font/local";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import "./globals.css";
+
+const pretendard = localFont({
+  src: [
+    { path: "../public/fonts/Pretendard-Thin.subset.woff2", weight: "100" },
+    { path: "../public/fonts/Pretendard-ExtraLight.subset.woff2", weight: "200" },
+    { path: "../public/fonts/Pretendard-Light.subset.woff2", weight: "300" },
+    { path: "../public/fonts/Pretendard-Regular.subset.woff2", weight: "400" },
+    { path: "../public/fonts/Pretendard-Medium.subset.woff2", weight: "500" },
+    { path: "../public/fonts/Pretendard-SemiBold.subset.woff2", weight: "600" },
+    { path: "../public/fonts/Pretendard-Bold.subset.woff2", weight: "700" },
+    { path: "../public/fonts/Pretendard-ExtraBold.subset.woff2", weight: "800" },
+    { path: "../public/fonts/Pretendard-Black.subset.woff2", weight: "900" },
+  ],
+  variable: "--font-pretendard",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "흥국생명 연수원 관리 시스템",
@@ -25,12 +42,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko" suppressHydrationWarning>
+    <html lang="ko" suppressHydrationWarning className={pretendard.variable}>
       <head>
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/static/pretendard.css"
-        />
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
       </head>
       <body>
