@@ -1,15 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Reservation } from '@/types/reservation';
-import {
-  createReservation, updateReservation,
-  toRequestBody, hardDeleteReservation, getReservationsByYear,
-} from '@/lib/api/reservation';
-import { useReservationSearch } from '@/hooks/useReservationSearch';
-import { isAdmin } from '@/lib/utils/auth';
 import ReservationModal from '@/components/reservation/ReservationModal';
 import SurveyModal from '@/components/reservation/SurveyModal';
+import { useReservationSearch } from '@/hooks/useReservationSearch';
+import {
+  createReservation,
+  getReservationsByYear,
+  hardDeleteReservation,
+  toRequestBody,
+  updateReservation,
+} from '@/lib/api/reservation';
+import { isAdmin } from '@/lib/utils/auth';
+import { Reservation } from '@/types/reservation';
+import { useEffect, useState } from 'react';
 import styles from './page.module.css';
 
 const STATUS_OPTIONS = ['전체', '확정', '예약', '문의', '취소'];
@@ -68,7 +71,7 @@ export default function ReservationPage() {
         const merged = [...new Map(results.flat().map((r) => [r.id, r])).values()];
         setModalReservations(merged);
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   const openCreate = () => {

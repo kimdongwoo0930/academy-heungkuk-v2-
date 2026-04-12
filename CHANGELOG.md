@@ -1,5 +1,29 @@
 # CHANGELOG
 
+## [3.4.0] - 2026-04-12
+
+### Refactor
+
+- **프론트엔드 모듈화 전면 리팩토링**
+  - `hooks/useReservationSearch.ts` 추출 — 예약 목록·문서 페이지 공통 검색 훅으로 분리
+  - `lib/constants/survey.ts` 신규 — `SATISFACTION_LABELS`, `SATISFACTION_ITEMS`, `REVISIT_LABELS` 상수 통합
+  - `lib/constants/status.ts` 신규 — `STATUS_COLOR` 통합 (확정/예약/문의/취소 4개 상태 일관 적용)
+  - `lib/constants/rooms.ts` 보완 — `ROOM_TYPES`, `ROOM_TYPE_LABEL` 추가
+  - `lib/utils/quoteHelpers.ts` 신규 — 견적·거래명세서·확인서에서 중복 사용하던 금액 계산·날짜 포맷 함수 추출
+  - `lib/utils/surveyHelpers.ts` 신규 — `parseAnswers` 추출 (SurveyModal, 설문결과 페이지 공통)
+  - `types/account.ts` 신규 — `AccountInfo`, `CreateAccountRequest` 타입 `lib/api/` 에서 분리
+  - `types/reservation.ts` 보완 — `PageResult<T>`, `ImportResult`, `ReservationRequestBody` 추가
+  - `lib/api/reservation.ts` 내부 `downloadBlob` 헬퍼 도입 — 동일한 Blob 다운로드 패턴 3개 제거
+- **폰트 self-hosting 전환**
+  - Pretendard CDN(`cdn.jsdelivr.net`) → `next/font/local` + `public/fonts/` woff2 서브셋으로 교체
+  - 외부 네트워크 의존 제거, 초기 로딩 안정성 개선
+- **캘린더 렌더링 최적화**
+  - `accommodation/page.tsx`, `scheduler/page.tsx` 달력 날짜 배열·공휴일 셋·예약 필터 결과를 `useMemo`로 메모이제이션
+  - `getRoomsOnDate`: 기존 `Array.find` O(n) → `Map` 기반 O(1) 룩업으로 교체
+  - `isRedDay`: 매 셀 호출마다 `checkIsHoliday` 실행 → `redDaySet.has()` O(1) 단축
+
+---
+
 ## [3.3.0] - 2026-04-11
 
 ### Added
