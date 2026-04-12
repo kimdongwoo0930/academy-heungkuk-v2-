@@ -2,6 +2,7 @@
 
 import ReservationModal from "@/components/reservation/ReservationModal";
 import RoomPickerModal from "@/components/reservation/RoomPickerModal";
+import MonthNavigator from "@/components/ui/MonthNavigator";
 import {
   createReservation,
   getReservationsByYear,
@@ -12,7 +13,6 @@ import { ROOM_TYPES, RoomType } from "@/lib/constants/rooms";
 import { STATUS_COLOR } from "@/lib/constants/status";
 import { printAccommodationTable } from "@/lib/utils/printRoomTable";
 import { Reservation, RoomReservation } from "@/types/reservation";
-import MonthNavigator from "@/components/ui/MonthNavigator";
 import { isHoliday } from "@hyunbinseo/holidays-kr";
 import { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./page.module.css";
@@ -645,7 +645,7 @@ export default function AccommodationPage() {
           occupiedRooms={getOccupiedRoomsOnDate(dateView)}
           roomColors={getRoomColorsOnDate(dateView)}
           orgLegend={getOrgLegendOnDate(dateView)}
-          onConfirm={() => {}}
+          onConfirm={() => { }}
           onClose={() => setDateView(null)}
           viewOnly
         />

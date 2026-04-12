@@ -94,7 +94,18 @@
 | 다크 모드   | 전체 admin 페이지 다크 테마 지원 (ThemeToggle, Beta 배지)     | ✅ 완료 |
 | 테마 토큰   | CSS 변수 기반 토큰 시스템 (라이트 뉴트럴 그레이 / 다크 블루-네이비+그레이) | ✅ 완료 |
 
-### 10. 대시보드
+### 10. 프론트엔드 아키텍처
+
+| 항목                 | 설명                                                                  | 상태    |
+| -------------------- | --------------------------------------------------------------------- | ------- |
+| 폰트 self-hosting    | Pretendard `next/font/local` + woff2 서브셋 (CDN 의존 제거)          | ✅ 완료 |
+| 공통 훅              | `useReservationSearch` — 예약 검색 상태·API 호출 통합 훅             | ✅ 완료 |
+| 상수 중앙화          | `STATUS_COLOR`, `ROOM_TYPES`, `SATISFACTION_*`, `REVISIT_LABELS`     | ✅ 완료 |
+| 타입 중앙화          | `types/` 디렉토리 — 도메인별 타입 분리 (`reservation`, `account` 등) | ✅ 완료 |
+| 유틸 함수 분리       | `quoteHelpers`, `surveyHelpers` — 중복 로직 추출                     | ✅ 완료 |
+| 캘린더 렌더링 최적화 | `useMemo` 메모이제이션 + `Map` O(1) 룩업 (accommodation, scheduler)  | ✅ 완료 |
+
+### 11. 대시보드
 
 | 기능      | 설명                             | 상태      |
 | --------- | -------------------------------- | --------- |
