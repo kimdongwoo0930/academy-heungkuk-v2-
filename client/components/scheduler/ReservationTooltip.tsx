@@ -1,5 +1,6 @@
 "use client";
 
+import { STATUS_COLOR } from "@/lib/constants/status";
 import { Reservation } from "@/types/reservation";
 import { useRef, useState } from "react";
 import styles from "./ReservationTooltip.module.css";
@@ -8,12 +9,6 @@ interface Props {
   reservation: Reservation;
   children: React.ReactNode;
 }
-
-const STATUS_COLOR: Record<string, string> = {
-  확정: "#16a34a",
-  예약: "#d97706",
-  취소: "#dc2626",
-};
 
 export default function ReservationTooltip({
   reservation: res,

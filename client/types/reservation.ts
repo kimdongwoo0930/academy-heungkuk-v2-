@@ -51,3 +51,56 @@ export interface MealReservation {
   specialLunch?: boolean;
   specialDinner?: boolean;
 }
+
+export interface PageResult<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+}
+
+export interface ImportResult {
+  created: number;
+  updated: number;
+  failed: number;
+  errors: string[];
+}
+
+export interface ReservationRequestBody {
+  organization: string;
+  purpose: string;
+  people: number;
+  customer: string;
+  customerPhone: string;
+  customerPhone2?: string;
+  customerEmail?: string;
+  startDate: string;
+  endDate: string;
+  colorCode: string;
+  status: string;
+  companyZipCode?: string;
+  companyAddress?: string;
+  businessNumber?: string;
+  ceoName?: string;
+  siteManager?: string;
+  siteManagerPhone?: string;
+  siteManagerPhone2?: string;
+  siteManagerEmail?: string;
+  billingManager?: string;
+  billingManagerPhone?: string;
+  billingManagerEmail?: string;
+  paymentMethod?: string;
+  memo?: string;
+  classrooms: { classroomName: string; reservedDate: string }[];
+  rooms: { roomNumber: string; reservedDate: string }[];
+  meals: {
+    reservedDate: string;
+    breakfast: number;
+    lunch: number;
+    dinner: number;
+    specialBreakfast?: boolean;
+    specialLunch?: boolean;
+    specialDinner?: boolean;
+  }[];
+}

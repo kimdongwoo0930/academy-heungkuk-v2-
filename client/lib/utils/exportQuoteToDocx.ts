@@ -2,8 +2,16 @@ import {
   CLASSROOM_CATEGORIES,
   CLASSROOM_ROOM_TO_CATEGORY,
 } from "@/lib/constants/classrooms";
-import { RoomType } from "@/lib/constants/rooms";
+import { ROOM_TYPES, ROOM_TYPE_LABEL } from "@/lib/constants/rooms";
 import { getCachedSettings } from "@/lib/utils/priceSettings";
+import {
+  fmt,
+  taxOf,
+  totalOf,
+  formatDateLong,
+  getDatesInRange,
+  getRoomStat,
+} from "@/lib/utils/quoteHelpers";
 import { Reservation, RoomReservation } from "@/types/reservation";
 import {
   AlignmentType,
@@ -23,57 +31,8 @@ import {
   WidthType,
 } from "docx";
 
-const ROOM_TYPES: RoomType[] = ["4인실", "2인실", "1인실"];
-const ROOM_TYPE_LABEL: Record<RoomType, string> = {
-  "4인실": "4인 침대",
-  "2인실": "2인 침대",
-  "1인실": "1인 침대",
-};
-
 // A4 page: 210mm, margins 14mm each side → content 182mm ≈ 10320 twips
 const CW = 10320;
-
-function taxOf(n: number) {
-  return Math.floor(n * 0.1);
-}
-function totalOf(n: number) {
-  return n + taxOf(n);
-}
-function fmt(n: number) {
-  return n.toLocaleString("ko-KR");
-}
-
-function formatDateLong(dateStr: string) {
-  const d = new Date(dateStr + "T00:00:00");
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  const dow = "일월화수목금토"[d.getDay()];
-  return `${year}년 ${month}월 ${day}일 (${dow})`;
-}
-
-function getDatesInRange(start: string, end: string): string[] {
-  const dates: string[] = [];
-  const d = new Date(start + "T00:00:00");
-  const e = new Date(end + "T00:00:00");
-  while (d <= e) {
-    dates.push(d.toISOString().split("T")[0]);
-    d.setDate(d.getDate() + 1);
-  }
-  return dates;
-}
-
-function getRoomStat(entries: RoomReservation[]) {
-  if (!entries.length) return null;
-  const uniqueRooms = new Set(entries.map((e) => e.roomNumber)).size;
-  const total = entries.length;
-  const nightsEach = total / uniqueRooms;
-  return {
-    nights: Number.isInteger(nightsEach) ? nightsEach : null,
-    rooms: uniqueRooms,
-    total,
-  };
-}
 
 // ── Border helpers ──────────────────────────────────────────────────
 const SOLID = { style: BorderStyle.SINGLE, size: 4, color: "000000" };

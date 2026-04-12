@@ -5,68 +5,24 @@ import {
   CLASSROOM_CATEGORIES,
   CLASSROOM_ROOM_TO_CATEGORY,
 } from "@/lib/constants/classrooms";
-import { RoomType } from "@/lib/constants/rooms";
+import { ROOM_TYPES, ROOM_TYPE_LABEL } from "@/lib/constants/rooms";
 import { exportQuoteToDocx } from "@/lib/utils/exportQuoteToDocx";
 import { getCachedSettings } from "@/lib/utils/priceSettings";
-import { Reservation, RoomReservation } from "@/types/reservation";
+import {
+  fmt,
+  taxOf,
+  totalOf,
+  formatDateLong,
+  formatDateShort,
+  getDatesInRange,
+  getRoomStat,
+} from "@/lib/utils/quoteHelpers";
+import { Reservation } from "@/types/reservation";
 import styles from "./QuotePreviewModal.module.css";
 
 interface Props {
   reservation: Reservation;
   onClose: () => void;
-}
-const ROOM_TYPES: RoomType[] = ["4인실", "2인실", "1인실"];
-const ROOM_TYPE_LABEL: Record<RoomType, string> = {
-  "4인실": "4인 침대",
-  "2인실": "2인 침대",
-  "1인실": "1인 침대",
-};
-
-function fmt(n: number) {
-  return n.toLocaleString("ko-KR");
-}
-function taxOf(n: number) {
-  return Math.floor(n * 0.1);
-}
-function totalOf(n: number) {
-  return n + taxOf(n);
-}
-
-function formatDateLong(dateStr: string) {
-  const d = new Date(dateStr + "T00:00:00");
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  const dow = "일월화수목금토"[d.getDay()];
-  return `${year}년 ${month}월 ${day}일 (${dow})`;
-}
-
-function formatDateShort(dateStr: string) {
-  const d = new Date(dateStr + "T00:00:00");
-  return `${d.getDate()}일(${"일월화수목금토"[d.getDay()]})`;
-}
-
-function getDatesInRange(start: string, end: string): string[] {
-  const dates: string[] = [];
-  const d = new Date(start + "T00:00:00");
-  const e = new Date(end + "T00:00:00");
-  while (d <= e) {
-    dates.push(d.toISOString().split("T")[0]);
-    d.setDate(d.getDate() + 1);
-  }
-  return dates;
-}
-
-function getRoomStat(entries: RoomReservation[]) {
-  if (!entries.length) return null;
-  const uniqueRooms = new Set(entries.map((e) => e.roomNumber)).size;
-  const total = entries.length;
-  const nightsEach = total / uniqueRooms;
-  return {
-    nights: Number.isInteger(nightsEach) ? nightsEach : null,
-    rooms: uniqueRooms,
-    total,
-  };
 }
 
 export default function QuotePreviewModal({ reservation, onClose }: Props) {

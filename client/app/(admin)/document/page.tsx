@@ -1,69 +1,44 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { searchReservations, downloadEstimate, downloadTrade, downloadConfirmation } from '@/lib/api/reservation';
-import { Reservation } from '@/types/reservation';
+import { useEffect, useState } from 'react';
+import { downloadEstimate, downloadTrade, downloadConfirmation } from '@/lib/api/reservation';
+import { STATUS_COLOR } from '@/lib/constants/status';
+import { useReservationSearch } from '@/hooks/useReservationSearch';
 import styles from './page.module.css';
-
-const STATUS_COLOR: Record<string, string> = {
-  확정: '#16a34a',
-  예약: '#d97706',
-  문의: '#6366f1',
-  취소: '#ef4444',
-};
 
 const STATUS_OPTIONS = ['전체', '확정', '예약', '문의', '취소'];
 
 const PAGE_SIZE = 15;
 
 export default function DocumentPage() {
-  const [reservations, setReservations] = useState<Reservation[]>([]);
   const [keyword, setKeyword] = useState('');
+  const [debouncedKeyword, setDebouncedKeyword] = useState('');
   const [status, setStatus] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [confirmingId, setConfirmingId] = useState<number | null>(null);
   const [tradingId, setTradingId] = useState<number | null>(null);
 
-  const fetchList = useCallback(async (
-    kw: string, st: string, sd: string, ed: string, pg: number
-  ) => {
-    setLoading(true);
-    try {
-      const result = await searchReservations({
-        keyword: kw || undefined,
-        status: st || undefined,
-        startDate: sd || undefined,
-        endDate: ed || undefined,
-        page: pg,
-        size: PAGE_SIZE,
-        sort: 'startDate,desc',
-      });
-      setReservations(result.content);
-      setTotalPages(result.totalPages);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // 검색 조건 변경 시 페이지 0으로 초기화
+  // 검색어 디바운스 + 페이지 리셋
   useEffect(() => {
     const timer = setTimeout(() => {
+      setDebouncedKeyword(keyword);
       setPage(0);
-      fetchList(keyword, status, startDate, endDate, 0);
     }, 300);
     return () => clearTimeout(timer);
-  }, [keyword, status, startDate, endDate, fetchList]);
+  }, [keyword]);
 
-  // 페이지 변경 시
-  useEffect(() => {
-    fetchList(keyword, status, startDate, endDate, page);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  const { reservations, totalPages, loading } = useReservationSearch({
+    keyword: debouncedKeyword,
+    status: status || undefined,
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
+    sort: 'startDate,desc',
+    page,
+    size: PAGE_SIZE,
+  });
 
   const handleEstimate = async (id: number, org: string) => {
     setDownloadingId(id);
@@ -94,11 +69,9 @@ export default function DocumentPage() {
 
   // 페이지 번호 배열 (최대 5개 표시)
   const pageNumbers = () => {
-    const total = totalPages;
-    const cur = page;
     const delta = 2;
-    const start = Math.max(0, cur - delta);
-    const end = Math.min(total - 1, cur + delta);
+    const start = Math.max(0, page - delta);
+    const end = Math.min(totalPages - 1, page + delta);
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   };
 
@@ -108,6 +81,8 @@ export default function DocumentPage() {
   };
 
   const handleReset = () => { setKeyword(''); setStatus(''); setStartDate(''); setEndDate(''); setPage(0); };
+
+  const handleSearch = () => { setDebouncedKeyword(keyword); setPage(0); };
 
   return (
     <div className={styles.page}>
@@ -131,14 +106,14 @@ export default function DocumentPage() {
               type="date"
               className={styles.dateInput}
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              onChange={(e) => { setStartDate(e.target.value); setPage(0); }}
             />
             <span className={styles.dateSep}>~</span>
             <input
               type="date"
               className={styles.dateInput}
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              onChange={(e) => { setEndDate(e.target.value); setPage(0); }}
             />
             {(keyword || status || startDate || endDate) && (
               <button className={styles.resetBtn} onClick={handleReset}>초기화</button>
@@ -153,9 +128,9 @@ export default function DocumentPage() {
             placeholder="단체명 / 담당자를 입력하세요."
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') { setPage(0); fetchList(keyword, status, startDate, endDate, 0); } }}
+            onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
           />
-          <button className={styles.searchBtn} onClick={() => { setPage(0); fetchList(keyword, status, startDate, endDate, 0); }}>검색</button>
+          <button className={styles.searchBtn} onClick={handleSearch}>검색</button>
         </div>
       </div>
 
@@ -229,7 +204,7 @@ export default function DocumentPage() {
             <button
               className={styles.pageBtn}
               disabled={page === 0}
-              onClick={() => setPage(p => p - 1)}
+              onClick={() => setPage((p) => p - 1)}
             >
               ‹
             </button>
@@ -247,7 +222,7 @@ export default function DocumentPage() {
             <button
               className={styles.pageBtn}
               disabled={page >= totalPages - 1}
-              onClick={() => setPage(p => p + 1)}
+              onClick={() => setPage((p) => p + 1)}
             >
               ›
             </button>

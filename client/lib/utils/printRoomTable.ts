@@ -1,4 +1,4 @@
-import { ROOM_INFO } from "@/lib/constants/rooms";
+import { ROOM_INFO, ROOM_TYPES, RoomType } from "@/lib/constants/rooms";
 import { Reservation, RoomReservation } from "@/types/reservation";
 
 // ── 공통: 월 달력 날짜 목록 생성 ────────────────────────────────────────────
@@ -669,8 +669,6 @@ export function printMealTable(
 
 // ── 숙박 현황 월별 인쇄 ────────────────────────────────────────────────────
 
-const ROOM_TYPES_PRINT = ["4인실", "2인실", "1인실"] as const;
-type RoomTypePrint = (typeof ROOM_TYPES_PRINT)[number];
 
 export function printAccommodationTable(
   year: number,
@@ -695,7 +693,7 @@ export function printAccommodationTable(
     );
   };
 
-  const getDayTypeTotal = (dateStr: string, type: RoomTypePrint) => {
+  const getDayTypeTotal = (dateStr: string, type: RoomType) => {
     let total = 0;
     activeRes.forEach((r) => {
       total += getRoomsOnDate(r.id, dateStr).filter(
@@ -706,7 +704,7 @@ export function printAccommodationTable(
   };
 
   const getDayRoomTotal = (dateStr: string) =>
-    ROOM_TYPES_PRINT.reduce((s, t) => s + getDayTypeTotal(dateStr, t), 0);
+    ROOM_TYPES.reduce((s, t) => s + getDayTypeTotal(dateStr, t), 0);
 
   const halfTablesHtml = halves
     .map((halfDays) => {
