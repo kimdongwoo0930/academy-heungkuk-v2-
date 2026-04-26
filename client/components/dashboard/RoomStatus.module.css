@@ -1,6 +1,6 @@
 .card {
-  background: #ffffff;
-  border: 1px solid #e8e5f0;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
@@ -10,10 +10,10 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid #e8e5f0;
+  border-bottom: 1px solid var(--border);
 }
-.title { font-size: 13px; font-weight: 700; color: #1a1628; }
-.sub   { font-size: 11px; color: #a89fc0; }
+.title { font-size: 13px; font-weight: 700; color: var(--text); }
+.sub   { font-size: 11px; color: var(--text-sub); }
 
 .grid {
   display: grid;
@@ -24,7 +24,7 @@
 .item {
   border-radius: 10px;
   padding: 14px;
-  border: 1px solid #f0eef8;
+  border: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -33,14 +33,14 @@
 .occupied  { background: rgba(232, 48, 106, 0.04); border-color: rgba(232, 48, 106, 0.2); }
 .available { background: rgba(14, 171, 110, 0.03); border-color: rgba(14, 171, 110, 0.15); }
 
-.name { font-size: 12px; font-weight: 700; color: #1a1628; }
-.cap  { font-size: 11px; color: #a89fc0; }
+.name { font-size: 12px; font-weight: 700; color: var(--text); }
+.cap  { font-size: 11px; color: var(--text-sub); }
 .status { font-size: 11px; font-weight: 600; margin-top: 6px; }
 .occupied  .status { color: #e8306a; }
 .available .status { color: #0eab6e; }
 .org {
   font-size: 10px;
-  color: #6b6080;
+  color: var(--text-sub);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

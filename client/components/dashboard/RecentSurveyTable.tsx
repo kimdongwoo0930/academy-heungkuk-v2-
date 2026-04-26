@@ -35,6 +35,7 @@ interface Props {
 }
 
 export default function RecentSurveyTable({ recentSurveys }: Props) {
+  const rows = recentSurveys.slice(0, 5);
   return (
     <div className={styles.card}>
       <div className={styles.head}>
@@ -58,7 +59,7 @@ export default function RecentSurveyTable({ recentSurveys }: Props) {
             </tr>
           </thead>
           <tbody>
-            {recentSurveys.map((row) => (
+            {rows.map((row) => (
               <tr key={row.id}>
                 <td className={styles.tdOrg}>{row.organization ?? '-'}</td>
                 <td className={styles.tdMuted}>{row.customer ?? '-'}</td>
@@ -72,7 +73,7 @@ export default function RecentSurveyTable({ recentSurveys }: Props) {
                 <td><RevisitBadge value={row.revisit} /></td>
               </tr>
             ))}
-            {recentSurveys.length === 0 && (
+            {rows.length === 0 && (
               <tr>
                 <td colSpan={10} style={{ textAlign: 'center', padding: '24px', opacity: 0.4 }}>
                   설문 데이터가 없습니다.

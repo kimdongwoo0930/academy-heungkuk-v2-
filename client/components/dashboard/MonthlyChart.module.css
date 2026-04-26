@@ -1,6 +1,6 @@
 .card {
-  background: #ffffff;
-  border: 1px solid #e8e5f0;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
@@ -10,43 +10,118 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid #e8e5f0;
+  border-bottom: 1px solid var(--border);
 }
-.title { font-size: 13px; font-weight: 700; color: #1a1628; }
-.sub   { font-size: 11px; color: #a89fc0; }
+.title { font-size: 13px; font-weight: 700; color: var(--text); }
+.sub   { font-size: 11px; color: var(--text-sub); }
 
-.chart {
+/* ── 레이아웃 ── */
+.chartWrap {
+  display: flex;
+  padding: 20px 20px 14px 12px;
+  gap: 8px;
+  height: 200px;
+}
+
+/* Y축 */
+.yAxis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-bottom: 20px;
+}
+.yLabel {
+  font-size: 10px;
+  color: var(--text-sub);
+  text-align: right;
+  width: 20px;
+  line-height: 1;
+}
+
+/* 차트 영역 */
+.chartArea {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 그리드 라인 */
+.gridLines {
+  position: absolute;
+  inset: 0;
+  bottom: 20px;
+  pointer-events: none;
+}
+.gridLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--border);
+  opacity: 0.5;
+}
+.gridLineBase {
+  opacity: 1;
+}
+
+/* 막대 그룹 */
+.bars {
+  flex: 1;
   display: flex;
   align-items: flex-end;
-  gap: 6px;
-  height: 160px;
-  padding: 20px 20px 8px;
+  gap: 4px;
+  padding-bottom: 20px;
 }
+
 .col {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 5px;
-  flex: 1;
+  height: 100%;
 }
+
 .barWrap {
   flex: 1;
-  display: flex;
-  align-items: flex-end;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  position: relative;
 }
+
+.barValAbove {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-sub);
+  margin-bottom: 3px;
+  line-height: 1;
+}
+
 .bar {
   width: 100%;
-  border-radius: 5px 5px 0 0;
-  transition: height 1s cubic-bezier(0.16, 1, 0.3, 1);
-  min-height: 3px;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  min-height: 0;
   cursor: pointer;
 }
-.bar:hover { opacity: 0.75; }
-.barEmpty   { background: #e8e5f0; }
-.barData    { background: linear-gradient(180deg, rgba(232, 48, 106, 0.5), rgba(232, 48, 106, 0.2)); }
-.barCurrent { background: linear-gradient(180deg, #e8306a, rgba(232, 48, 106, 0.6)); box-shadow: 0 4px 12px rgba(232, 48, 106, 0.25); }
+.bar:hover { filter: brightness(1.08); }
 
-.label    { font-size: 10px; color: #a89fc0; }
-.val      { font-size: 10px; color: #6b6080; font-weight: 600; }
-.valHidden{ font-size: 10px; opacity: 0; }
+.barData    { background: linear-gradient(180deg, rgba(232,48,106,0.55), rgba(232,48,106,0.2)); }
+.barCurrent { background: linear-gradient(180deg, #e8306a, rgba(232,48,106,0.55)); box-shadow: 0 4px 12px rgba(232,48,106,0.25); }
+.barFuture  { background: var(--surface-2); border: 1px solid var(--border); }
+
+.label {
+  font-size: 10px;
+  color: var(--text-sub);
+  position: absolute;
+  bottom: 0;
+  white-space: nowrap;
+}
+.labelCurrent {
+  color: #e8306a;
+  font-weight: 700;
+}
