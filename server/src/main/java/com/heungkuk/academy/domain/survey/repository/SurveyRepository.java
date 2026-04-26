@@ -2,6 +2,7 @@ package com.heungkuk.academy.domain.survey.repository;
 
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import com.heungkuk.academy.domain.survey.entity.Survey;
 import com.heungkuk.academy.domain.survey.entity.SurveyToken;
 
@@ -11,5 +12,25 @@ public interface SurveyRepository extends JpaRepository<Survey, Long> {
 
     List<Survey> findAllByOrderByCreatedAtDesc();
 
+    List<Survey> findTop5ByOrderByCreatedAtDesc();
 
+    @Query("""
+            SELECT AVG(s.staffService) as staffService,
+                   AVG(s.cleanliness)  as cleanliness,
+                   AVG(s.facilities)   as facilities,
+                   AVG(s.cafeteria)    as cafeteria,
+                   AVG(s.pricing)      as pricing,
+                   COUNT(s)            as total
+            FROM Survey s
+            """)
+    SatisfactionStats getSatisfactionStats();
+
+    interface SatisfactionStats {
+        Double getStaffService();
+        Double getCleanliness();
+        Double getFacilities();
+        Double getCafeteria();
+        Double getPricing();
+        Long getTotal();
+    }
 }

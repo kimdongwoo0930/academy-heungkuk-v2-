@@ -20,4 +20,7 @@ public interface ClassroomReservationRepository extends JpaRepository<ClassroomR
 
        List<ClassroomReservation> findByReservationIn(List<Reservation> reservations);
 
+       @Query("SELECT c FROM ClassroomReservation c JOIN FETCH c.reservation r WHERE c.reservedDate = :today AND r.status != '취소'")
+       List<ClassroomReservation> findTodayClassrooms(@Param("today") LocalDate today);
+
 }

@@ -1,0 +1,53 @@
+.card {
+  background: #ffffff;
+  border: 1px solid #e8e5f0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e8e5f0;
+}
+.title { font-size: 13px; font-weight: 700; color: #1a1628; }
+.count { font-size: 11px; color: #e8306a; font-weight: 700; }
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 20px;
+}
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #f5f4f8;
+  border: 1px solid #f0eef8;
+  transition: border-color 0.15s, background 0.15s;
+}
+.item:hover { border-color: #e8e5f0; background: #f9f8fc; }
+.itemPink  { background: rgba(232, 48, 106, 0.04); border-color: rgba(232, 48, 106, 0.15); }
+.itemYellow{ background: #fffbeb; border-color: #fde68a; }
+
+.dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.itemIcon { font-size: 16px; }
+.info { flex: 1; min-width: 0; }
+.org  { font-size: 12px; font-weight: 700; color: #1a1628; }
+.room { font-size: 10px; color: #a89fc0; margin-top: 2px; }
+
+.tag {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+.tag_pink  { background: #fff1f2; color: #e8306a; border: 1px solid #fecdd3; }
+.tag_blue  { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+.tag_green { background: #f0fdf4; color: #0eab6e; border: 1px solid #bbf7d0; }

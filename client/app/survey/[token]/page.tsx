@@ -116,7 +116,7 @@ export default function SurveyPage({ params }: Props) {
     setError('');
     setLoading(true);
     try {
-      await submitSurvey(token, JSON.stringify(answers));
+      await submitSurvey(token, answers);
       setSubmitted(true);
     } catch {
       setError('제출 중 오류가 발생했습니다. 이미 제출한 설문이거나 유효하지 않은 링크입니다.');
@@ -381,20 +381,23 @@ interface SatisfactionQuestionProps {
 }
 
 function SatisfactionQuestion({ label, value, onChange, commentValue, onCommentChange }: SatisfactionQuestionProps) {
-  const showComment = value >= 4;
+  const showComment = value <= 2;
   return (
     <div className={styles.question}>
       <div className={styles.questionLabel}>{label}</div>
       <div className={styles.satisfactionRow}>
-        {SATISFACTION_LABELS.map((s, i) => (
-          <button
-            key={s}
-            className={`${styles.satisfactionBtn} ${value === i + 1 ? styles.satisfactionBtnActive : ''} ${value === i + 1 && i >= 3 ? styles.satisfactionBtnBad : ''}`}
-            onClick={() => onChange(i + 1)}
-          >
-            {s}
-          </button>
-        ))}
+        {SATISFACTION_LABELS.map((s, i) => {
+          const score = 5 - i; // 매우만족=5, 만족=4, 보통=3, 불만족=2, 매우불만족=1
+          return (
+            <button
+              key={s}
+              className={`${styles.satisfactionBtn} ${value === score ? styles.satisfactionBtnActive : ''} ${value === score && score <= 2 ? styles.satisfactionBtnBad : ''}`}
+              onClick={() => onChange(score)}
+            >
+              {s}
+            </button>
+          );
+        })}
       </div>
       {showComment && (
         <textarea

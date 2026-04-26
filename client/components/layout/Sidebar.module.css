@@ -38,26 +38,25 @@
 }
 
 .logo {
-  height: var(--header-height);
+  padding: 20px 16px 16px;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0 12px;
-  border-bottom: 1px solid var(--sidebar-border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   flex-shrink: 0;
 }
 
 .logoIconWrap {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .logoIconWrap svg {
   display: block;
-  transform: translateY(1px);
 }
 
 .toggleBtn {
@@ -79,29 +78,48 @@
   color: var(--sidebar-text);
 }
 
-.logoText {
+.logoTextWrap {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  color: var(--sidebar-text);
-  font-size: 13px;
+}
+
+.logoName {
+  font-size: 14px;
   font-weight: 700;
-  line-height: 1.25;
+  color: #f0edf8;
+  line-height: 1.4;
+}
+
+.logoSub {
+  font-size: 11px;
+  color: #8b7faa;
+  margin-top: 2px;
 }
 
 .nav {
   flex: 1;
-  padding: 12px 0;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   overflow-y: auto;
+}
+
+.navDivider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 6px 4px;
 }
 
 .navItem {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 18px;
-  color: var(--sidebar-text-muted);
-  font-size: 13px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: #8b7faa;
+  font-size: 12.5px;
   font-weight: 500;
   transition: background 0.15s, color 0.15s;
   cursor: pointer;
@@ -119,8 +137,8 @@
 }
 
 .navItem:hover {
-  background: var(--sidebar-hover-soft);
-  color: var(--sidebar-text);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f0edf8;
 }
 
 .navItemDisabled {
@@ -139,14 +157,15 @@
 }
 
 .navItem.active {
-  background: var(--sidebar-active-bg);
-  color: var(--sidebar-text);
-  border-left: 3px solid var(--accent);
+  background: rgba(232, 48, 106, 0.18);
+  color: #f0427a;
+  font-weight: 600;
 }
 
 .navIcon {
-  font-size: 20px;
-  width: 20px;
+  font-size: 22px;
+  width: 22px;
+  min-width: 22px;
   text-align: center;
   flex-shrink: 0;
 }

@@ -1,0 +1,52 @@
+.card {
+  background: #ffffff;
+  border: 1px solid #e8e5f0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e8e5f0;
+}
+.title { font-size: 13px; font-weight: 700; color: #1a1628; }
+.sub   { font-size: 11px; color: #a89fc0; }
+
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 160px;
+  padding: 20px 20px 8px;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+}
+.barWrap {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+}
+.bar {
+  width: 100%;
+  border-radius: 5px 5px 0 0;
+  transition: height 1s cubic-bezier(0.16, 1, 0.3, 1);
+  min-height: 3px;
+  cursor: pointer;
+}
+.bar:hover { opacity: 0.75; }
+.barEmpty   { background: #e8e5f0; }
+.barData    { background: linear-gradient(180deg, rgba(232, 48, 106, 0.5), rgba(232, 48, 106, 0.2)); }
+.barCurrent { background: linear-gradient(180deg, #e8306a, rgba(232, 48, 106, 0.6)); box-shadow: 0 4px 12px rgba(232, 48, 106, 0.25); }
+
+.label    { font-size: 10px; color: #a89fc0; }
+.val      { font-size: 10px; color: #6b6080; font-weight: 600; }
+.valHidden{ font-size: 10px; opacity: 0; }
