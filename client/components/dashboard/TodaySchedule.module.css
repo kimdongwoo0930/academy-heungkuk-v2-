@@ -1,6 +1,6 @@
 .card {
-  background: #ffffff;
-  border: 1px solid #e8e5f0;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
@@ -10,9 +10,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid #e8e5f0;
+  border-bottom: 1px solid var(--border);
 }
-.title { font-size: 13px; font-weight: 700; color: #1a1628; }
+.title { font-size: 13px; font-weight: 700; color: var(--text); }
 .count { font-size: 11px; color: #e8306a; font-weight: 700; }
 
 .list {
@@ -27,19 +27,19 @@
   gap: 12px;
   padding: 10px 14px;
   border-radius: 10px;
-  background: #f5f4f8;
-  border: 1px solid #f0eef8;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
   transition: border-color 0.15s, background 0.15s;
 }
-.item:hover { border-color: #e8e5f0; background: #f9f8fc; }
+.item:hover { border-color: var(--border); background: var(--surface-hover); }
 .itemPink  { background: rgba(232, 48, 106, 0.04); border-color: rgba(232, 48, 106, 0.15); }
-.itemYellow{ background: #fffbeb; border-color: #fde68a; }
+.itemYellow{ background: rgba(217, 119, 6, 0.05); border-color: rgba(217, 119, 6, 0.2); }
 
 .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .itemIcon { font-size: 16px; }
 .info { flex: 1; min-width: 0; }
-.org  { font-size: 12px; font-weight: 700; color: #1a1628; }
-.room { font-size: 10px; color: #a89fc0; margin-top: 2px; }
+.org  { font-size: 12px; font-weight: 700; color: var(--text); }
+.room { font-size: 10px; color: var(--text-sub); margin-top: 2px; }
 
 .tag {
   font-size: 10px;
@@ -48,6 +48,6 @@
   border-radius: 10px;
   flex-shrink: 0;
 }
-.tag_pink  { background: #fff1f2; color: #e8306a; border: 1px solid #fecdd3; }
-.tag_blue  { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
-.tag_green { background: #f0fdf4; color: #0eab6e; border: 1px solid #bbf7d0; }
+.tag_pink  { background: rgba(232, 48, 106, 0.1); color: #e8306a; border: 1px solid rgba(232, 48, 106, 0.2); }
+.tag_blue  { background: rgba(37, 99, 235, 0.1); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.2); }
+.tag_green { background: rgba(14, 171, 110, 0.1); color: #0eab6e; border: 1px solid rgba(14, 171, 110, 0.2); }

@@ -10,12 +10,12 @@
   align-items: center;
   justify-content: space-between;
 }
-.pageTitle { font-size: 15px; font-weight: 700; color: #1a1628; }
+.pageTitle { font-size: 15px; font-weight: 700; color: var(--text); }
 .dateBadge {
   font-size: 11px;
-  color: #6b6080;
-  background: #f5f4f8;
-  border: 1px solid #e8e5f0;
+  color: var(--text-sub);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
   padding: 5px 14px;
   border-radius: 20px;
 }
@@ -48,6 +48,6 @@
 .loading {
   text-align: center;
   padding: 80px 0;
-  color: #9e9aad;
+  color: var(--text-sub);
   font-size: 14px;
 }
