@@ -1,0 +1,142 @@
+.card {
+  background: #ffffff;
+  border: 1px solid #e8e5f0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.card:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.09); border-color: #d8d3eb; }
+
+/* ── 헤더 ── */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+.header:hover { background: #f9f8fc; }
+
+.dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+.headerInfo { min-width: 0; flex: 0 0 220px; }
+.orgName    { font-size: 14px; font-weight: 700; color: #1a1628; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.orgMeta    { font-size: 11px; color: #a89fc0; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* 점수 미니 배지 5개 */
+.scoreBadges {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+}
+.scoreBadge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  min-width: 58px;
+}
+.scoreBadgeKey {
+  font-size: 9px;
+  font-weight: 600;
+  opacity: 0.7;
+  letter-spacing: 0.02em;
+}
+.scoreBadgeVal {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* 오른쪽: 평균 + 재방문 + 화살표 */
+.headerRight { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+.avgBadge {
+  font-size: 13px;
+  font-weight: 700;
+  color: #e8306a;
+  background: rgba(232, 48, 106, 0.08);
+  border: 1px solid rgba(232, 48, 106, 0.2);
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.revisitMini {
+  font-size: 10px;
+  font-weight: 700;
+  color: #16a34a;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 3px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.chevron { font-size: 11px; color: #a89fc0; transition: transform 0.2s; display: inline-block; }
+.chevronOpen { transform: rotate(180deg); }
+
+/* ── 본문 ── */
+.body { padding: 0 18px 18px 40px; border-top: 1px solid #f0eef8; }
+
+.respTime { font-size: 11px; color: #a89fc0; padding: 12px 0 12px; }
+
+/* 태그 */
+.tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.tag {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.tag_loc      { background: #f0f4ff; color: #3b5bdb; }
+.tag_goal     { background: #fdf4ff; color: #9333ea; }
+.tag_industry { background: #f0fdf4; color: #16a34a; }
+.tag_route    { background: #fff7ed; color: #c2410c; }
+
+/* 점수 상세 그리드 */
+.scoreGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.scoreItem {
+  background: #fafafa;
+  border: 1px solid #e8e5f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.scoreLabel   { font-size: 10px; color: #a89fc0; font-weight: 500; }
+.scoreVal     { font-size: 13px; font-weight: 700; }
+.scoreComment { font-size: 10px; color: #6b6080; font-style: italic; margin-top: 4px; line-height: 1.5; }
+
+/* 하단 재방문 + 의견 */
+.bottom { display: flex; flex-direction: column; gap: 10px; }
+
+.revisitWrap  { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.revisitLabel { font-size: 11px; color: #a89fc0; flex-shrink: 0; }
+.chip         { font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 12px; }
+.chipVg { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+.chipGd { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+.chipNm { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+
+.revisitComment { font-size: 11px; color: #6b6080; font-style: italic; }
+
+.opinion {
+  font-size: 12px;
+  color: #6b6080;
+  line-height: 1.7;
+  font-style: italic;
+  padding: 10px 14px;
+  background: #f5f4f8;
+  border-radius: 8px;
+  border-left: 3px solid #e8306a;
+}

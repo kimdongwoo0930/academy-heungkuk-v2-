@@ -3,8 +3,10 @@ package com.heungkuk.academy.domain.survey.service;
 
 import java.util.List;
 import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.heungkuk.academy.domain.reservation.entity.Reservation;
 import com.heungkuk.academy.domain.reservation.repository.ReservationRepository;
 import com.heungkuk.academy.domain.survey.dto.request.SurveyRequest;
@@ -16,6 +18,7 @@ import com.heungkuk.academy.domain.survey.repository.SurveyRepository;
 import com.heungkuk.academy.domain.survey.repository.SurveyTokenRepository;
 import com.heungkuk.academy.global.exception.BusinessException;
 import com.heungkuk.academy.global.exception.ErrorCode;
+
 import lombok.RequiredArgsConstructor;
 
 
@@ -62,7 +65,7 @@ public class SurveyServiceImpl implements SurveyService {
             throw new BusinessException(ErrorCode.SURVEY_ALREADY_SUBMITTED);
         }
 
-        surveyRepository.save(Survey.of(surveyToken, surveyRequest.getAnswer()));
+        surveyRepository.save(Survey.of(surveyToken, surveyRequest));
         surveyToken.updateIsUsed();
     }
 

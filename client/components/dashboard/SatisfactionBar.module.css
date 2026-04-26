@@ -1,0 +1,64 @@
+.card {
+  background: #ffffff;
+  border: 1px solid #e8e5f0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e8e5f0;
+}
+.title { font-size: 13px; font-weight: 700; color: #1a1628; }
+.sub   { font-size: 11px; color: #a89fc0; }
+
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 20px;
+}
+.row { display: flex; align-items: center; gap: 10px; }
+.label {
+  font-size: 11px;
+  color: #6b6080;
+  width: 70px;
+  flex-shrink: 0;
+}
+.track {
+  flex: 1;
+  height: 7px;
+  background: #f5f4f8;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #f0eef8;
+}
+.fill { height: 100%; border-radius: 4px; }
+.score { font-size: 12px; font-weight: 700; color: #1a1628; width: 28px; text-align: right; }
+.count { font-size: 10px; color: #a89fc0; width: 30px; text-align: right; }
+
+.divider { height: 1px; background: #e8e5f0; margin: 0 20px; }
+
+.miniStats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 12px 20px 18px;
+}
+.miniItem {
+  background: #f5f4f8;
+  border: 1px solid #e8e5f0;
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  text-align: center;
+}
+.miniVal   { font-size: 26px; font-weight: 800; line-height: 1; }
+.miniLabel { font-size: 10px; color: #a89fc0; }
+.miniSub   { font-size: 10px; color: #6b6080; }

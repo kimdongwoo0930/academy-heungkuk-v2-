@@ -1,147 +1,114 @@
-"use client";
+'use client';
 
-import { getReservations } from "@/lib/api/reservation";
-import { Reservation } from "@/types/reservation";
-import { useEffect, useState } from "react";
-import styles from "./page.module.css";
+import { useEffect, useState } from 'react';
+import KpiCard from '@/components/dashboard/KpiCard';
+import MonthlyChart from '@/components/dashboard/MonthlyChart';
+import RecentSurveyTable from '@/components/dashboard/RecentSurveyTable';
+import RoomStatus from '@/components/dashboard/RoomStatus';
+import SatisfactionBar from '@/components/dashboard/SatisfactionBar';
+import TodaySchedule from '@/components/dashboard/TodaySchedule';
+import { getDashboard } from '@/lib/api/dashboard';
+import { DashboardData } from '@/types/dashboard';
+import styles from './page.module.css';
 
 export default function DashboardPage() {
-  const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    weekday: 'long',
+  });
+
+  const [data, setData] = useState<DashboardData | null>(null);
 
   useEffect(() => {
-    setIsLoading(true);
-    getReservations()
-      .then(setReservations)
-      .catch(() => {})
-      .finally(() => setIsLoading(false));
+    getDashboard().then(setData).catch(console.error);
   }, []);
 
-  const today = new Date().toISOString().slice(0, 10);
-
-  const totalThisMonth = reservations.filter((r) =>
-    r.startDate.startsWith(new Date().toISOString().slice(0, 7)),
-  ).length;
-
-  const confirmed = reservations.filter((r) => r.status === "확정").length;
-  const pending = reservations.filter((r) => r.status === "예약").length;
-
-  const todayPeople = reservations
-    .filter(
-      (r) => r.status !== "취소" && r.startDate <= today && r.endDate >= today,
-    )
-    .reduce((sum, r) => sum + r.people, 0);
-
-  const upcoming = reservations
-    .filter((r) => r.status !== "취소" && r.startDate >= today)
-    .sort((a, b) => a.startDate.localeCompare(b.startDate))
-    .slice(0, 5);
-
-  const recent = [...reservations].sort((a, b) => b.id - a.id).slice(0, 5);
-
-  if (isLoading)
+  if (!data) {
     return (
-      <div
-        style={{
-          padding: "80px 0",
-          textAlign: "center",
-          color: "var(--text-sub)",
-          fontSize: 14,
-        }}
-      >
-        데이터를 가져오는 중...
+      <div className={styles.page}>
+        <div className={styles.pageHead}>
+          <span className={styles.pageTitle}>대시보드</span>
+          <div className={styles.dateBadge}>
+            오늘 <span>{dateStr}</span>
+          </div>
+        </div>
+        <div className={styles.loading}>데이터를 불러오는 중...</div>
       </div>
     );
+  }
+
+  const { kpi, todayClassrooms, monthlyData, satisfaction, recentSurveys } = data;
+  const change = kpi.monthlyChange;
 
   return (
-    <div>
-      {/* 통계 카드 */}
-      <div className={styles.cards}>
-        <div className={`${styles.card} ${styles.cardAccent}`}>
-          <p className={styles.cardLabel}>이번 달 예약</p>
-          <p className={styles.cardValue}>
-            {totalThisMonth}
-            <span className={styles.cardUnit}>건</span>
-          </p>
-        </div>
-        <div className={styles.card}>
-          <p className={styles.cardLabel}>확정 예약</p>
-          <p className={styles.cardValue}>
-            {confirmed}
-            <span className={styles.cardUnit}>건</span>
-          </p>
-        </div>
-        <div className={styles.card}>
-          <p className={styles.cardLabel}>대기 중</p>
-          <p className={styles.cardValue}>
-            {pending}
-            <span className={styles.cardUnit}>건</span>
-          </p>
-        </div>
-        <div className={styles.card}>
-          <p className={styles.cardLabel}>오늘 현원</p>
-          <p className={styles.cardValue}>
-            {todayPeople}
-            <span className={styles.cardUnit}>명</span>
-          </p>
+    <div className={styles.page}>
+      <div className={styles.pageHead}>
+        <span className={styles.pageTitle}>대시보드</span>
+        <div className={styles.dateBadge}>
+          오늘 <span>{dateStr}</span>
         </div>
       </div>
 
-      <div className={styles.section}>
-        {/* 다가오는 예약 */}
-        <div className={styles.panel}>
-          <p className={styles.panelTitle}>다가오는 예약</p>
-          {upcoming.length === 0 ? (
-            <p style={{ color: "var(--text-sub)", fontSize: 13 }}>
-              예정된 예약이 없습니다.
-            </p>
-          ) : (
-            upcoming.map((r) => (
-              <div key={r.id} className={styles.listItem}>
-                <span className={styles.orgName}>
-                  <span
-                    className={styles.dot}
-                    style={{ backgroundColor: r.colorCode }}
-                  />
-                  {r.organization}
-                </span>
-                <span className={styles.date}>
-                  {r.startDate} ~ {r.endDate}
-                </span>
-                <span className={`${styles.badge} ${styles[r.status]}`}>
-                  {r.status}
-                </span>
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* 최근 등록 */}
-        <div className={styles.panel}>
-          <p className={styles.panelTitle}>최근 등록된 예약</p>
-          {recent.length === 0 ? (
-            <p style={{ color: "var(--text-sub)", fontSize: 13 }}>
-              등록된 예약이 없습니다.
-            </p>
-          ) : (
-            recent.map((r) => (
-              <div key={r.id} className={styles.listItem}>
-                <span className={styles.orgName}>
-                  <span
-                    className={styles.dot}
-                    style={{ backgroundColor: r.colorCode }}
-                  />
-                  {r.organization}
-                </span>
-                <span className={styles.date}>{r.people}명</span>
-                <span className={`${styles.badge} ${styles[r.status]}`}>
-                  {r.status}
-                </span>
-              </div>
-            ))
-          )}
-        </div>
+      {/* KPI 카드 3개 */}
+      <div className={styles.kpiGrid}>
+        <KpiCard
+          label="이번 달 이용 업체"
+          value={kpi.monthlyReservations}
+          icon="📋"
+          variant="pink"
+          animDelay="0.05s"
+          subText={
+            <>
+              전월 대비{' '}
+              <span className={change >= 0 ? styles.up : styles.down}>
+                {change >= 0 ? `↑ +${change}건` : `↓ ${change}건`}
+              </span>
+            </>
+          }
+        />
+        <KpiCard
+          label="오늘 입실"
+          value={kpi.todayCheckIn}
+          icon="🏨"
+          variant="green"
+          animDelay="0.10s"
+          subText={
+            <>
+              총 <span className={styles.greenText}>{kpi.todayPeople}명</span> 이용 예정
+            </>
+          }
+        />
+        <KpiCard
+          label="설문 만족도"
+          value={kpi.surveyScore}
+          icon="⭐"
+          variant="yellow"
+          animDelay="0.15s"
+          subText={<>{kpi.surveyCount}건 응답 평균</>}
+        />
       </div>
+
+      {/* 오늘 일정(1fr) + 월별 추이(2fr) */}
+      <div className={styles.row3}>
+        <TodaySchedule todayClassrooms={todayClassrooms} />
+        <MonthlyChart
+          monthlyData={monthlyData}
+          year={today.getFullYear()}
+          currentMonth={today.getMonth() + 1}
+        />
+      </div>
+
+      {/* 강의실 현황 + 설문 만족도 */}
+      <div className={styles.row2}>
+        <RoomStatus todayClassrooms={todayClassrooms} />
+        <SatisfactionBar satisfaction={satisfaction} />
+      </div>
+
+      {/* 최근 설문 내역 */}
+      <RecentSurveyTable recentSurveys={recentSurveys} />
     </div>
   );
 }

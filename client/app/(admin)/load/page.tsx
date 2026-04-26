@@ -8,7 +8,6 @@ import {
   SATISFACTION_ITEMS,
   REVISIT_LABELS,
 } from '@/lib/constants/survey';
-import { parseAnswers } from '@/lib/utils/surveyHelpers';
 import styles from './page.module.css';
 
 
@@ -24,7 +23,6 @@ interface SurveyGroup {
 
 function ResultCard({ result }: { result: SurveyResult }) {
   const [open, setOpen] = useState(false);
-  const a = parseAnswers(result.answer);
 
   return (
     <div className={styles.resultCard}>
@@ -33,41 +31,41 @@ function ResultCard({ result }: { result: SurveyResult }) {
         <span className={styles.toggleIcon}>{open ? '▲' : '▼'}</span>
       </button>
 
-      {open && a ? (
+      {open && (
         <div className={styles.resultBody}>
           <div className={styles.infoGrid}>
-            {a.location && (
+            {result.location && (
               <div className={styles.infoItem}>
                 <span className={styles.infoLabel}>위치</span>
-                {a.location === '기타' ? a.locationEtc : a.location}
+                {result.location === '기타' ? result.locationEtc : result.location}
               </div>
             )}
-            {a.industry && (
+            {result.industry && (
               <div className={styles.infoItem}>
                 <span className={styles.infoLabel}>업태</span>
-                {a.industry === '기타' ? a.industryEtc : a.industry}
+                {result.industry === '기타' ? result.industryEtc : result.industry}
               </div>
             )}
-            {a.purpose && (
+            {result.purpose && (
               <div className={styles.infoItem}>
                 <span className={styles.infoLabel}>목적</span>
-                {a.purpose === '기타' ? a.purposeEtc : a.purpose}
+                {result.purpose === '기타' ? result.purposeEtc : result.purpose}
               </div>
             )}
-            {a.visitRoute && (
+            {result.visitRoute && (
               <div className={styles.infoItem}>
                 <span className={styles.infoLabel}>계기</span>
-                {a.visitRoute === '기타' ? a.visitRouteEtc : a.visitRoute}
+                {result.visitRoute === '기타' ? result.visitRouteEtc : result.visitRoute}
               </div>
             )}
           </div>
 
           <div className={styles.satisfactionGrid}>
             {SATISFACTION_ITEMS.map(({ key, label, commentKey }) => {
-              const score = a[key] as number;
-              const comment = a[commentKey] as string;
+              const score = result[key as keyof SurveyResult] as number;
+              const comment = result[commentKey as keyof SurveyResult] as string;
               const sat = SATISFACTION_LABELS[score];
-              if (!score) return null;
+              if (!score || !sat) return null;
               return (
                 <div key={String(key)} className={styles.satisfactionItem}>
                   <div className={styles.satHeader}>
@@ -83,25 +81,23 @@ function ResultCard({ result }: { result: SurveyResult }) {
           </div>
 
           <div className={styles.bottomSection}>
-            {a.revisit && (
+            {result.revisit && (
               <div className={styles.bottomItem}>
                 <span className={styles.bottomLabel}>재방문 의향</span>
-                <span className={`${styles.revisitBadge} ${(a.revisit === 'unlikely' || a.revisit === 'possible') ? styles.revisitBadgeBad : styles.revisitBadgeGood}`}>
-                  {REVISIT_LABELS[a.revisit] ?? a.revisit}
+                <span className={`${styles.revisitBadge} ${styles.revisitBadgeGood}`}>
+                  {REVISIT_LABELS[result.revisit] ?? result.revisit}
                 </span>
-                {a.revisitComment && <span className={styles.revisitComment}>{a.revisitComment}</span>}
+                {result.revisitComment && <span className={styles.revisitComment}>{result.revisitComment}</span>}
               </div>
             )}
-            {a.comment && (
+            {result.comment && (
               <div className={styles.bottomItem}>
                 <span className={styles.bottomLabel}>자유 의견</span>
-                <p className={styles.freeComment}>{a.comment}</p>
+                <p className={styles.freeComment}>{result.comment}</p>
               </div>
             )}
           </div>
         </div>
-      ) : open && (
-        <pre className={styles.rawAnswer}>{result.answer}</pre>
       )}
     </div>
   );

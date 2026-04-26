@@ -1,6 +1,6 @@
 import instance from './instance';
 import axios from 'axios';
-import { SurveyTokenResponse, SurveyResult } from '@/types/survey';
+import { SurveyTokenResponse, SurveyResult, SurveyAnswers } from '@/types/survey';
 
 export async function createSurveyToken(reservationId: string): Promise<SurveyTokenResponse> {
   const res = await instance.post(`/v1/admin/surveys/token/${reservationId}`);
@@ -37,7 +37,7 @@ export async function checkSurveyToken(token: string): Promise<boolean> {
   return res.data.data; // true = 이미 사용됨
 }
 
-export async function submitSurvey(token: string, answer: string): Promise<void> {
+export async function submitSurvey(token: string, answers: SurveyAnswers): Promise<void> {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? '';
-  await axios.post(`${baseUrl}/v1/survey/${token}`, { answer });
+  await axios.post(`${baseUrl}/v1/survey/${token}`, answers);
 }

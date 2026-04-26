@@ -6,7 +6,6 @@ export interface SurveyTokenResponse {
 
 export interface SurveyResult {
   id: number;
-  answer: string; // JSON string
   reservationId: string;
   organization: string | null;
   customer: string | null;
@@ -14,6 +13,30 @@ export interface SurveyResult {
   endDate: string | null;
   colorCode: string | null;
   createdAt: string;
+
+  location: string;
+  locationEtc: string | null;
+  industry: string;
+  industryEtc: string | null;
+  purpose: string;
+  purposeEtc: string | null;
+  visitRoute: string;
+  visitRouteEtc: string | null;
+
+  staffService: number;
+  staffServiceComment: string | null;
+  cleanliness: number;
+  cleanlinessComment: string | null;
+  facilities: number;
+  facilitiesComment: string | null;
+  cafeteria: number;
+  cafeteriaComment: string | null;
+  pricing: number;
+  pricingComment: string | null;
+
+  revisit: string;
+  revisitComment: string | null;
+  comment: string | null;
 }
 
 // 설문 답변 JSON 구조 (11개 문항)

@@ -14,7 +14,6 @@ import {
   SurveyResult,
   SurveyTokenResponse,
 } from "@/types/survey";
-import { parseAnswers } from "@/lib/utils/surveyHelpers";
 import { useEffect, useState } from "react";
 import styles from "./SurveyModal.module.css";
 
@@ -174,104 +173,72 @@ export default function SurveyModal({
               ) : !results || results.length === 0 ? (
                 <p className={styles.empty}>아직 제출된 설문이 없습니다.</p>
               ) : (
-                results.map((r) => {
-                  const a = parseAnswers(r.answer);
-                  return (
-                    <div key={r.id} className={styles.resultCard}>
-                      <div className={styles.resultDate}>
-                        {new Date(r.createdAt).toLocaleString("ko-KR")}
-                      </div>
-                      {a ? (
-                        <>
-                          <div className={styles.infoGrid}>
-                            {a.location && (
-                              <span className={styles.infoTag}>
-                                <b>위치</b>{" "}
-                                {a.location === "기타"
-                                  ? a.locationEtc
-                                  : a.location}
-                              </span>
-                            )}
-                            {a.industry && (
-                              <span className={styles.infoTag}>
-                                <b>업태</b>{" "}
-                                {a.industry === "기타"
-                                  ? a.industryEtc
-                                  : a.industry}
-                              </span>
-                            )}
-                            {a.purpose && (
-                              <span className={styles.infoTag}>
-                                <b>목적</b>{" "}
-                                {a.purpose === "기타"
-                                  ? a.purposeEtc
-                                  : a.purpose}
-                              </span>
-                            )}
-                            {a.visitRoute && (
-                              <span className={styles.infoTag}>
-                                <b>계기</b>{" "}
-                                {a.visitRoute === "기타"
-                                  ? a.visitRouteEtc
-                                  : a.visitRoute}
-                              </span>
-                            )}
-                          </div>
-                          <div className={styles.ratingList}>
-                            {SATISFACTION_ITEMS.map(
-                              ({ key, label, commentKey }) => {
-                                const score = a[key] as number;
-                                const comment = a[commentKey] as string;
-                                const sat = SATISFACTION_LABELS[score];
-                                if (!score || !sat) return null;
-                                return (
-                                  <div
-                                    key={String(key)}
-                                    className={styles.ratingRow}
-                                  >
-                                    <span className={styles.ratingLabel}>
-                                      {label}
-                                    </span>
-                                    <span
-                                      className={`${styles.ratingScore} ${sat.bad ? styles.ratingScoreBad : ""}`}
-                                    >
-                                      {sat.text}
-                                    </span>
-                                    {comment && (
-                                      <span className={styles.ratingComment}>
-                                        {comment}
-                                      </span>
-                                    )}
-                                  </div>
-                                );
-                              },
-                            )}
-                          </div>
-                          {a.revisit && (
-                            <div className={styles.comment}>
-                              <span className={styles.commentLabel}>
-                                재방문
-                              </span>
-                              <p className={styles.commentText}>
-                                {REVISIT_LABELS[a.revisit] ?? a.revisit}
-                              </p>
-                            </div>
-                          )}
-                          {a.comment && (
-                            <div className={styles.comment}>
-                              <span className={styles.commentLabel}>
-                                자유 의견
-                              </span>
-                              <p className={styles.commentText}>{a.comment}</p>
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <pre className={styles.rawAnswer}>{r.answer}</pre>
+                results.map((r) => (
+                  <div key={r.id} className={styles.resultCard}>
+                    <div className={styles.resultDate}>
+                      {new Date(r.createdAt).toLocaleString("ko-KR")}
+                    </div>
+                    <div className={styles.infoGrid}>
+                      {r.location && (
+                        <span className={styles.infoTag}>
+                          <b>위치</b>{" "}
+                          {r.location === "기타" ? r.locationEtc : r.location}
+                        </span>
+                      )}
+                      {r.industry && (
+                        <span className={styles.infoTag}>
+                          <b>업태</b>{" "}
+                          {r.industry === "기타" ? r.industryEtc : r.industry}
+                        </span>
+                      )}
+                      {r.purpose && (
+                        <span className={styles.infoTag}>
+                          <b>목적</b>{" "}
+                          {r.purpose === "기타" ? r.purposeEtc : r.purpose}
+                        </span>
+                      )}
+                      {r.visitRoute && (
+                        <span className={styles.infoTag}>
+                          <b>계기</b>{" "}
+                          {r.visitRoute === "기타" ? r.visitRouteEtc : r.visitRoute}
+                        </span>
                       )}
                     </div>
-                  );
-                })
+                    <div className={styles.ratingList}>
+                      {SATISFACTION_ITEMS.map(({ key, label, commentKey }) => {
+                        const score = r[key as keyof SurveyResult] as number;
+                        const comment = r[commentKey as keyof SurveyResult] as string;
+                        const sat = SATISFACTION_LABELS[score];
+                        if (!score || !sat) return null;
+                        return (
+                          <div key={String(key)} className={styles.ratingRow}>
+                            <span className={styles.ratingLabel}>{label}</span>
+                            <span className={`${styles.ratingScore} ${sat.bad ? styles.ratingScoreBad : ""}`}>
+                              {sat.text}
+                            </span>
+                            {comment && (
+                              <span className={styles.ratingComment}>{comment}</span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {r.revisit && (
+                      <div className={styles.comment}>
+                        <span className={styles.commentLabel}>재방문</span>
+                        <p className={styles.commentText}>
+                          {REVISIT_LABELS[r.revisit] ?? r.revisit}
+                        </p>
+                      </div>
+                    )}
+                    {r.comment && (
+                      <div className={styles.comment}>
+                        <span className={styles.commentLabel}>자유 의견</span>
+                        <p className={styles.commentText}>{r.comment}</p>
+                      </div>
+                    )}
+                  </div>
+                ))
               )}
             </div>
           )}
