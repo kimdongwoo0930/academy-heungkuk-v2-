@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { searchReservations } from '@/lib/api/reservation';
-import { Reservation } from '@/types/reservation';
+import { searchReservations } from "@/lib/api/reservation";
+import { Reservation } from "@/types/reservation";
+import { useEffect, useState } from "react";
 
 interface SearchParams {
   keyword?: string;
