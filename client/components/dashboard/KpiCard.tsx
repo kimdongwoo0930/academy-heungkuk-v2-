@@ -1,7 +1,7 @@
-import { ReactNode } from 'react';
-import styles from './KpiCard.module.css';
+import { ReactNode } from "react";
+import styles from "./KpiCard.module.css";
 
-type Variant = 'pink' | 'green' | 'blue' | 'yellow';
+type Variant = "pink" | "green" | "blue" | "yellow";
 
 interface Props {
   label: string;
@@ -12,7 +12,14 @@ interface Props {
   animDelay?: string;
 }
 
-export default function KpiCard({ label, value, subText, icon, variant, animDelay }: Props) {
+export default function KpiCard({
+  label,
+  value,
+  subText,
+  icon,
+  variant,
+  animDelay,
+}: Props) {
   return (
     <div
       className={`${styles.card} ${styles[variant]}`}
