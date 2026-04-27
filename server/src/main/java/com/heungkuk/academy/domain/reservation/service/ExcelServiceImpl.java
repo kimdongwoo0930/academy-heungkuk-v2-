@@ -20,6 +20,8 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
@@ -487,11 +489,11 @@ public class ExcelServiceImpl implements ExcelService {
         setStr(sheet, 5, 7, nvl(res.getOrganization())); // H6: 회사명
         setStr(sheet, 6, 7, nvl(res.getCompanyAddress())); // H7: 주소
 
-        setStr(sheet, 7, 10, nvl(res.getCustomer())); // K8: 신청인 성명
+        setStrWithNim(sheet, 7, 10, nvl(res.getCustomer())); // K8: 신청인 성명
         setStr(sheet, 7, 19, nvl(res.getCustomerPhone())); // T8: 신청인 연락처
         setStr(sheet, 7, 37, nvl(res.getCustomerEmail())); // AL8: 신청인 이메일
 
-        setStr(sheet, 8, 10, nvl(res.getSiteManager())); // K9: 현장담당자 성명
+        setStrWithNim(sheet, 8, 10, nvl(res.getSiteManager())); // K9: 현장담당자 성명
         setStr(sheet, 8, 19, nvl(res.getSiteManagerPhone())); // T9: 현장담당자 연락처
 
         setStr(sheet, 11, 10, formatDateWithDay(res.getStartDate())); // K12: 입소일(요일)
@@ -1132,6 +1134,29 @@ public class ExcelServiceImpl implements ExcelService {
 
     private void setStr(XSSFSheet sheet, int row, int col, String value) {
         getOrCreate(sheet, row, col).setCellValue(value != null ? value : "");
+    }
+
+    /** 이름 뒤에 "님"을 붙이고, 셀 폰트를 1pt 줄여 잘림을 방지 */
+    private void setStrWithNim(XSSFSheet sheet, int rowIdx, int colIdx, String name) {
+        String value = (name != null && !name.isEmpty()) ? name + "님" : "";
+        Cell cell = getOrCreate(sheet, rowIdx, colIdx);
+        cell.setCellValue(value);
+        if (value.isEmpty()) return;
+
+        XSSFWorkbook wb = sheet.getWorkbook();
+        XSSFCellStyle existingStyle = (XSSFCellStyle) cell.getCellStyle();
+        XSSFFont existingFont = existingStyle.getFont();
+
+        XSSFCellStyle newStyle = wb.createCellStyle();
+        newStyle.cloneStyleFrom(existingStyle);
+
+        XSSFFont newFont = wb.createFont();
+        newFont.setFontName(existingFont.getFontName());
+        newFont.setBold(existingFont.getBold());
+        newFont.setItalic(existingFont.getItalic());
+        newFont.setFontHeightInPoints((short) (existingFont.getFontHeightInPoints() - 1));
+        newStyle.setFont(newFont);
+        cell.setCellStyle(newStyle);
     }
 
     private void setLong(XSSFSheet sheet, int row, int col, long value) {
