@@ -1,20 +1,48 @@
+.page {
+  padding-bottom: 24px;
+}
+
 .header {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-bottom: 4px;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 16px;
   position: sticky;
   top: var(--header-height);
   z-index: 100;
-  background: var(--bg);
-  padding: 2px 0;
-  margin-top: -2px;
+  background:
+    linear-gradient(180deg, var(--bg) 78%, rgba(244, 246, 248, 0));
+  padding: 10px 0 14px;
+  margin-top: -10px;
+  backdrop-filter: blur(8px);
+}
+
+.pageIntro {
+  min-width: 0;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--info);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .title {
-  font-size: 18px;
-  font-weight: 700;
+  color: var(--text);
+  font-size: 24px;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.pageIntro p {
+  margin-top: 4px;
+  color: var(--text-sub);
+  font-size: 13px;
 }
 
 .nav {
@@ -38,20 +66,28 @@
 .navBtn:hover { background: var(--surface-hover); }
 
 .printBtn {
-  height: 32px;
-  padding: 0 14px;
+  height: 36px;
+  padding: 0 16px;
   background: var(--surface);
   color: var(--text-sub);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 999px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 750;
   cursor: pointer;
-  transition: background 0.15s;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s,
+    transform 0.15s;
   margin-right: auto;
 }
 .printBtn:hover {
   background: var(--surface-hover);
+  border-color: #b8c4d6;
+  color: var(--text);
+  transform: translateY(-1px);
 }
 
 .monthLabel {
@@ -61,16 +97,84 @@
   text-align: center;
 }
 
-.halfBlock { margin-bottom: 24px; }
+.halfBlock {
+  margin-bottom: 22px;
+  animation: tableIn 0.22s ease-out both;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: minmax(200px, 1.4fr) minmax(120px, 0.55fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.summaryHero,
+.summaryCard {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.06);
+}
+
+.summaryHero {
+  padding: 12px 16px;
+  background:
+    radial-gradient(circle at 92% 12%, rgba(37, 99, 235, 0.15), transparent 11rem),
+    linear-gradient(135deg, #f5f9ff, var(--surface) 62%);
+}
+
+.summaryCard {
+  padding: 12px 16px;
+  background:
+    linear-gradient(135deg, rgba(14, 171, 110, 0.08), transparent 58%),
+    var(--surface);
+}
+
+.summaryLabel {
+  display: block;
+  color: var(--text-sub);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.summaryHero strong,
+.summaryCard strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.summaryHint {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-sub);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.loading {
+  padding: 80px 0;
+  text-align: center;
+  color: var(--text-sub);
+  font-size: 14px;
+}
 
 .tableWrap {
   overflow-x: auto;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 18px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
 }
 
 .table {
+  overflow: hidden;
   border-collapse: collapse;
   font-size: 12px;
   white-space: nowrap;
@@ -78,16 +182,17 @@
 }
 
 .table th {
-  background: #dce4f0;
-  padding: 5px 4px;
+  background: #e7edf7;
+  padding: 7px 4px;
   text-align: center;
-  font-weight: 700;
-  border: 1px solid #b0bdd0;
+  font-weight: 800;
+  border: 1px solid #bfcbdd;
+  color: #1f2f46;
 }
 
 .weekendTh {
-  background: #ffe8e8 !important;
-  color: #c0392b !important;
+  background: #fff0f0 !important;
+  color: #d13a2f !important;
 }
 
 .otherMonthTh {
@@ -117,38 +222,47 @@
 .thTotal {
   min-width: 40px !important;
   font-size: 11px !important;
-  background: #4b6280 !important;
+  background: linear-gradient(135deg, #334f74, #243c5a) !important;
   color: #fff !important;
 }
 
 .table td {
-  border: 1px solid #d0d0d0;
+  border: 1px solid #d8dee8;
   padding: 1px 4px;
-  height: 22px;
+  height: 28px;
   vertical-align: middle;
   text-align: center;
 }
 
-.weekendCol { background: #fff5f5 !important; }
-.otherMonthCol { background: #f5f5f5 !important; }
+.table tbody tr:hover td:not(.weekTotalCell) {
+  background-color: #f8fbff;
+}
+
+.weekendCol { background: #fff7f7 !important; }
+.otherMonthCol { background: #f6f7f9 !important; }
 
 .tdOrg {
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 11.5px;
+  font-weight: 800;
   text-align: left;
-  padding-left: 8px;
-  background: #f8f9fc;
+  padding-left: 10px !important;
+  background: #fbfcff;
   vertical-align: middle;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.tdOrg:hover {
+  background: #eef5ff;
 }
 
 .roomSubTh {
   font-size: 9px !important;
-  font-weight: 600 !important;
+  font-weight: 750 !important;
   padding: 3px 1px !important;
-  color: #555;
+  color: #64748b;
 }
 
 .roomCell {
@@ -162,29 +276,29 @@
 }
 
 .roomCellHasValue {
-  background: #f0f4fb;
+  background: #eef5ff;
 }
 
 .weekendCellHasValue {
-  background: #ffc8c8 !important;
+  background: #ffe0e0 !important;
 }
 
 .confirmed {
-  color: #dc2626;
-  font-weight: 700;
+  color: #e11d48;
+  font-weight: 850;
 }
 .pending {
-  color: #aaa;
-  font-weight: 500;
+  color: #94a3b8;
+  font-weight: 650;
 }
 
 .totalRow td {
-  background: #b8cce4 !important;
-  font-weight: 700;
+  background: #d4e4f7 !important;
+  font-weight: 850;
   font-size: 12px;
-  color: #1a2a45;
+  color: #17345f;
   text-align: center;
-  border-top: 2px solid #7a99c0 !important;
+  border-top: 2px solid #86a8d2 !important;
 }
 
 .totalLabel {
@@ -197,25 +311,30 @@
   font-weight: 800;
   color: #fff !important;
   text-align: center;
-  background: #5c7a99 !important;
+  background: linear-gradient(135deg, #55749b, #3c5878) !important;
 }
 
 .emptyCell {
   text-align: center;
   color: var(--text-sub);
   font-size: 13px;
-  padding: 24px !important;
+  padding: 34px !important;
+  background: linear-gradient(135deg, #fbfcff, #f5f8fc);
 }
 
 .monthSummary {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 24px;
-  padding: 14px 20px;
+  padding: 18px 22px;
   border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface);
-  margin-top: 8px;
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.06), transparent 50%),
+    var(--surface);
+  margin-top: 10px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.05);
 }
 
 .monthSummaryTitle {
@@ -235,6 +354,7 @@
 
 .monthSummaryItems {
   display: flex;
+  flex-wrap: wrap;
   gap: 20px;
   font-size: 13px;
   color: var(--text-sub);
@@ -257,9 +377,60 @@
   border-left: 1px solid var(--border);
 }
 
+@keyframes tableIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 960px) {
+  .header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    다크 모드
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+[data-theme='dark'] .header {
+  background:
+    linear-gradient(180deg, var(--bg) 78%, rgba(24, 24, 27, 0));
+}
+
+[data-theme='dark'] .summaryHero,
+[data-theme='dark'] .summaryCard,
+[data-theme='dark'] .monthSummary {
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.24);
+}
+
+[data-theme='dark'] .summaryHero {
+  background:
+    radial-gradient(circle at 92% 12%, rgba(96, 165, 250, 0.14), transparent 11rem),
+    var(--surface);
+}
+
+[data-theme='dark'] .summaryCard {
+  background:
+    linear-gradient(135deg, rgba(74, 222, 128, 0.1), transparent 58%),
+    var(--surface);
+}
+
+[data-theme='dark'] .monthSummary,
+[data-theme='dark'] .emptyCell {
+  background: var(--surface);
+}
 
 [data-theme='dark'] .table th {
   background: #2c2c2f;
@@ -284,6 +455,10 @@
 [data-theme='dark'] .table td {
   border-color: #3c3c3f;
   color: #d4d4d8;
+}
+
+[data-theme='dark'] .table tbody tr:hover td:not(.weekTotalCell) {
+  background-color: #29292d;
 }
 [data-theme='dark'] .weekendCol {
   background: #1f1819 !important;

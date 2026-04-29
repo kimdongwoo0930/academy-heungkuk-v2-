@@ -30,6 +30,7 @@ public class DashboardResponse {
     @Getter
     @Builder
     public static class TodayClassroomItem {
+        private Long reservationId;
         private String classroom;
         private String organization;
         private String purpose;

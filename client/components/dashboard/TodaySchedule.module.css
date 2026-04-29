@@ -32,6 +32,7 @@
   transition: border-color 0.15s, background 0.15s;
 }
 .item:hover { border-color: var(--border); background: var(--surface-hover); }
+.clickable { cursor: pointer; }
 .itemPink  { background: rgba(232, 48, 106, 0.04); border-color: rgba(232, 48, 106, 0.15); }
 .itemYellow{ background: rgba(217, 119, 6, 0.05); border-color: rgba(217, 119, 6, 0.2); }
 

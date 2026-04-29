@@ -140,3 +140,55 @@
   border-radius: 8px;
   border-left: 3px solid #e8306a;
 }
+
+/* ── 다크 모드 ── */
+[data-theme='dark'] .card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+[data-theme='dark'] .card:hover { border-color: #52525b; }
+[data-theme='dark'] .header:hover { background: var(--surface-hover); }
+
+[data-theme='dark'] .orgName { color: var(--text); }
+[data-theme='dark'] .orgMeta { color: var(--text-sub); }
+
+[data-theme='dark'] .avgBadge {
+  color: #f07aaa;
+  background: rgba(217, 100, 153, 0.12);
+  border-color: rgba(217, 100, 153, 0.25);
+}
+
+[data-theme='dark'] .revisitMini {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.1);
+  border-color: rgba(74, 222, 128, 0.25);
+}
+
+[data-theme='dark'] .chevron { color: var(--text-sub); }
+
+[data-theme='dark'] .body { border-top-color: var(--border); }
+[data-theme='dark'] .respTime { color: var(--text-sub); }
+
+[data-theme='dark'] .tag_loc      { background: #1e2d4a; color: #93b4f0; }
+[data-theme='dark'] .tag_goal     { background: #2a1e3a; color: #c084fc; }
+[data-theme='dark'] .tag_industry { background: #1a2e22; color: #4ade80; }
+[data-theme='dark'] .tag_route    { background: #2e1e10; color: #fb923c; }
+
+[data-theme='dark'] .scoreItem {
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+[data-theme='dark'] .scoreLabel   { color: var(--text-sub); }
+[data-theme='dark'] .scoreComment { color: #8a8a9a; }
+
+[data-theme='dark'] .revisitLabel   { color: var(--text-sub); }
+[data-theme='dark'] .revisitComment { color: #8a8a9a; }
+
+[data-theme='dark'] .chipVg { background: rgba(74,222,128,0.1);  color: #4ade80; border-color: rgba(74,222,128,0.2); }
+[data-theme='dark'] .chipGd { background: rgba(96,165,250,0.1);  color: #60a5fa; border-color: rgba(96,165,250,0.2); }
+[data-theme='dark'] .chipNm { background: rgba(251,146,60,0.1);  color: #fb923c; border-color: rgba(251,146,60,0.2); }
+
+[data-theme='dark'] .opinion {
+  background: var(--surface-2);
+  color: #a1a1aa;
+}

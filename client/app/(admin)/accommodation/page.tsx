@@ -183,6 +183,25 @@ export default function AccommodationPage() {
   const getDayTotal = (dateStr: string) =>
     ROOM_TYPES.reduce((s, t) => s + getDayTypeTotal(dateStr, t), 0);
 
+  const monthDates = calDays.filter((c) => c.isCurrent);
+  const month4 = monthDates.reduce(
+    (s, c) => s + getDayTypeTotal(c.dateStr, "4인실"),
+    0,
+  );
+  const month2 = monthDates.reduce(
+    (s, c) => s + getDayTypeTotal(c.dateStr, "2인실"),
+    0,
+  );
+  const month1 = monthDates.reduce(
+    (s, c) => s + getDayTypeTotal(c.dateStr, "1인실"),
+    0,
+  );
+  const monthTotal = month4 + month2 + month1;
+  const firstDate = monthDates[0]?.dateStr ?? "";
+  const lastDate = monthDates[monthDates.length - 1]?.dateStr ?? "";
+  const monthRoomReservations = activeRoomReservations.filter((res) =>
+    monthDates.some((cal) => getRoomsOnDate(res.id, cal.dateStr).length > 0),
+  );
   const isRedDay = (cal: CalDay) => redDaySet.has(cal.dateStr);
 
   const thCls = (cal: CalDay) => {
@@ -247,8 +266,13 @@ export default function AccommodationPage() {
   };
 
   return (
-    <div>
+    <div className={styles.page}>
       <div className={styles.header}>
+        <div className={styles.pageIntro}>
+          <span className={styles.eyebrow}>Accommodation</span>
+          <h1 className={styles.title}>숙박 현황</h1>
+          <p>{firstDate} ~ {lastDate} 기준 객실 예약 현황입니다.</p>
+        </div>
         <button
           className={styles.printBtn}
           onClick={() => printAccommodationTable(year, month, reservations)}
@@ -264,15 +288,24 @@ export default function AccommodationPage() {
         />
       </div>
 
+      {!isLoading && (
+        <section className={styles.summaryGrid}>
+          <div className={styles.summaryHero}>
+            <span className={styles.summaryLabel}>월 객실 합계</span>
+            <strong>{monthTotal.toLocaleString()}</strong>
+            <span className={styles.summaryHint}>
+              4인실 {month4.toLocaleString()} · 2인실 {month2.toLocaleString()} · 1인실 {month1.toLocaleString()}
+            </span>
+          </div>
+          <div className={styles.summaryCard}>
+            <span className={styles.summaryLabel}>이용 단체</span>
+            <strong>{monthRoomReservations.length.toLocaleString()}</strong>
+          </div>
+        </section>
+      )}
+
       {isLoading ? (
-        <div
-          style={{
-            padding: "80px 0",
-            textAlign: "center",
-            color: "var(--text-sub)",
-            fontSize: 14,
-          }}
-        >
+        <div className={styles.loading}>
           데이터를 가져오는 중...
         </div>
       ) : (
@@ -538,50 +571,6 @@ export default function AccommodationPage() {
         })
       )}
 
-      {/* 월 총합 */}
-      {!isLoading &&
-        (() => {
-          const monthDates = calDays.filter((c) => c.isCurrent);
-          const month4 = monthDates.reduce(
-            (s, c) => s + getDayTypeTotal(c.dateStr, "4인실"),
-            0,
-          );
-          const month2 = monthDates.reduce(
-            (s, c) => s + getDayTypeTotal(c.dateStr, "2인실"),
-            0,
-          );
-          const month1 = monthDates.reduce(
-            (s, c) => s + getDayTypeTotal(c.dateStr, "1인실"),
-            0,
-          );
-          const monthTotal = month4 + month2 + month1;
-          const firstDate = monthDates[0]?.dateStr ?? "";
-          const lastDate = monthDates[monthDates.length - 1]?.dateStr ?? "";
-          return (
-            <div className={styles.monthSummary}>
-              <span className={styles.monthSummaryTitle}>
-                {year}년 {month + 1}월 총합
-                <span className={styles.monthSummaryRange}>
-                  ( {firstDate} ~ {lastDate} )
-                </span>
-              </span>
-              <div className={styles.monthSummaryItems}>
-                <span>
-                  4인실 <strong>{month4}</strong>
-                </span>
-                <span>
-                  2인실 <strong>{month2}</strong>
-                </span>
-                <span>
-                  1인실 <strong>{month1}</strong>
-                </span>
-                <span className={styles.monthSummaryTotal}>
-                  합계 <strong>{monthTotal}</strong>
-                </span>
-              </div>
-            </div>
-          );
-        })()}
 
       {/* 호버 툴팁 */}
       {tooltip && (

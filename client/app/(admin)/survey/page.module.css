@@ -45,3 +45,16 @@
   font-size: 13px;
   color: #a89fc0;
 }
+
+/* ── 다크 모드 ── */
+[data-theme='dark'] .contentTitle { color: var(--text); }
+[data-theme='dark'] .contentSub   { color: var(--text-sub); }
+
+[data-theme='dark'] .searchInput {
+  background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 10px center;
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme='dark'] .searchInput:focus { background-color: var(--surface-2); border-color: #d96499; }
+[data-theme='dark'] .searchInput::placeholder { color: var(--text-sub); }
+[data-theme='dark'] .empty { color: var(--text-sub); }

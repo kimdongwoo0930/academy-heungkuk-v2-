@@ -262,6 +262,7 @@ export default function SchedulerPage() {
               {/* ── 일정 현황 ── */}
               <div className={styles.tableWrap}>
                 <div className={styles.sectionTitle}>일정 현황</div>
+                <div className={styles.tableScroll}>
                 <div style={{ minWidth: leftW, width: "100%" }}>
                   <table
                     className={styles.table}
@@ -351,7 +352,7 @@ export default function SchedulerPage() {
                                 <td
                                   key={cal.dateStr}
                                   colSpan={span > 1 ? span : undefined}
-                                  className={`${tdCls(cal)}${ri === 0 && gi > 0 ? ` ${styles.groupDivider}` : ""}`}
+                                  className={`${tdCls(cal) || styles[group.bg]}${ri === 0 && gi > 0 ? ` ${styles.groupDivider}` : ""}`}
                                   onDoubleClick={() =>
                                     !res &&
                                     handleCellDoubleClick(cal.dateStr, room.id)
@@ -486,7 +487,7 @@ export default function SchedulerPage() {
                                       <td
                                         key={cal.dateStr}
                                         colSpan={span > 1 ? span : undefined}
-                                        className={`${tdCls(cal)} ${isFirst ? styles.roomTopBorder : ""} ${isLast ? `${styles.roomRightBorder} ${isFirst ? styles.roomCornerTR : ""}` : ""}`}
+                                        className={`${tdCls(cal) || styles.bgAccom} ${isFirst ? styles.roomTopBorder : ""} ${isLast ? `${styles.roomRightBorder} ${isFirst ? styles.roomCornerTR : ""}` : ""}`}
                                         onDoubleClick={() =>
                                           !res &&
                                           setCreateDefaults({
@@ -542,7 +543,7 @@ export default function SchedulerPage() {
                                 return (
                                   <td
                                     key={cal.dateStr}
-                                    className={`${tdCls(cal)} ${styles.roomTotalCell} ${lanes.length === 0 ? `${styles.roomTopBorder} ${styles.roomCornerTL}` : ""} ${styles.roomBottomBorder} ${cal.dateStr === halfDays[halfDays.length - 1].dateStr ? `${styles.roomRightBorder} ${styles.roomCornerBR} ${lanes.length === 0 ? styles.roomCornerTR : ""}` : ""}`}
+                                    className={`${tdCls(cal) || styles.bgAccom} ${styles.roomTotalCell} ${lanes.length === 0 ? `${styles.roomTopBorder} ${styles.roomCornerTL}` : ""} ${styles.roomBottomBorder} ${cal.dateStr === halfDays[halfDays.length - 1].dateStr ? `${styles.roomRightBorder} ${styles.roomCornerBR} ${lanes.length === 0 ? styles.roomCornerTR : ""}` : ""}`}
                                     onDoubleClick={() =>
                                       setCreateDefaults({
                                         date: cal.dateStr,
@@ -560,6 +561,7 @@ export default function SchedulerPage() {
                       })()}
                     </tbody>
                   </table>
+                </div>
                 </div>
               </div>
             </div>

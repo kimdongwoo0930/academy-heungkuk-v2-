@@ -1,30 +1,103 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import KpiCard from '@/components/dashboard/KpiCard';
-import MonthlyChart from '@/components/dashboard/MonthlyChart';
-import RecentSurveyTable from '@/components/dashboard/RecentSurveyTable';
-import RoomStatus from '@/components/dashboard/RoomStatus';
-import SatisfactionBar from '@/components/dashboard/SatisfactionBar';
-import TodaySchedule from '@/components/dashboard/TodaySchedule';
-import { getDashboard } from '@/lib/api/dashboard';
-import { DashboardData } from '@/types/dashboard';
-import styles from './page.module.css';
+import DashboardListModal from "@/components/dashboard/DashboardListModal";
+import KpiCard from "@/components/dashboard/KpiCard";
+import MonthlyChart from "@/components/dashboard/MonthlyChart";
+import RecentSurveyTable from "@/components/dashboard/RecentSurveyTable";
+import RoomStatus from "@/components/dashboard/RoomStatus";
+import SatisfactionBar from "@/components/dashboard/SatisfactionBar";
+import TodaySchedule from "@/components/dashboard/TodaySchedule";
+import ReservationModal from "@/components/reservation/ReservationModal";
+import { getDashboard } from "@/lib/api/dashboard";
+import {
+  getReservationById,
+  getReservationsByRange,
+  getReservationsByYear,
+  toRequestBody,
+  updateReservation,
+} from "@/lib/api/reservation";
+import { DashboardData } from "@/types/dashboard";
+import { Reservation } from "@/types/reservation";
+import { useCallback, useEffect, useState } from "react";
+import styles from "./page.module.css";
+
+interface ListModal {
+  title: string;
+  items: Reservation[];
+}
+
+interface EditModal {
+  reservation: Reservation;
+  allReservations: Reservation[];
+}
+
+const isActiveReservation = (reservation: Reservation) =>
+  reservation.status !== "취소";
 
 export default function DashboardPage() {
   const today = new Date();
-  const dateStr = today.toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    weekday: 'long',
+  const dateStr = today.toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    weekday: "long",
   });
+  const todayStr = today.toISOString().slice(0, 10);
 
   const [data, setData] = useState<DashboardData | null>(null);
+  const [listModal, setListModal] = useState<ListModal | null>(null);
+  const [editModal, setEditModal] = useState<EditModal | null>(null);
 
   useEffect(() => {
     getDashboard().then(setData).catch(console.error);
   }, []);
+
+  const openEditById = useCallback(async (reservationId: number) => {
+    const res = await getReservationById(reservationId);
+    const years = [
+      ...new Set([
+        new Date(res.startDate).getFullYear(),
+        new Date(res.endDate).getFullYear(),
+      ]),
+    ];
+    const all = (await Promise.all(years.map(getReservationsByYear))).flat();
+    setListModal(null);
+    setEditModal({ reservation: res, allReservations: all });
+  }, []);
+
+  const openMonthlyList = useCallback(async () => {
+    const first = `${todayStr.slice(0, 7)}-01`;
+    const last = new Date(
+      Number(todayStr.slice(0, 4)),
+      Number(todayStr.slice(5, 7)),
+      0,
+    )
+      .toISOString()
+      .slice(0, 10);
+    const items = await getReservationsByRange(first, last);
+    setListModal({
+      title: "이번 달 이용 업체",
+      items: items.filter(isActiveReservation),
+    });
+  }, [todayStr]);
+
+  const openTodayList = useCallback(async () => {
+    const items = await getReservationsByRange(todayStr, todayStr);
+    const todayCheckIns = items.filter(
+      (r) => r.startDate === todayStr && isActiveReservation(r),
+    );
+    setListModal({ title: "오늘 입실 업체", items: todayCheckIns });
+  }, [todayStr]);
+
+  const handleSave = useCallback(
+    async (saved: Reservation) => {
+      if (!editModal) return;
+      await updateReservation(editModal.reservation.id, toRequestBody(saved));
+      setEditModal(null);
+      getDashboard().then(setData).catch(console.error);
+    },
+    [editModal],
+  );
 
   if (!data) {
     return (
@@ -40,8 +113,14 @@ export default function DashboardPage() {
     );
   }
 
-  const { kpi, todayClassrooms, monthlyData, satisfaction, recentSurveys } = data;
+  const { kpi, todayClassrooms, monthlyData, satisfaction, recentSurveys } =
+    data;
   const change = kpi.monthlyChange;
+  const todayOrgCount = new Set(todayClassrooms.map((c) => c.organization))
+    .size;
+  const todayTotalPeople = Array.from(
+    new Map(todayClassrooms.map((c) => [c.organization, c.people])).values(),
+  ).reduce((sum, p) => sum + p, 0);
 
   return (
     <div className={styles.page}>
@@ -60,9 +139,10 @@ export default function DashboardPage() {
           icon="📋"
           variant="pink"
           animDelay="0.05s"
+          onClick={openMonthlyList}
           subText={
             <>
-              전월 대비{' '}
+              전월 대비{" "}
               <span className={change >= 0 ? styles.up : styles.down}>
                 {change >= 0 ? `↑ +${change}건` : `↓ ${change}건`}
               </span>
@@ -70,14 +150,16 @@ export default function DashboardPage() {
           }
         />
         <KpiCard
-          label="오늘 입실"
-          value={kpi.todayCheckIn}
+          label="금일 이용 업체"
+          value={todayOrgCount}
           icon="🏨"
           variant="green"
           animDelay="0.10s"
+          onClick={openTodayList}
           subText={
             <>
-              총 <span className={styles.greenText}>{kpi.todayPeople}명</span> 이용 예정
+              총 <span className={styles.greenText}>{todayTotalPeople}명</span>{" "}
+              이용 예정
             </>
           }
         />
@@ -91,9 +173,12 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* 오늘 일정(1fr) + 월별 추이(2fr) */}
+      {/* 금일 사용 단체(1fr) + 월별 추이(2fr) */}
       <div className={styles.row3}>
-        <TodaySchedule todayClassrooms={todayClassrooms} />
+        <TodaySchedule
+          todayClassrooms={todayClassrooms}
+          onItemClick={openEditById}
+        />
         <MonthlyChart
           monthlyData={monthlyData}
           year={today.getFullYear()}
@@ -103,12 +188,35 @@ export default function DashboardPage() {
 
       {/* 강의실 현황 + 설문 만족도 */}
       <div className={styles.row2}>
-        <RoomStatus todayClassrooms={todayClassrooms} />
+        <RoomStatus
+          todayClassrooms={todayClassrooms}
+          onItemClick={openEditById}
+        />
         <SatisfactionBar satisfaction={satisfaction} />
       </div>
 
       {/* 최근 설문 내역 */}
       <RecentSurveyTable recentSurveys={recentSurveys} />
+
+      {/* 목록 모달 */}
+      {listModal && (
+        <DashboardListModal
+          title={listModal.title}
+          items={listModal.items}
+          onSelect={(r) => openEditById(r.id)}
+          onClose={() => setListModal(null)}
+        />
+      )}
+
+      {/* 예약 편집 모달 */}
+      {editModal && (
+        <ReservationModal
+          reservation={editModal.reservation}
+          allReservations={editModal.allReservations}
+          onClose={() => setEditModal(null)}
+          onSave={handleSave}
+        />
+      )}
     </div>
   );
 }
