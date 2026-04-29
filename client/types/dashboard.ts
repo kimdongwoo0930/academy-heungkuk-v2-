@@ -8,6 +8,7 @@ export interface DashboardKpi {
 }
 
 export interface TodayClassroomItem {
+  reservationId: number;
   classroom: string;
   organization: string;
   purpose: string;

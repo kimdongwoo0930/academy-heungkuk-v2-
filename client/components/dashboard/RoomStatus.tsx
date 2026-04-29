@@ -1,4 +1,8 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { TodayClassroomItem } from '@/types/dashboard';
+import { isAdmin } from '@/lib/utils/auth';
 import styles from './RoomStatus.module.css';
 
 const STATIC_ROOMS = [
@@ -20,10 +24,19 @@ const STATIC_ROOMS = [
 
 interface Props {
   todayClassrooms: TodayClassroomItem[];
+  onItemClick?: (reservationId: number) => void;
 }
 
-export default function RoomStatus({ todayClassrooms }: Props) {
-  const occupiedMap = new Map(todayClassrooms.map((c) => [c.classroom, c.organization]));
+export default function RoomStatus({ todayClassrooms, onItemClick }: Props) {
+  const [admin, setAdmin] = useState(false);
+
+  useEffect(() => {
+    setAdmin(isAdmin());
+  }, []);
+
+  const occupiedMap = new Map(
+    todayClassrooms.map((c) => [c.classroom, { org: c.organization, id: c.reservationId }])
+  );
   const occupiedCount = STATIC_ROOMS.filter((r) => occupiedMap.has(r.code)).length;
 
   return (
@@ -34,16 +47,18 @@ export default function RoomStatus({ todayClassrooms }: Props) {
       </div>
       <div className={styles.grid}>
         {STATIC_ROOMS.map((room) => {
-          const org = occupiedMap.get(room.code);
+          const occupied = occupiedMap.get(room.code);
+          const clickable = !!occupied && admin && !!onItemClick;
           return (
             <div
               key={room.code}
-              className={`${styles.item} ${org ? styles.occupied : styles.available}`}
+              className={`${styles.item} ${occupied ? styles.occupied : styles.available} ${clickable ? styles.clickable : ''}`}
+              onClick={() => clickable && onItemClick!(occupied!.id)}
             >
               <div className={styles.name}>{room.name}</div>
               <div className={styles.cap}>{room.capacity}인</div>
-              <div className={styles.status}>● {org ? '사용 중' : '사용 가능'}</div>
-              {org && <div className={styles.org}>{org}</div>}
+              <div className={styles.status}>● {occupied ? '사용 중' : '사용 가능'}</div>
+              {occupied && <div className={styles.org}>{occupied.org}</div>}
             </div>
           );
         })}

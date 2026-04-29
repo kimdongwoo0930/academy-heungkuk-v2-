@@ -76,6 +76,7 @@ public class DashboardServiceImpl implements DashboardService {
     private List<TodayClassroomItem> buildTodayClassrooms(LocalDate today) {
         return classroomReservationRepository.findTodayClassrooms(today).stream()
                 .map(c -> TodayClassroomItem.builder()
+                        .reservationId(c.getReservation().getId())
                         .classroom(c.getClassroom())
                         .organization(c.getReservation().getOrganization())
                         .purpose(c.getReservation().getPurpose())

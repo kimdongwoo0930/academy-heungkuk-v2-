@@ -32,6 +32,8 @@
 }
 .occupied  { background: rgba(232, 48, 106, 0.04); border-color: rgba(232, 48, 106, 0.2); }
 .available { background: rgba(14, 171, 110, 0.03); border-color: rgba(14, 171, 110, 0.15); }
+.clickable { cursor: pointer; }
+.clickable:hover { filter: brightness(0.96); transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
 
 .name { font-size: 12px; font-weight: 700; color: var(--text); }
 .cap  { font-size: 11px; color: var(--text-sub); }

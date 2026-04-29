@@ -145,8 +145,8 @@ public class ExcelServiceImpl implements ExcelService {
         setStr(sheet, 11, 3, nvl(res.getCustomerEmail())); // D12: 이메일
         setStr(sheet, 13, 3, res.getOrganization()); // D14: 회사명
         setStr(sheet, 14, 3, nvl(res.getPurpose())); // D15: 교육명칭
-        setDate(sheet, 15, 2, res.getStartDate()); // C16: 시작일
-        setDate(sheet, 15, 9, res.getEndDate()); // J16: 종료일
+        setStr(sheet, 15, 2, formatDateWithDay(res.getStartDate())); // C16: 시작일
+        setStr(sheet, 15, 9, formatDateWithDay(res.getEndDate())); // J16: 종료일
 
         String representative = settings.getOrDefault("contact.representative", "");
         String manager = settings.getOrDefault("contact.manager", "");
@@ -463,7 +463,8 @@ public class ExcelServiceImpl implements ExcelService {
                 classroomReservationRepository.findByReservation(res);
         List<MealReservation> meals = mealReservationRepository.findByReservation(res);
 
-        try (InputStream is = getClass().getResourceAsStream("/templates/confirmation_template.xlsx")) {
+        try (InputStream is =
+                getClass().getResourceAsStream("/templates/confirmation_template.xlsx")) {
             if (is == null) {
                 throw new RuntimeException(
                         "확인서 템플릿이 없습니다. /templates/confirmation_template.xlsx 파일을 추가해주세요.");
@@ -484,8 +485,9 @@ public class ExcelServiceImpl implements ExcelService {
         }
     }
 
-    private void fillConfirmationSheet(XSSFSheet sheet, Reservation res, List<RoomReservation> rooms,
-            List<ClassroomReservation> classrooms, List<MealReservation> meals) {
+    private void fillConfirmationSheet(XSSFSheet sheet, Reservation res,
+            List<RoomReservation> rooms, List<ClassroomReservation> classrooms,
+            List<MealReservation> meals) {
         setStr(sheet, 5, 7, nvl(res.getOrganization())); // H6: 회사명
         setStr(sheet, 6, 7, nvl(res.getCompanyAddress())); // H7: 주소
 
@@ -551,8 +553,8 @@ public class ExcelServiceImpl implements ExcelService {
         setLongNz(sheet, 22, 40, fourPersonRooms); // AO23
 
         // 강의실: row24 N~AS (여러 개면 콤마 구분)
-        String classroomNames = classrooms.stream().map(ClassroomReservation::getClassroom).distinct()
-                .sorted((a, b) -> {
+        String classroomNames = classrooms.stream().map(ClassroomReservation::getClassroom)
+                .distinct().sorted((a, b) -> {
                     boolean aNum = a.chars().allMatch(Character::isDigit);
                     boolean bNum = b.chars().allMatch(Character::isDigit);
                     if (aNum && bNum)
@@ -562,10 +564,7 @@ public class ExcelServiceImpl implements ExcelService {
                     if (bNum)
                         return 1;
                     return a.compareTo(b);
-                })
-                .map(this::formatClassroomLabel)
-                .distinct()
-                .collect(Collectors.joining(", "));
+                }).map(this::formatClassroomLabel).distinct().collect(Collectors.joining(", "));
         setStr(sheet, 23, 13, classroomNames); // N24
 
         // 다목적실: row27 T~AD (A/B 사용 시 표시)
@@ -676,12 +675,12 @@ public class ExcelServiceImpl implements ExcelService {
     }
 
     private void fillTradeHeader(XSSFSheet sheet, Reservation res, Map<String, String> settings) {
-        setStr(sheet, 2, 2, formatDate(LocalDate.now())); // C3: 발행일
+        setStr(sheet, 2, 2, formatDateWithDay(LocalDate.now())); // C3: 발행일
         setStr(sheet, 3, 1, res.getOrganization()); // B4: 업체명
         setStr(sheet, 3, 25, settings.getOrDefault("contact.representative", "")); // Z4: 성명
         setStr(sheet, 6, 6, nvl(res.getPurpose())); // G7: 교육명칭
-        setStr(sheet, 7, 6, formatDate(res.getStartDate())); // G8: 시작일
-        setStr(sheet, 7, 19, formatDate(res.getEndDate())); // T8: 종료일
+        setStr(sheet, 7, 6, formatDateWithDay(res.getStartDate())); // G8: 시작일
+        setStr(sheet, 7, 19, formatDateWithDay(res.getEndDate())); // T8: 종료일
     }
 
     private long[] fillTradeItems(XSSFSheet sheet, List<TradeItem> items, int kaeRow) {
@@ -1138,10 +1137,11 @@ public class ExcelServiceImpl implements ExcelService {
 
     /** 이름 뒤에 "님"을 붙이고, 셀 폰트를 1pt 줄여 잘림을 방지 */
     private void setStrWithNim(XSSFSheet sheet, int rowIdx, int colIdx, String name) {
-        String value = (name != null && !name.isEmpty()) ? name + "님" : "";
+        String value = (name != null && !name.isEmpty()) ? (name.endsWith("님") ? name : name + "님") : "";
         Cell cell = getOrCreate(sheet, rowIdx, colIdx);
         cell.setCellValue(value);
-        if (value.isEmpty()) return;
+        if (value.isEmpty())
+            return;
 
         XSSFWorkbook wb = sheet.getWorkbook();
         XSSFCellStyle existingStyle = (XSSFCellStyle) cell.getCellStyle();
