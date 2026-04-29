@@ -1,6 +1,7 @@
 package com.heungkuk.academy.domain.survey.repository;
 
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import com.heungkuk.academy.domain.survey.entity.Survey;
@@ -15,6 +16,15 @@ public interface SurveyRepository extends JpaRepository<Survey, Long> {
     List<Survey> findTop5ByOrderByCreatedAtDesc();
 
     @Query("""
+            SELECT s FROM Survey s
+            JOIN s.surveyToken t
+            JOIN Reservation r ON r.reservationCode = t.reservationId
+            WHERE r.status != '취소'
+            ORDER BY s.createdAt DESC
+            """)
+    List<Survey> findRecentActiveReservationSurveys(Pageable pageable);
+
+    @Query("""
             SELECT AVG(s.staffService) as staffService,
                    AVG(s.cleanliness)  as cleanliness,
                    AVG(s.facilities)   as facilities,
@@ -22,6 +32,9 @@ public interface SurveyRepository extends JpaRepository<Survey, Long> {
                    AVG(s.pricing)      as pricing,
                    COUNT(s)            as total
             FROM Survey s
+            JOIN s.surveyToken t
+            JOIN Reservation r ON r.reservationCode = t.reservationId
+            WHERE r.status != '취소'
             """)
     SatisfactionStats getSatisfactionStats();
 

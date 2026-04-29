@@ -159,21 +159,39 @@
 
 /* ── 표 래퍼 ── */
 .tableWrap {
-  overflow-x: auto;
+  overflow: hidden;
   background: var(--scheduler-surface);
   border: 1px solid var(--scheduler-border);
-  border-radius: 10px;
+  border-radius: 12px;
   margin-bottom: 16px;
-  box-shadow: var(--scheduler-shadow);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+.tableScroll {
+  overflow-x: auto;
 }
 
 .sectionTitle {
-  padding: 6px 10px;
-  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--scheduler-text-sub);
   background: var(--scheduler-section-bg);
   border-bottom: 1px solid var(--scheduler-border);
+  letter-spacing: 0.01em;
+}
+
+.sectionTitle::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 12px;
+  border-radius: 2px;
+  background: #7b9dc4;
+  flex-shrink: 0;
 }
 
 /* ── 공통 테이블 ── */
@@ -319,7 +337,8 @@
 [data-theme='dark'] .schedulerPage .bgPink,
 [data-theme='dark'] .schedulerPage .bgGray,
 [data-theme='dark'] .schedulerPage .bgOrange,
-[data-theme='dark'] .schedulerPage .bgWhite {
+[data-theme='dark'] .schedulerPage .bgWhite,
+[data-theme='dark'] .schedulerPage .bgAccom {
   background: var(--scheduler-surface) !important;
 }
 

@@ -1,25 +1,25 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useState } from 'react';
-import DashboardListModal from '@/components/dashboard/DashboardListModal';
-import KpiCard from '@/components/dashboard/KpiCard';
-import MonthlyChart from '@/components/dashboard/MonthlyChart';
-import RecentSurveyTable from '@/components/dashboard/RecentSurveyTable';
-import RoomStatus from '@/components/dashboard/RoomStatus';
-import SatisfactionBar from '@/components/dashboard/SatisfactionBar';
-import TodaySchedule from '@/components/dashboard/TodaySchedule';
-import ReservationModal from '@/components/reservation/ReservationModal';
-import { getDashboard } from '@/lib/api/dashboard';
+import DashboardListModal from "@/components/dashboard/DashboardListModal";
+import KpiCard from "@/components/dashboard/KpiCard";
+import MonthlyChart from "@/components/dashboard/MonthlyChart";
+import RecentSurveyTable from "@/components/dashboard/RecentSurveyTable";
+import RoomStatus from "@/components/dashboard/RoomStatus";
+import SatisfactionBar from "@/components/dashboard/SatisfactionBar";
+import TodaySchedule from "@/components/dashboard/TodaySchedule";
+import ReservationModal from "@/components/reservation/ReservationModal";
+import { getDashboard } from "@/lib/api/dashboard";
 import {
   getReservationById,
   getReservationsByRange,
   getReservationsByYear,
   toRequestBody,
   updateReservation,
-} from '@/lib/api/reservation';
-import { DashboardData } from '@/types/dashboard';
-import { Reservation } from '@/types/reservation';
-import styles from './page.module.css';
+} from "@/lib/api/reservation";
+import { DashboardData } from "@/types/dashboard";
+import { Reservation } from "@/types/reservation";
+import { useCallback, useEffect, useState } from "react";
+import styles from "./page.module.css";
 
 interface ListModal {
   title: string;
@@ -31,13 +31,16 @@ interface EditModal {
   allReservations: Reservation[];
 }
 
+const isActiveReservation = (reservation: Reservation) =>
+  reservation.status !== "취소";
+
 export default function DashboardPage() {
   const today = new Date();
-  const dateStr = today.toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    weekday: 'long',
+  const dateStr = today.toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    weekday: "long",
   });
   const todayStr = today.toISOString().slice(0, 10);
 
@@ -51,10 +54,12 @@ export default function DashboardPage() {
 
   const openEditById = useCallback(async (reservationId: number) => {
     const res = await getReservationById(reservationId);
-    const years = [...new Set([
-      new Date(res.startDate).getFullYear(),
-      new Date(res.endDate).getFullYear(),
-    ])];
+    const years = [
+      ...new Set([
+        new Date(res.startDate).getFullYear(),
+        new Date(res.endDate).getFullYear(),
+      ]),
+    ];
     const all = (await Promise.all(years.map(getReservationsByYear))).flat();
     setListModal(null);
     setEditModal({ reservation: res, allReservations: all });
@@ -62,16 +67,26 @@ export default function DashboardPage() {
 
   const openMonthlyList = useCallback(async () => {
     const first = `${todayStr.slice(0, 7)}-01`;
-    const last = new Date(Number(todayStr.slice(0, 4)), Number(todayStr.slice(5, 7)), 0)
-      .toISOString().slice(0, 10);
+    const last = new Date(
+      Number(todayStr.slice(0, 4)),
+      Number(todayStr.slice(5, 7)),
+      0,
+    )
+      .toISOString()
+      .slice(0, 10);
     const items = await getReservationsByRange(first, last);
-    setListModal({ title: '이번 달 이용 업체', items });
+    setListModal({
+      title: "이번 달 이용 업체",
+      items: items.filter(isActiveReservation),
+    });
   }, [todayStr]);
 
   const openTodayList = useCallback(async () => {
     const items = await getReservationsByRange(todayStr, todayStr);
-    const todayCheckIns = items.filter((r) => r.startDate === todayStr);
-    setListModal({ title: '오늘 입실 업체', items: todayCheckIns });
+    const todayCheckIns = items.filter(
+      (r) => r.startDate === todayStr && isActiveReservation(r),
+    );
+    setListModal({ title: "오늘 입실 업체", items: todayCheckIns });
   }, [todayStr]);
 
   const handleSave = useCallback(
@@ -81,7 +96,7 @@ export default function DashboardPage() {
       setEditModal(null);
       getDashboard().then(setData).catch(console.error);
     },
-    [editModal]
+    [editModal],
   );
 
   if (!data) {
@@ -98,11 +113,13 @@ export default function DashboardPage() {
     );
   }
 
-  const { kpi, todayClassrooms, monthlyData, satisfaction, recentSurveys } = data;
+  const { kpi, todayClassrooms, monthlyData, satisfaction, recentSurveys } =
+    data;
   const change = kpi.monthlyChange;
-  const todayOrgCount = new Set(todayClassrooms.map((c) => c.organization)).size;
+  const todayOrgCount = new Set(todayClassrooms.map((c) => c.organization))
+    .size;
   const todayTotalPeople = Array.from(
-    new Map(todayClassrooms.map((c) => [c.organization, c.people])).values()
+    new Map(todayClassrooms.map((c) => [c.organization, c.people])).values(),
   ).reduce((sum, p) => sum + p, 0);
 
   return (
@@ -125,7 +142,7 @@ export default function DashboardPage() {
           onClick={openMonthlyList}
           subText={
             <>
-              전월 대비{' '}
+              전월 대비{" "}
               <span className={change >= 0 ? styles.up : styles.down}>
                 {change >= 0 ? `↑ +${change}건` : `↓ ${change}건`}
               </span>
@@ -133,7 +150,7 @@ export default function DashboardPage() {
           }
         />
         <KpiCard
-          label="오늘 일정"
+          label="금일 이용 업체"
           value={todayOrgCount}
           icon="🏨"
           variant="green"

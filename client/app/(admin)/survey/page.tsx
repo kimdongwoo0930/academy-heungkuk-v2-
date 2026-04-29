@@ -1,6 +1,7 @@
 'use client';
 
 import SurveyCard from '@/components/survey/SurveyCard';
+import SurveyStatsChart from '@/components/survey/SurveyStatsChart';
 import { getAllSurveys } from '@/lib/api/survey';
 import { SurveyResult } from '@/types/survey';
 import { useEffect, useState } from 'react';
@@ -44,6 +45,8 @@ export default function SurveyPage() {
           />
         </div>
       </div>
+
+      <SurveyStatsChart surveys={surveys} />
 
       <div className={styles.list}>
         {loading && (

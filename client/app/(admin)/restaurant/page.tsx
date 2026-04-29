@@ -160,9 +160,47 @@ export default function RestaurantPage() {
     return total;
   };
 
+  const monthDates = calDays.filter((c) => c.isCurrent);
+  const monthB = monthDates.reduce(
+    (s, c) => s + getDayTotal(c.dateStr, "breakfast"),
+    0,
+  );
+  const monthL = monthDates.reduce(
+    (s, c) => s + getDayTotal(c.dateStr, "lunch"),
+    0,
+  );
+  const monthD = monthDates.reduce(
+    (s, c) => s + getDayTotal(c.dateStr, "dinner"),
+    0,
+  );
+  const monthTotal = monthB + monthL + monthD;
+  const firstDate = monthDates[0]?.dateStr ?? "";
+  const lastDate = monthDates[monthDates.length - 1]?.dateStr ?? "";
+  const monthMealReservations = activeMealReservations.filter((res) =>
+    monthDates.some((cal) => {
+      const meal = getOrgMeal(res.id, cal.dateStr);
+      return meal && (meal.breakfast > 0 || meal.lunch > 0 || meal.dinner > 0);
+    }),
+  );
+  const specialMealTotal = monthMealReservations.reduce((sum, res) => {
+    return sum + monthDates.reduce((dateSum, cal) => {
+      const meal = getOrgMeal(res.id, cal.dateStr);
+      if (!meal) return dateSum;
+      return dateSum +
+        (meal.specialBreakfast ? meal.breakfast : 0) +
+        (meal.specialLunch ? meal.lunch : 0) +
+        (meal.specialDinner ? meal.dinner : 0);
+    }, 0);
+  }, 0);
+
   return (
-    <div>
+    <div className={styles.page}>
       <div className={styles.header}>
+        <div className={styles.pageIntro}>
+          <span className={styles.eyebrow}>Restaurant</span>
+          <h1 className={styles.title}>식수관리</h1>
+          <p>{firstDate} ~ {lastDate} 기준 식수 예약 현황입니다.</p>
+        </div>
         <button
           className={styles.printBtn}
           onClick={() => printMealTable(year, month, reservations)}
@@ -178,8 +216,28 @@ export default function RestaurantPage() {
         />
       </div>
 
+      {!isLoading && (
+        <section className={styles.summaryGrid}>
+          <div className={styles.summaryHero}>
+            <span className={styles.summaryLabel}>월 식수 합계</span>
+            <strong>{monthTotal.toLocaleString()}</strong>
+            <span className={styles.summaryHint}>
+              조식 {monthB.toLocaleString()} · 중식 {monthL.toLocaleString()} · 석식 {monthD.toLocaleString()}
+            </span>
+          </div>
+          <div className={styles.summaryCard}>
+            <span className={styles.summaryLabel}>이용 단체</span>
+            <strong>{monthMealReservations.length.toLocaleString()}</strong>
+          </div>
+          <div className={styles.summaryCard}>
+            <span className={styles.summaryLabel}>특식</span>
+            <strong>{specialMealTotal.toLocaleString()}</strong>
+          </div>
+        </section>
+      )}
+
       {isLoading ? (
-        <div style={{ padding: '80px 0', textAlign: 'center', color: 'var(--text-sub)', fontSize: 14 }}>
+        <div className={styles.loading}>
           데이터를 가져오는 중...
         </div>
       ) : halves.map((halfDays, hi) => {
@@ -388,49 +446,6 @@ export default function RestaurantPage() {
         );
       })}
 
-      {/* 월 총합 */}
-      {!isLoading && (() => {
-        const monthDates = calDays.filter((c) => c.isCurrent);
-        const monthB = monthDates.reduce(
-          (s, c) => s + getDayTotal(c.dateStr, "breakfast"),
-          0,
-        );
-        const monthL = monthDates.reduce(
-          (s, c) => s + getDayTotal(c.dateStr, "lunch"),
-          0,
-        );
-        const monthD = monthDates.reduce(
-          (s, c) => s + getDayTotal(c.dateStr, "dinner"),
-          0,
-        );
-        const monthTotal = monthB + monthL + monthD;
-        const firstDate = monthDates[0]?.dateStr ?? "";
-        const lastDate = monthDates[monthDates.length - 1]?.dateStr ?? "";
-        return (
-          <div className={styles.monthSummary}>
-            <span className={styles.monthSummaryTitle}>
-              {year}년 {month + 1}월 총합
-              <span className={styles.monthSummaryRange}>
-                ( {firstDate} ~ {lastDate} )
-              </span>
-            </span>
-            <div className={styles.monthSummaryItems}>
-              <span>
-                조식 <strong>{monthB}</strong>
-              </span>
-              <span>
-                중식 <strong>{monthL}</strong>
-              </span>
-              <span>
-                석식 <strong>{monthD}</strong>
-              </span>
-              <span className={styles.monthSummaryTotal}>
-                합계 <strong>{monthTotal}</strong>
-              </span>
-            </div>
-          </div>
-        );
-      })()}
 
       {editTarget && (
         <ReservationModal

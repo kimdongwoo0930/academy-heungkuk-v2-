@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.heungkuk.academy.domain.dashboard.dto.response.DashboardResponse;
@@ -114,7 +115,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     private List<RecentSurveyItem> buildRecentSurveys() {
-        return surveyRepository.findTop5ByOrderByCreatedAtDesc().stream()
+        return surveyRepository.findRecentActiveReservationSurveys(PageRequest.of(0, 5)).stream()
                 .map(s -> {
                     var token = s.getSurveyToken();
                     var res = token != null
