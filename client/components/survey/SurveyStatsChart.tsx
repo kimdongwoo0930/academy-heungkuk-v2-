@@ -17,8 +17,9 @@ const CATEGORIES: { key: ScoreKey; label: string }[] = [
   { key: 'pricing', label: '비용' },
 ];
 
-const COLORS = ['#e8306a', '#4c7cf7', '#f5c842', '#8b6fcf', '#c9c4d6'];
-const SCORE_LABELS = ['매우만족', '만족', '보통', '불만족', '매우불만족'];
+// SurveyCard와 동일: score 1=매우불만족 ~ 5=매우만족 (높을수록 좋음)
+const COLORS      = ['#dc2626', '#e8306a', '#d97706', '#2563eb', '#0eab6e'];
+const SCORE_LABELS = ['매우불만족', '불만족', '보통', '만족', '매우만족'];
 
 const R = 36;
 const CIRC = 2 * Math.PI * R;
@@ -44,13 +45,15 @@ function getAverage(surveys: SurveyResult[], key: ScoreKey): string {
   return (sum / surveys.length).toFixed(1);
 }
 
+// 높을수록 좋음: 5=매우만족(green) ~ 1=매우불만족(red)
 function avgColor(avg: string): string {
   const n = parseFloat(avg);
   if (isNaN(n)) return '#a89fc0';
-  if (n <= 1.8) return '#e8306a';
-  if (n <= 2.5) return '#4c7cf7';
-  if (n <= 3.5) return '#f5a623';
-  return '#8b6fcf';
+  if (n >= 4.5) return '#0eab6e'; // 매우만족
+  if (n >= 3.5) return '#2563eb'; // 만족
+  if (n >= 2.5) return '#d97706'; // 보통
+  if (n >= 1.5) return '#e8306a'; // 불만족
+  return '#dc2626';               // 매우불만족
 }
 
 function DonutChart({ dist }: { dist: number[] }) {
