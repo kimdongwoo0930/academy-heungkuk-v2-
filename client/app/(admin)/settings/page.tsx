@@ -45,14 +45,13 @@ interface CreateForm {
   password: string;
 }
 
-type TabKey = "account" | "price" | "classroom" | "backup" | "changelog";
+type TabKey = "account" | "price" | "classroom" | "backup";
 
 const TABS: { key: TabKey; label: string; icon: string }[] = [
   { key: "account", label: "계정 관리", icon: "👤" },
   { key: "price", label: "요금 · 담당자", icon: "💰" },
   { key: "classroom", label: "강의실 관리", icon: "🏫" },
   { key: "backup", label: "데이터 백업", icon: "💾" },
-  { key: "changelog", label: "업데이트 내역", icon: "📋" },
 ];
 
 export default function SettingsPage() {
@@ -76,7 +75,6 @@ export default function SettingsPage() {
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
-  const [changelog, setChangelog] = useState("");
 
   // ── 강의실 관리 state ──
   const [disabledClassrooms, setDisabledClassrooms] = useState<Set<string>>(new Set());
@@ -98,13 +96,6 @@ export default function SettingsPage() {
       .catch(() => {});
   }, []);
 
-  useEffect(() => {
-    if (activeTab !== "changelog" || changelog) return;
-    fetch("/api/changelog")
-      .then((r) => r.json())
-      .then((d) => setChangelog(d.content))
-      .catch(() => {});
-  }, [activeTab, changelog]);
 
   const handleSettingsSave = async () => {
     setSettingsSaving(true);

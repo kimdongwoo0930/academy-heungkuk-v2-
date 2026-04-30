@@ -52,7 +52,7 @@ export default function RoomStatus({ todayClassrooms, disabledClassrooms = [], o
               <div className={styles.status}>
                 ● {isDisabled ? '사용불가' : occupied ? '사용 중' : '사용 가능'}
               </div>
-              {occupied && !isDisabled && <div className={styles.org}>{occupied.org}</div>}
+              <div className={styles.org}>{occupied && !isDisabled ? occupied.org : ''}</div>
             </div>
           );
         })}

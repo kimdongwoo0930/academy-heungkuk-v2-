@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heungkuk.academy.domain.setting.entity.AppSetting;
 import com.heungkuk.academy.domain.setting.repository.AppSettingRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,8 +38,7 @@ public class AppSettingServiceImpl implements AppSettingService {
     @Transactional(readOnly = true)
     public List<String> getDisabledClassRoom() {
         return appSettingRepository.findBySettingKey("disabledClassroom")
-                .map(s -> s.getSettingValue().isBlank()
-                        ? List.<String>of()
+                .map(s -> s.getSettingValue().isBlank() ? List.<String>of()
                         : Arrays.asList(s.getSettingValue().split(",")))
                 .orElse(List.of());
 

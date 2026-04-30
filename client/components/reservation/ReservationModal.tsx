@@ -1,7 +1,7 @@
 'use client';
 
 import { ClassroomReservation, MealReservation, Reservation, RoomReservation } from '@/types/reservation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 // RoomReservation used in handleRoomConfirm type annotation
 import { downloadConfirmation, downloadEstimate, downloadTrade, searchReservations } from '@/lib/api/reservation';
 import { getDisabledClassrooms } from '@/lib/api/settings';
@@ -224,6 +224,7 @@ export default function ReservationModal({ reservation, allReservations, onClose
     const [dateError, setDateError] = useState('');
     const [skipWeekends, setSkipWeekends] = useState(false);
     const [bulkClassrooms, setBulkClassrooms] = useState<string[]>(['']);
+    const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
     const [bulkMeal, setBulkMeal] = useState({
         breakfast: 0,
         lunch: 0,
@@ -545,8 +546,33 @@ export default function ReservationModal({ reservation, allReservations, onClose
     };
 
     // --- 강의실 ---
-    const addClassroom = () =>
+    const groupedClassrooms = useMemo(() => {
+        const map = new Map<string, number[]>();
+        (form.classrooms ?? []).forEach((c, i) => {
+            const key = c.classroomName || '__unassigned__';
+            if (!map.has(key)) map.set(key, []);
+            map.get(key)!.push(i);
+        });
+        return map;
+    }, [form.classrooms]);
+
+    const toggleGroup = (key: string) =>
+        setExpandedGroups((prev) => {
+            const next = new Set(prev);
+            if (next.has(key)) next.delete(key);
+            else next.add(key);
+            return next;
+        });
+
+    const removeGroup = (key: string) => {
+        const toRemove = new Set(groupedClassrooms.get(key) ?? []);
+        setField('classrooms', (form.classrooms ?? []).filter((_, i) => !toRemove.has(i)));
+    };
+
+    const addClassroom = () => {
         setField('classrooms', [...(form.classrooms ?? []), { classroomName: '', reservedDate: form.startDate || '' }]);
+        setExpandedGroups((prev) => new Set(prev).add('__unassigned__'));
+    };
     const removeClassroom = (i: number) =>
         setField(
             'classrooms',
@@ -560,7 +586,7 @@ export default function ReservationModal({ reservation, allReservations, onClose
 
     const applyBulkClassroom = () => {
         const dates = getDateRange();
-        const filled = bulkClassrooms.filter((c) => c !== '');
+        const filled = [...new Set(bulkClassrooms.filter((c) => c !== ''))];
         setField(
             'classrooms',
             dates.flatMap((d) =>
@@ -1192,7 +1218,9 @@ export default function ReservationModal({ reservation, allReservations, onClose
                                                         }
                                                     >
                                                         <option value="">강의실 선택</option>
-                                                        {CLASSROOM_OPTIONS.filter((o) => !disabledClassrooms.has(o)).map((o) => (
+                                                        {CLASSROOM_OPTIONS
+                                                            .filter((o) => !disabledClassrooms.has(o) && !bulkClassrooms.some((v, idx) => idx !== bi && v === o))
+                                                            .map((o) => (
                                                             <option key={o} value={o}>
                                                                 {classroomLabel(o)}
                                                             </option>
@@ -1258,85 +1286,86 @@ export default function ReservationModal({ reservation, allReservations, onClose
                                 {(form.classrooms ?? []).length === 0 ? (
                                     <p className={styles.empty}>강의실 배정 내역이 없습니다.</p>
                                 ) : (
-                                    <table className={styles.listTable}>
-                                        <thead>
-                                            <tr>
-                                                <th>강의실</th>
-                                                <th>날짜</th>
-                                                <th>상태</th>
-                                                <th></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {(() => {
-                                                const internalDups = getClassroomInternalConflicts();
-                                                return (form.classrooms ?? []).map((c, i) => {
-                                                    const extConflict = isClassroomConflict(c);
-                                                    const intConflict = internalDups[i];
-                                                    const hasConflict = extConflict || intConflict;
-                                                    return (
-                                                        <tr key={i} className={hasConflict ? styles.conflictRow : ''}>
-                                                            <td>
-                                                                <select
-                                                                    className={styles.cellSelect}
-                                                                    value={c.classroomName}
-                                                                    onChange={(e) =>
-                                                                        updateClassroom(i, {
-                                                                            classroomName: e.target.value,
-                                                                        })
-                                                                    }
-                                                                >
-                                                                    <option value="">강의실 선택</option>
-                                                                    {CLASSROOM_OPTIONS.map((o) => (
-                                                                        <option key={o} value={o}>
-                                                                            {classroomLabel(o)}
-                                                                        </option>
-                                                                    ))}
-                                                                </select>
-                                                            </td>
-                                                            <td>
-                                                                <DatePicker
-                                                                    selected={toDate(c.reservedDate)}
-                                                                    onChange={(d: Date | null) =>
-                                                                        updateClassroom(i, {
-                                                                            reservedDate: toDateStr(d),
-                                                                        })
-                                                                    }
-                                                                    locale={ko}
-                                                                    dateFormat="yyyy-MM-dd (eee)"
-                                                                    className={styles.cellInput}
-                                                                    popperProps={{ strategy: 'fixed' }}
-                                                                    popperPlacement="bottom-start"
-                                                                />
-                                                            </td>
-                                                            <td>
-                                                                {hasConflict && (
-                                                                    <span
-                                                                        className={styles.conflictBadge}
-                                                                        title={
-                                                                            extConflict
-                                                                                ? '다른 예약과 중복'
-                                                                                : '내부 중복'
-                                                                        }
-                                                                    >
-                                                                        ⚠ {extConflict ? '중복' : '내부중복'}
-                                                                    </span>
-                                                                )}
-                                                            </td>
-                                                            <td>
-                                                                <button
-                                                                    className={styles.removeBtn}
-                                                                    onClick={() => removeClassroom(i)}
-                                                                >
-                                                                    ✕
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    );
+                                    <div className={styles.classroomGroups}>
+                                        {(() => {
+                                            const internalDups = getClassroomInternalConflicts();
+                                            return Array.from(groupedClassrooms.entries()).map(([key, indices]) => {
+                                                const isUnassigned = key === '__unassigned__';
+                                                const isExpanded = expandedGroups.has(key);
+                                                const groupHasConflict = indices.some((i) => {
+                                                    const c = (form.classrooms ?? [])[i];
+                                                    return isClassroomConflict(c) || internalDups[i];
                                                 });
-                                            })()}
-                                        </tbody>
-                                    </table>
+                                                const label = isUnassigned ? '미지정' : classroomLabel(key);
+
+                                                return (
+                                                    <div key={key} className={styles.classroomGroup}>
+                                                        <button
+                                                            className={`${styles.classroomGroupHeader} ${groupHasConflict ? styles.classroomGroupConflict : ''}`}
+                                                            onClick={() => toggleGroup(key)}
+                                                        >
+                                                            <span className={styles.groupArrow}>{isExpanded ? '▼' : '▶'}</span>
+                                                            <span className={styles.groupLabel}>{label}</span>
+                                                            <span className={styles.groupCount}>— {indices.length}일</span>
+                                                            {groupHasConflict && (
+                                                                <span className={styles.groupConflictBadge}>⚠ 중복</span>
+                                                            )}
+                                                            <span style={{ flex: 1 }} />
+                                                            <span
+                                                                className={styles.groupRemoveBtn}
+                                                                role="button"
+                                                                onClick={(e) => { e.stopPropagation(); removeGroup(key); }}
+                                                            >✕</span>
+                                                        </button>
+                                                        {isExpanded && (
+                                                            <div className={styles.classroomGroupBody}>
+                                                                {indices.map((i) => {
+                                                                    const c = (form.classrooms ?? [])[i];
+                                                                    const extConflict = isClassroomConflict(c);
+                                                                    const intConflict = internalDups[i];
+                                                                    const hasConflict = extConflict || intConflict;
+                                                                    return (
+                                                                        <div
+                                                                            key={i}
+                                                                            className={`${styles.classroomDateRow} ${hasConflict ? styles.classroomDateRowConflict : ''}`}
+                                                                        >
+                                                                            {isUnassigned && (
+                                                                                <select
+                                                                                    className={styles.cellSelect}
+                                                                                    value={c.classroomName}
+                                                                                    onChange={(e) => updateClassroom(i, { classroomName: e.target.value })}
+                                                                                >
+                                                                                    <option value="">강의실 선택</option>
+                                                                                    {CLASSROOM_OPTIONS.filter((o) => !disabledClassrooms.has(o)).map((o) => (
+                                                                                        <option key={o} value={o}>{classroomLabel(o)}</option>
+                                                                                    ))}
+                                                                                </select>
+                                                                            )}
+                                                                            <DatePicker
+                                                                                selected={toDate(c.reservedDate)}
+                                                                                onChange={(d: Date | null) => updateClassroom(i, { reservedDate: toDateStr(d) })}
+                                                                                locale={ko}
+                                                                                dateFormat="yyyy-MM-dd (eee)"
+                                                                                className={styles.cellInput}
+                                                                                popperProps={{ strategy: 'fixed' }}
+                                                                                popperPlacement="bottom-start"
+                                                                            />
+                                                                            {hasConflict && (
+                                                                                <span className={styles.conflictBadge} title={extConflict ? '다른 예약과 중복' : '내부 중복'}>
+                                                                                    ⚠ {extConflict ? '중복' : '내부중복'}
+                                                                                </span>
+                                                                            )}
+                                                                            <button className={styles.removeBtn} onClick={() => removeClassroom(i)}>✕</button>
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            });
+                                        })()}
+                                    </div>
                                 )}
                             </div>
                         )}
