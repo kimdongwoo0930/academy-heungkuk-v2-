@@ -34,6 +34,23 @@ export const CLASSROOM_ROOM_TO_CATEGORY: Record<string, ClassroomCategory> = {
   'B': '다목적실',
 };
 
+export const CLASSROOM_LIST = [
+  { code: '101', name: '소강의실 101호', capacity: 30 },
+  { code: '102', name: '소강의실 102호', capacity: 20 },
+  { code: '103', name: '소강의실 103호', capacity: 30 },
+  { code: '105', name: '대강의실 105호', capacity: 120 },
+  { code: '106', name: '분임실 106호',   capacity: 12 },
+  { code: '107', name: '분임실 107호',   capacity: 12 },
+  { code: '201', name: '중강의실 201호', capacity: 70 },
+  { code: '202', name: '소강의실 202호', capacity: 30 },
+  { code: '203', name: '중강의실 203호', capacity: 50 },
+  { code: '204', name: '중강의실 204호', capacity: 50 },
+  { code: '205', name: '분임실 205호',   capacity: 12 },
+  { code: '206', name: '분임실 206호',   capacity: 12 },
+  { code: 'A',   name: '다목적실 A',     capacity: 80 },
+  { code: 'B',   name: '다목적실 B',     capacity: 40 },
+] as const;
+
 export const CLASSROOM_PRICE: Record<ClassroomCategory, ClassroomPriceInfo> = {
   '대형(120인)': { label: '대형(120인)', pricePerDay: 1_200_000 },
   '중형(70인)':  { label: '중형(70인)',  pricePerDay:   560_000 },

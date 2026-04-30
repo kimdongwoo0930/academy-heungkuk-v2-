@@ -4,6 +4,7 @@ import { ClassroomReservation, MealReservation, Reservation, RoomReservation } f
 import { useEffect, useRef, useState } from 'react';
 // RoomReservation used in handleRoomConfirm type annotation
 import { downloadConfirmation, downloadEstimate, downloadTrade, searchReservations } from '@/lib/api/reservation';
+import { getDisabledClassrooms } from '@/lib/api/settings';
 import { CLASSROOM_ROOM_TO_CATEGORY } from '@/lib/constants/classrooms';
 import { ROOM_INFO, RoomType } from '@/lib/constants/rooms';
 import { isAdmin } from '@/lib/utils/auth';
@@ -134,6 +135,7 @@ function emptyForm(): Omit<Reservation, 'id' | 'reservationCode'> {
 export default function ReservationModal({ reservation, allReservations, onClose, onSave, defaultValues }: Props) {
     const isEdit = reservation !== null;
     const globalToast = useToastStore((s) => s.show);
+    const [disabledClassrooms, setDisabledClassrooms] = useState<Set<string>>(new Set());
     const [saving, setSaving] = useState(false);
     const [estimating, setEstimating] = useState(false);
     const [confirming, setConfirming] = useState(false);
@@ -151,6 +153,12 @@ export default function ReservationModal({ reservation, allReservations, onClose
         },
         [],
     );
+
+    useEffect(() => {
+        getDisabledClassrooms()
+            .then((codes) => setDisabledClassrooms(new Set(codes)))
+            .catch(() => {});
+    }, []);
 
     const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
     const showConfirm = (message: string, onConfirm: () => void) => setConfirmDialog({ message, onConfirm });
@@ -1184,7 +1192,7 @@ export default function ReservationModal({ reservation, allReservations, onClose
                                                         }
                                                     >
                                                         <option value="">강의실 선택</option>
-                                                        {CLASSROOM_OPTIONS.map((o) => (
+                                                        {CLASSROOM_OPTIONS.filter((o) => !disabledClassrooms.has(o)).map((o) => (
                                                             <option key={o} value={o}>
                                                                 {classroomLabel(o)}
                                                             </option>

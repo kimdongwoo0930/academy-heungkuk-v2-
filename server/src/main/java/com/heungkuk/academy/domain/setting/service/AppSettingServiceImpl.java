@@ -1,9 +1,12 @@
 package com.heungkuk.academy.domain.setting.service;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heungkuk.academy.domain.setting.entity.AppSetting;
 import com.heungkuk.academy.domain.setting.repository.AppSettingRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 public class AppSettingServiceImpl implements AppSettingService {
 
     private final AppSettingRepository appSettingRepository;
+
 
     @Override
     @Transactional(readOnly = true)
@@ -30,4 +34,27 @@ public class AppSettingServiceImpl implements AppSettingService {
                             .save(AppSetting.of(entry.getKey(), entry.getValue())));
         }
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<String> getDisabledClassRoom() {
+        return appSettingRepository.findBySettingKey("disabledClassroom")
+                .map(s -> s.getSettingValue().isBlank()
+                        ? List.<String>of()
+                        : Arrays.asList(s.getSettingValue().split(",")))
+                .orElse(List.of());
+
+    }
+
+    @Override
+    @Transactional
+    public void saveDisabledClassroom(List<String> codes) {
+        String value = String.join(",", codes);
+        appSettingRepository.findBySettingKey("disabledClassroom").ifPresentOrElse(
+                s -> s.updateValue(value),
+                () -> appSettingRepository.save(AppSetting.of("disabledClassroom", value)));
+    }
+
+
+
 }

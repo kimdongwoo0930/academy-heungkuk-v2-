@@ -9,3 +9,12 @@ export async function getSettings(): Promise<Record<string, string>> {
 export async function saveSettings(settings: Record<string, string>): Promise<void> {
   await instance.put('/v1/admin/settings', { settings });
 }
+
+export async function getDisabledClassrooms(): Promise<string[]> {
+  const res = await instance.get<ApiResponse<string[]>>('/v1/admin/settings/disabledClassroom');
+  return res.data.data ?? [];
+}
+
+export async function saveDisabledClassrooms(codes: string[]): Promise<void> {
+  await instance.put('/v1/admin/settings/disabledClassroom', codes);
+}

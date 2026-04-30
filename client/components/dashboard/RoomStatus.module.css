@@ -32,6 +32,7 @@
 }
 .occupied  { background: rgba(232, 48, 106, 0.04); border-color: rgba(232, 48, 106, 0.2); }
 .available { background: rgba(14, 171, 110, 0.03); border-color: rgba(14, 171, 110, 0.15); }
+.disabled  { background: rgba(100, 116, 139, 0.06); border-color: rgba(100, 116, 139, 0.25); }
 .clickable { cursor: pointer; }
 .clickable:hover { filter: brightness(0.96); transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
 
@@ -40,6 +41,7 @@
 .status { font-size: 11px; font-weight: 600; margin-top: 6px; }
 .occupied  .status { color: #e8306a; }
 .available .status { color: #0eab6e; }
+.disabled  .status { color: #64748b; }
 .org {
   font-size: 10px;
   color: var(--text-sub);
