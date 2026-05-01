@@ -13,8 +13,8 @@ import {
   importReservations,
   ImportResult,
 } from "@/lib/api/reservation";
-import { getSettings, saveSettings } from "@/lib/api/settings";
-import { CLASSROOM_CATEGORIES } from "@/lib/constants/classrooms";
+import { getSettings, saveSettings, getDisabledClassrooms, saveDisabledClassrooms } from "@/lib/api/settings";
+import { CLASSROOM_CATEGORIES, CLASSROOM_LIST } from "@/lib/constants/classrooms";
 import { isAdmin, parseJwtPayload } from "@/lib/utils/auth";
 import {
   AppSettings,
@@ -45,13 +45,13 @@ interface CreateForm {
   password: string;
 }
 
-type TabKey = "account" | "price" | "backup" | "changelog";
+type TabKey = "account" | "price" | "classroom" | "backup";
 
 const TABS: { key: TabKey; label: string; icon: string }[] = [
   { key: "account", label: "계정 관리", icon: "👤" },
   { key: "price", label: "요금 · 담당자", icon: "💰" },
+  { key: "classroom", label: "강의실 관리", icon: "🏫" },
   { key: "backup", label: "데이터 백업", icon: "💾" },
-  { key: "changelog", label: "업데이트 내역", icon: "📋" },
 ];
 
 export default function SettingsPage() {
@@ -75,7 +75,11 @@ export default function SettingsPage() {
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
-  const [changelog, setChangelog] = useState("");
+
+  // ── 강의실 관리 state ──
+  const [disabledClassrooms, setDisabledClassrooms] = useState<Set<string>>(new Set());
+  const [classroomSaving, setClassroomSaving] = useState(false);
+  const [classroomSaved, setClassroomSaved] = useState(false);
 
   useEffect(() => {
     getSettings()
@@ -87,15 +91,11 @@ export default function SettingsPage() {
       .catch(() => {
         /* 서버 미설정 시 기본값 사용 */
       });
+    getDisabledClassrooms()
+      .then((codes) => setDisabledClassrooms(new Set(codes)))
+      .catch(() => {});
   }, []);
 
-  useEffect(() => {
-    if (activeTab !== "changelog" || changelog) return;
-    fetch("/api/changelog")
-      .then((r) => r.json())
-      .then((d) => setChangelog(d.content))
-      .catch(() => {});
-  }, [activeTab, changelog]);
 
   const handleSettingsSave = async () => {
     setSettingsSaving(true);
@@ -128,6 +128,28 @@ export default function SettingsPage() {
 
   const setContact = (key: keyof AppSettings["contact"], value: string) => {
     setAppSettings((s) => ({ ...s, contact: { ...s.contact, [key]: value } }));
+  };
+
+  const toggleDisabledClassroom = (code: string) => {
+    setDisabledClassrooms((prev) => {
+      const next = new Set(prev);
+      if (next.has(code)) next.delete(code);
+      else next.add(code);
+      return next;
+    });
+  };
+
+  const handleClassroomSave = async () => {
+    setClassroomSaving(true);
+    try {
+      await saveDisabledClassrooms(Array.from(disabledClassrooms));
+      setClassroomSaved(true);
+      setTimeout(() => setClassroomSaved(false), 2000);
+    } catch {
+      alert("저장에 실패했습니다.");
+    } finally {
+      setClassroomSaving(false);
+    }
   };
 
   const handleExport = async () => {
@@ -451,6 +473,50 @@ export default function SettingsPage() {
                   </label>
                 ))}
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* 강의실 관리 */}
+        {activeTab === "classroom" && (
+          <div className={styles.panel}>
+            <div className={styles.panelHeader}>
+              <div>
+                <h2 className={styles.panelTitle}>강의실 관리</h2>
+                <p className={styles.panelDesc}>
+                  클릭하여 예약 불가 강의실을 설정합니다. 대시보드에서 사용불가로 표시됩니다.
+                </p>
+              </div>
+              <button
+                className={styles.saveBtn}
+                onClick={handleClassroomSave}
+                disabled={classroomSaving}
+              >
+                {classroomSaved ? "저장됨 ✓" : classroomSaving ? "저장 중..." : "저장"}
+              </button>
+            </div>
+            <div className={styles.classroomHead}>
+              <span className={styles.classroomCount}>
+                사용불가 {disabledClassrooms.size}개 / 전체 {CLASSROOM_LIST.length}개
+              </span>
+            </div>
+            <div className={styles.classroomGrid}>
+              {CLASSROOM_LIST.map((room) => {
+                const isDisabled = disabledClassrooms.has(room.code);
+                return (
+                  <button
+                    key={room.code}
+                    className={`${styles.classroomItem} ${isDisabled ? styles.classroomDisabled : styles.classroomAvailable}`}
+                    onClick={() => toggleDisabledClassroom(room.code)}
+                  >
+                    <div className={styles.classroomName}>{room.name}</div>
+                    <div className={styles.classroomCap}>{room.capacity}인</div>
+                    <div className={styles.classroomStatus}>
+                      ● {isDisabled ? "사용불가" : "사용 가능"}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}

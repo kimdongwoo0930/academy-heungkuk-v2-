@@ -9,6 +9,7 @@ import {
   toRequestBody,
   updateReservation,
 } from "@/lib/api/reservation";
+import { getDisabledClassrooms } from "@/lib/api/settings";
 import { printSchedulerWeekly } from "@/lib/utils/printRoomTable";
 import { Reservation } from "@/types/reservation";
 import { isHoliday } from "@hyunbinseo/holidays-kr";
@@ -87,6 +88,7 @@ export default function SchedulerPage() {
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
   const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [disabledClassrooms, setDisabledClassrooms] = useState<Set<string>>(new Set());
   const [editTarget, setEditTarget] = useState<Reservation | null>(null);
   const [createDefaults, setCreateDefaults] = useState<{
     date: string;
@@ -111,6 +113,12 @@ export default function SchedulerPage() {
   useEffect(() => {
     fetchReservations(year, month);
   }, [year, month]);
+
+  useEffect(() => {
+    getDisabledClassrooms()
+      .then((codes) => setDisabledClassrooms(new Set(codes)))
+      .catch(() => {});
+  }, []);
 
   // year/month가 바뀔 때만 달력 날짜 배열 재생성
   const calDays = useMemo<CalDay[]>(() => {
@@ -297,7 +305,11 @@ export default function SchedulerPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {CLASSROOM_GROUPS.map((group, gi) =>
+                      {CLASSROOM_GROUPS.flatMap((group) => {
+                        const visibleRooms = group.rooms.filter((r) => !disabledClassrooms.has(r.id));
+                        if (visibleRooms.length === 0) return [];
+                        return [{ ...group, rooms: visibleRooms }];
+                      }).map((group, gi) =>
                         group.rooms.map((room, ri) => {
                           // colspan 스패닝: 연속된 같은 예약을 하나의 셀로 묶음
                           const cells: {

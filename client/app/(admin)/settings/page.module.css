@@ -688,3 +688,75 @@
 .clGap {
   height: 4px;
 }
+
+/* ── 강의실 관리 ── */
+.classroomHead {
+  margin-bottom: 14px;
+}
+
+.classroomCount {
+  font-size: 12px;
+  color: var(--text-sub);
+  font-weight: 600;
+}
+
+.classroomGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.classroomItem {
+  border-radius: 10px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+  background: transparent;
+  font-family: inherit;
+}
+
+.classroomItem:hover {
+  filter: brightness(0.96);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.classroomAvailable {
+  background: rgba(14, 171, 110, 0.03);
+  border-color: rgba(14, 171, 110, 0.15);
+}
+
+.classroomDisabled {
+  background: rgba(232, 48, 106, 0.04);
+  border-color: rgba(232, 48, 106, 0.2);
+}
+
+.classroomName {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.classroomCap {
+  font-size: 11px;
+  color: var(--text-sub);
+}
+
+.classroomStatus {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.classroomAvailable .classroomStatus {
+  color: #0eab6e;
+}
+
+.classroomDisabled .classroomStatus {
+  color: #e8306a;
+}

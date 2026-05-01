@@ -16,6 +16,7 @@ import {
   toRequestBody,
   updateReservation,
 } from "@/lib/api/reservation";
+import { getDisabledClassrooms } from "@/lib/api/settings";
 import { DashboardData } from "@/types/dashboard";
 import { Reservation } from "@/types/reservation";
 import { useCallback, useEffect, useState } from "react";
@@ -45,48 +46,66 @@ export default function DashboardPage() {
   const todayStr = today.toISOString().slice(0, 10);
 
   const [data, setData] = useState<DashboardData | null>(null);
+  const [disabledClassrooms, setDisabledClassrooms] = useState<string[]>([]);
+  const [fetching, setFetching] = useState(false);
   const [listModal, setListModal] = useState<ListModal | null>(null);
   const [editModal, setEditModal] = useState<EditModal | null>(null);
 
   useEffect(() => {
     getDashboard().then(setData).catch(console.error);
+    getDisabledClassrooms().then(setDisabledClassrooms).catch(() => {});
   }, []);
 
   const openEditById = useCallback(async (reservationId: number) => {
-    const res = await getReservationById(reservationId);
-    const years = [
-      ...new Set([
-        new Date(res.startDate).getFullYear(),
-        new Date(res.endDate).getFullYear(),
-      ]),
-    ];
-    const all = (await Promise.all(years.map(getReservationsByYear))).flat();
-    setListModal(null);
-    setEditModal({ reservation: res, allReservations: all });
+    setFetching(true);
+    try {
+      const res = await getReservationById(reservationId);
+      const years = [
+        ...new Set([
+          new Date(res.startDate).getFullYear(),
+          new Date(res.endDate).getFullYear(),
+        ]),
+      ];
+      const all = (await Promise.all(years.map(getReservationsByYear))).flat();
+      setListModal(null);
+      setEditModal({ reservation: res, allReservations: all });
+    } finally {
+      setFetching(false);
+    }
   }, []);
 
   const openMonthlyList = useCallback(async () => {
-    const first = `${todayStr.slice(0, 7)}-01`;
-    const last = new Date(
-      Number(todayStr.slice(0, 4)),
-      Number(todayStr.slice(5, 7)),
-      0,
-    )
-      .toISOString()
-      .slice(0, 10);
-    const items = await getReservationsByRange(first, last);
-    setListModal({
-      title: "이번 달 이용 업체",
-      items: items.filter(isActiveReservation),
-    });
+    setFetching(true);
+    try {
+      const first = `${todayStr.slice(0, 7)}-01`;
+      const last = new Date(
+        Number(todayStr.slice(0, 4)),
+        Number(todayStr.slice(5, 7)),
+        0,
+      )
+        .toISOString()
+        .slice(0, 10);
+      const items = await getReservationsByRange(first, last);
+      setListModal({
+        title: "이번 달 이용 업체",
+        items: items.filter(isActiveReservation),
+      });
+    } finally {
+      setFetching(false);
+    }
   }, [todayStr]);
 
   const openTodayList = useCallback(async () => {
-    const items = await getReservationsByRange(todayStr, todayStr);
-    const todayCheckIns = items.filter(
-      (r) => r.startDate === todayStr && isActiveReservation(r),
-    );
-    setListModal({ title: "오늘 입실 업체", items: todayCheckIns });
+    setFetching(true);
+    try {
+      const items = await getReservationsByRange(todayStr, todayStr);
+      const todayCheckIns = items.filter(
+        (r) => r.startDate === todayStr && isActiveReservation(r),
+      );
+      setListModal({ title: "오늘 입실 업체", items: todayCheckIns });
+    } finally {
+      setFetching(false);
+    }
   }, [todayStr]);
 
   const handleSave = useCallback(
@@ -190,6 +209,7 @@ export default function DashboardPage() {
       <div className={styles.row2}>
         <RoomStatus
           todayClassrooms={todayClassrooms}
+          disabledClassrooms={disabledClassrooms}
           onItemClick={openEditById}
         />
         <SatisfactionBar satisfaction={satisfaction} />
@@ -216,6 +236,16 @@ export default function DashboardPage() {
           onClose={() => setEditModal(null)}
           onSave={handleSave}
         />
+      )}
+
+      {/* 로딩 오버레이 */}
+      {fetching && (
+        <div className={styles.fetchingOverlay}>
+          <div className={styles.fetchingBox}>
+            <div className={styles.spinner} />
+            <span className={styles.fetchingText}>로딩 중...</span>
+          </div>
+        </div>
       )}
     </div>
   );

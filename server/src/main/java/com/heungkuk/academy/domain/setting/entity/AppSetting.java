@@ -1,5 +1,6 @@
 package com.heungkuk.academy.domain.setting.entity;
 
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -34,6 +35,9 @@ import lombok.NoArgsConstructor;
  * contact.phone               대표 전화번호                     기본: 031-283-6157
  * contact.fax                 팩스 번호                         기본: 031-284-5323
  * contact.email               이메일 주소                       기본: hka6157@naver.com
+ *
+ * ── 사용 불가 강의실 여부  ─────────────────────────────────────────────────
+ * disabledClassroom           사용불가능한 강의실                  [ 101, 105, 10 ]
  */
 @Getter
 @Entity
