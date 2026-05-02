@@ -521,61 +521,6 @@ export default function SettingsPage() {
           </div>
         )}
 
-        {/* 업데이트 내역 */}
-        {activeTab === "changelog" && (
-          <div className={styles.panel}>
-            <div className={styles.panelHeader}>
-              <div>
-                <h2 className={styles.panelTitle}>업데이트 내역</h2>
-                <p className={styles.panelDesc}>
-                  시스템 버전별 변경 이력입니다.
-                </p>
-              </div>
-            </div>
-            <div className={styles.changelogBody}>
-              {changelog ? (
-                changelog.split("\n").map((line, i) => {
-                  if (line.startsWith("## "))
-                    return (
-                      <h2 key={i} className={styles.clH2}>
-                        {line.replace("## ", "")}
-                      </h2>
-                    );
-                  if (line.startsWith("### "))
-                    return (
-                      <h3 key={i} className={styles.clH3}>
-                        {line.replace("### ", "")}
-                      </h3>
-                    );
-                  if (line.startsWith("# "))
-                    return (
-                      <h1 key={i} className={styles.clH1}>
-                        {line.replace("# ", "")}
-                      </h1>
-                    );
-                  if (line.startsWith("- "))
-                    return (
-                      <p key={i} className={styles.clItem}>
-                        · {line.replace("- ", "")}
-                      </p>
-                    );
-                  if (line === "---")
-                    return <hr key={i} className={styles.clDivider} />;
-                  if (line.trim() === "")
-                    return <div key={i} className={styles.clGap} />;
-                  return (
-                    <p key={i} className={styles.clText}>
-                      {line}
-                    </p>
-                  );
-                })
-              ) : (
-                <p className={styles.empty}>불러오는 중...</p>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* 데이터 백업 */}
         {activeTab === "backup" && (
           <div className={styles.panel}>
