@@ -98,6 +98,7 @@ const defaultAnswers: SurveyAnswers = {
 export default function SurveyPage({ params }: Props) {
     const { token } = use(params);
     const [answers, setAnswers] = useState<SurveyAnswers>(defaultAnswers);
+    const [cafeteriaSkipped, setCafeteriaSkipped] = useState(false);
     const [step, setStep] = useState(1);
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -114,6 +115,12 @@ export default function SurveyPage({ params }: Props) {
         setAnswers((prev) => ({ ...prev, [key]: value }));
     };
 
+    const handleCafeteriaSkip = (skipped: boolean) => {
+        setCafeteriaSkipped(skipped);
+        if (skipped) set('cafeteria', 0);
+        else set('cafeteria', 0);
+    };
+
     const validateStep = (): string => {
         if (step === 1) {
             if (!answers.location) return '회사(단체) 위치를 선택해주세요.';
@@ -127,11 +134,22 @@ export default function SurveyPage({ params }: Props) {
         }
         if (step === 2) {
             for (const q of SATISFACTION_QUESTIONS) {
+                if (q.key === 'cafeteria' && cafeteriaSkipped) continue;
                 if (!answers[q.key]) return '모든 만족도 항목을 선택해주세요.';
+                if ((answers[q.key] as number) <= 2 && !(answers[q.commentKey] as string).trim()) {
+                    return '불만족 또는 매우 불만족 항목은 불만족 내용을 입력해주세요.';
+                }
             }
         }
         if (step === 3) {
             if (!answers.revisit) return '재방문 의향을 선택해주세요.';
+            if (
+                (answers.revisit === '불만사항이 개선될 경우 검토가 가능하다' ||
+                    answers.revisit === '재방문 의향이 없다') &&
+                !answers.revisitComment.trim()
+            ) {
+                return '불만족 내용을 입력해주세요.';
+            }
         }
         return '';
     };
@@ -315,6 +333,9 @@ export default function SurveyPage({ params }: Props) {
                                 onChange={(v) => set(q.key, v)}
                                 commentValue={answers[q.commentKey] as string}
                                 onCommentChange={(v) => set(q.commentKey, v)}
+                                skippable={q.key === 'cafeteria'}
+                                skipped={q.key === 'cafeteria' && cafeteriaSkipped}
+                                onSkip={q.key === 'cafeteria' ? handleCafeteriaSkip : undefined}
                             />
                         ))}
 
@@ -444,31 +465,45 @@ function RadioQuestion({ label, name, options, value, onChange, etcValue, onEtcC
 
 interface SatisfactionQuestionProps {
     label: string;
-    value: number; // 1=매우만족 ~ 5=매우불만족
+    value: number;
     onChange: (v: number) => void;
     commentValue: string;
     onCommentChange: (v: string) => void;
+    skippable?: boolean;
+    skipped?: boolean;
+    onSkip?: (skipped: boolean) => void;
 }
 
-function SatisfactionQuestion({ label, value, onChange, commentValue, onCommentChange }: SatisfactionQuestionProps) {
-    const showComment = value <= 2;
+function SatisfactionQuestion({ label, value, onChange, commentValue, onCommentChange, skippable, skipped, onSkip }: SatisfactionQuestionProps) {
+    const showComment = !skipped && value >= 1 && value <= 2;
     return (
         <div className={styles.question}>
             <div className={styles.questionLabel}>{label}</div>
-            <div className={styles.satisfactionRow}>
-                {SATISFACTION_LABELS.map((s, i) => {
-                    const score = 5 - i; // 매우만족=5, 만족=4, 보통=3, 불만족=2, 매우불만족=1
-                    return (
-                        <button
-                            key={s}
-                            className={`${styles.satisfactionBtn} ${value === score ? styles.satisfactionBtnActive : ''} ${value === score && score <= 2 ? styles.satisfactionBtnBad : ''}`}
-                            onClick={() => onChange(score)}
-                        >
-                            {s}
-                        </button>
-                    );
-                })}
-            </div>
+            {skippable && (
+                <button
+                    type="button"
+                    className={`${styles.skipBtn} ${skipped ? styles.skipBtnActive : ''}`}
+                    onClick={() => onSkip?.(!skipped)}
+                >
+                    {skipped ? '✓ 식당 이용 안함' : '식당 이용 안함'}
+                </button>
+            )}
+            {!skipped && (
+                <div className={styles.satisfactionRow}>
+                    {SATISFACTION_LABELS.map((s, i) => {
+                        const score = 5 - i;
+                        return (
+                            <button
+                                key={s}
+                                className={`${styles.satisfactionBtn} ${value === score ? styles.satisfactionBtnActive : ''} ${value === score && score <= 2 ? styles.satisfactionBtnBad : ''}`}
+                                onClick={() => onChange(score)}
+                            >
+                                {s}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
             {showComment && (
                 <textarea
                     className={styles.textarea}

@@ -17,7 +17,8 @@ const SCORE_ITEMS: { key: keyof Pick<SurveyResult, 'staffService'|'cleanliness'|
 ];
 
 function avgScore(data: SurveyResult) {
-  const scores = SCORE_ITEMS.map((i) => data[i.key] as number);
+  const scores = SCORE_ITEMS.map((i) => data[i.key] as number).filter((s) => s > 0);
+  if (scores.length === 0) return '-';
   return (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1);
 }
 
@@ -67,15 +68,19 @@ export default function SurveyCard({ data }: Props) {
         <div className={styles.scoreBadges}>
           {SCORE_ITEMS.map((item) => {
             const s = data[item.key] as number;
+            const isSkipped = s === 0;
             return (
               <div
                 key={item.key}
                 className={styles.scoreBadge}
-                style={{ color: SCORE_COLORS[s], background: SCORE_BG[s] }}
-                title={`${item.label}: ${SCORE_LABELS[s]}`}
+                style={{
+                  color: isSkipped ? '#94a3b8' : SCORE_COLORS[s],
+                  background: isSkipped ? 'rgba(148,163,184,0.1)' : SCORE_BG[s],
+                }}
+                title={`${item.label}: ${isSkipped ? '이용안함' : SCORE_LABELS[s]}`}
               >
                 <span className={styles.scoreBadgeKey}>{item.label}</span>
-                <span className={styles.scoreBadgeVal}>{SCORE_LABELS[s]}</span>
+                <span className={styles.scoreBadgeVal}>{isSkipped ? '이용안함' : SCORE_LABELS[s]}</span>
               </div>
             );
           })}
@@ -107,19 +112,20 @@ export default function SurveyCard({ data }: Props) {
           <div className={styles.scoreGrid}>
             {SCORE_ITEMS.map((item) => {
               const s = data[item.key] as number;
+              const isSkipped = s === 0;
               const commentKey = (item.key + 'Comment') as keyof SurveyResult;
               const comment = data[commentKey] as string | null;
               return (
                 <div
                   key={item.key}
                   className={styles.scoreItem}
-                  style={{ borderTop: `3px solid ${SCORE_COLORS[s]}` }}
+                  style={{ borderTop: `3px solid ${isSkipped ? '#94a3b8' : SCORE_COLORS[s]}` }}
                 >
                   <div className={styles.scoreLabel}>{item.label}</div>
-                  <div className={styles.scoreVal} style={{ color: SCORE_COLORS[s] }}>
-                    {SCORE_LABELS[s]}
+                  <div className={styles.scoreVal} style={{ color: isSkipped ? '#94a3b8' : SCORE_COLORS[s] }}>
+                    {isSkipped ? '이용안함' : SCORE_LABELS[s]}
                   </div>
-                  {comment && (
+                  {!isSkipped && comment && (
                     <div className={styles.scoreComment}>&ldquo;{comment}&rdquo;</div>
                   )}
                 </div>

@@ -25,3 +25,11 @@ db/
 docker-compose.dev.yml
 logs/*
 !logs/.gitkeep
+
+# 오라클 관련 파일
+oracle
+design/*
+
+docker-compose.dev.yml
+
+server/.idea/

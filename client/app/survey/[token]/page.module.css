@@ -190,6 +190,32 @@
   color: #94a3b8;
 }
 
+/* ─── 식당 이용 안함 버튼 ───────────────── */
+.skipBtn {
+  align-self: flex-start;
+  padding: 6px 16px;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.skipBtn:hover {
+  border-color: #94a3b8;
+  background: #f1f5f9;
+}
+
+.skipBtnActive {
+  border-color: #f59e0b;
+  background: #fffbeb;
+  color: #b45309;
+  font-weight: 600;
+}
+
 /* ─── 만족도 버튼 행 ─────────────────────── */
 .satisfactionRow {
   display: flex;

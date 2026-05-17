@@ -34,15 +34,22 @@ function getCounts(surveys: SurveyResult[], key: ScoreKey): number[] {
 }
 
 function getDistribution(surveys: SurveyResult[], key: ScoreKey): number[] {
-  const total = surveys.length;
+  const counts = getCounts(surveys, key);
+  const total = counts.reduce((a, b) => a + b, 0);
   if (total === 0) return [0, 0, 0, 0, 0];
-  return getCounts(surveys, key).map((c) => Math.round((c / total) * 1000) / 10);
+  return counts.map((c) => Math.round((c / total) * 1000) / 10);
 }
 
 function getAverage(surveys: SurveyResult[], key: ScoreKey): string {
-  if (surveys.length === 0) return '-';
-  const sum = surveys.reduce((a, s) => a + (s[key] || 0), 0);
-  return (sum / surveys.length).toFixed(1);
+  const counts = getCounts(surveys, key);
+  const total = counts.reduce((a, b) => a + b, 0);
+  if (total === 0) return '-';
+  const sum = counts.reduce((acc, c, i) => acc + c * (i + 1), 0);
+  return (sum / total).toFixed(1);
+}
+
+function getSkippedCount(surveys: SurveyResult[], key: ScoreKey): number {
+  return surveys.filter((s) => s[key] === 0).length;
 }
 
 // 높을수록 좋음: 5=매우만족(green) ~ 1=매우불만족(red)
@@ -102,6 +109,7 @@ export default function SurveyStatsChart({ surveys }: Props) {
           const counts = getCounts(surveys, key);
           const avg = getAverage(surveys, key);
           const color = avgColor(avg);
+          const skipped = key === 'cafeteria' ? getSkippedCount(surveys, key) : 0;
           return (
             <div key={key} className={styles.card}>
               <div className={styles.cardLabel}>{label}</div>
@@ -122,6 +130,13 @@ export default function SurveyStatsChart({ surveys }: Props) {
                     <span className={styles.legendPct}>{counts[i]}건</span>
                   </li>
                 ))}
+                {skipped > 0 && (
+                  <li className={styles.legendItem}>
+                    <span className={styles.legendDot} style={{ background: '#94a3b8' }} />
+                    <span className={styles.legendLabel}>이용안함</span>
+                    <span className={styles.legendPct}>{skipped}건</span>
+                  </li>
+                )}
               </ul>
             </div>
           );
